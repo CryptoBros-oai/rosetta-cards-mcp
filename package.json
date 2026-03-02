@@ -11,8 +11,9 @@
     "tui": "node --loader ts-node/esm src/tui/app.ts",
     "tui:start": "node --enable-source-maps dist/tui/app.js",
     "test": "node --loader ts-node/esm --test tests/*.test.ts",
-    "seed": "node --loader ts-node/esm scripts/seed.ts"
-    "demo": "bash examples/run_demo.sh"
+    "seed": "node --loader ts-node/esm scripts/seed.ts",
+    "demo": "bash examples/run_demo.sh",
+    "ingest:demo": "node --loader ts-node/esm scripts/ingest_demo.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

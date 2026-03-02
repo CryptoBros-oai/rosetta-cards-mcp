@@ -1,0 +1,9 @@
+This is a sample document for the Rosetta Cards ingestion demo.
+
+It contains a few paragraphs to demonstrate paragraph-based chunking.
+
+Paragraph one.
+
+Paragraph two.
+
+End of sample.
