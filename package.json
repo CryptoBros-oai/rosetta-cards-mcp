@@ -16,6 +16,8 @@
     "ingest:demo": "node --loader ts-node/esm scripts/ingest_demo.ts"
     ,
     "visualize": "node --loader ts-node/esm scripts/visualize_chunking.ts"
+    ,
+    "visualize:render": "node --loader ts-node/esm scripts/render_visualization.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

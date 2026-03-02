@@ -23,11 +23,18 @@ async function main() {
   const chunkChars = 1200;
   const chunks = chunkAtParagraphs(canonical, chunkChars);
 
-  const chunkData = chunks.map((c, i) => ({
+  const initial = chunks.map((c, i) => ({
     index: i + 1,
     text: c,
     chars: canonicalizeText(c).length,
     hash: hashText(c),
+  }));
+
+  // Attach prev/next hashes for card preview
+  const chunkData = initial.map((item, i) => ({
+    ...item,
+    prev_hash: i > 0 ? initial[i - 1].hash : undefined,
+    next_hash: i < initial.length - 1 ? initial[i + 1].hash : undefined,
   }));
 
   const html = buildHtml({ inputPath: input, fullHash, chunkData });
@@ -42,7 +49,7 @@ function escapeHtml(s: string) {
 
 function buildHtml({ inputPath, fullHash, chunkData }: { inputPath: string; fullHash: string; chunkData: { index: number; text: string; chars: number; hash: string }[] }) {
   const rows = chunkData.map(c => `
-      <div class="chunk" id="chunk-${c.index}">
+      <div class="chunk" id="chunk-${c.index}" data-index="${c.index}">
         <div class="header">Chunk ${c.index} — ${c.chars} chars — <span class="hash">${c.hash}</span></div>
         <pre class="body">${escapeHtml(c.text)}</pre>
       </div>`).join('\n');
@@ -74,6 +81,15 @@ function buildHtml({ inputPath, fullHash, chunkData }: { inputPath: string; full
     ${rows}
   </div>
 
+  <hr />
+  <h3>Chunk Details</h3>
+  <div id="details">
+    <div><strong>Canonical Text</strong></div>
+    <pre id="detail-text" style="background:#f7f7f9;padding:8px;border-radius:6px;white-space:pre-wrap"></pre>
+    <div style="margin-top:8px"><strong>Card JSON (base, without hash)</strong></div>
+    <pre id="detail-json" style="background:#f7f7f9;padding:8px;border-radius:6px;white-space:pre-wrap"></pre>
+  </div>
+
   <script>
     const total = ${chunkData.length};
     let i = 0;
@@ -88,6 +104,40 @@ function buildHtml({ inputPath, fullHash, chunkData }: { inputPath: string; full
         if (!el) continue;
         el.classList.toggle('highlight', j === idx);
       }
+      // Show details
+      showDetails(idx);
+    }
+
+    function showDetails(idx) {
+      const detailText = document.getElementById('detail-text');
+      const detailJson = document.getElementById('detail-json');
+      if (!detailText || !detailJson) return;
+      if (idx < 1 || idx > total) {
+        detailText.textContent = '';
+        detailJson.textContent = '';
+        return;
+      }
+      const data = CHUNK_DATA[idx - 1];
+      detailText.textContent = data.canonical;
+      const cardBase = {
+        type: 'chat_chunk',
+        spec_version: '1.0',
+        title: `${escapeHtml('Chunk')} ${data.index}/${total}`,
+        tags: ['chat','drain'],
+        index: data.index,
+        total: total,
+        text: { hash: data.hash, chars: data.chars },
+        prev_hash: data.prev_hash,
+        next_hash: data.next_hash,
+      };
+      detailJson.textContent = JSON.stringify(cardBase, null, 2);
+    }
+
+    // Prefetch CHUNK_DATA into client JS
+    const CHUNK_DATA = ${JSON.stringify(chunkData.map(c => ({ index: c.index, chars: c.chars, hash: c.hash, prev_hash: c.prev_hash, next_hash: c.next_hash, canonical: escapeForJson(c.text) }))) };
+
+    function escapeForJson(s) {
+      return s.replace(/\\/g, '\\\\').replace(/`/g, '\`');
     }
 
     function step() {
@@ -99,6 +149,16 @@ function buildHtml({ inputPath, fullHash, chunkData }: { inputPath: string; full
       if (timer) { clearInterval(timer); timer = null; playBtn.textContent = 'Animate'; return; }
       timer = setInterval(step, intervalMs);
       playBtn.textContent = 'Pause';
+    });
+
+    // Attach click handler to chunks to show details immediately
+    document.querySelectorAll('.chunk').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.getAttribute('data-index'));
+        if (Number.isFinite(idx)) {
+          highlight(idx);
+        }
+      });
     });
 
     resetBtn.addEventListener('click', () => { if (timer) { clearInterval(timer); timer = null; playBtn.textContent = 'Animate'; } i = 0; highlight(-1); });
