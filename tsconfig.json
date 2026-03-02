@@ -15,6 +15,7 @@
   "include": ["src/**/*.ts"],
   "exclude": ["tests/**/*.ts"],
   "ts-node": {
-    "esm": true
+    "esm": true,
+    "files": true
   }
 }

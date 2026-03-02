@@ -14,5 +14,6 @@
       "chunk_id": 0
     }
   ],
-  "created_at": "2025-01-01T00:00:00.000Z"
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "expected_hash": "2fe295ceae6c682160a29b7f9635dba9a20bf746248c0929941e2b690bfe232c"
 }

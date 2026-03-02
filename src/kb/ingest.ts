@@ -31,7 +31,13 @@ import {
   putText,
   saveFileArtifactCard,
   saveFolderIndexCard,
+  saveIngestReportCard,
 } from "./vault.js";
+import { getVaultContext, enforceBlockedTags, PolicyViolationError } from "./vault.js";
+import type {
+  IngestReport,
+  IngestReportFileEntry,
+} from "./schema.js";
 
 // Mammoth version for extractor provenance
 const MAMMOTH_VERSION = "1.11.0";
@@ -54,6 +60,8 @@ export type FolderIngestResult = {
   folder_card_hash: string;
   files: FileIngestResult[];
   counts: FolderCounts;
+  report_card_id?: string;
+  report_card_hash?: string;
 };
 
 /**
@@ -142,12 +150,14 @@ export async function ingestFile(
     includeDocxText?: boolean;
     includePdfText?: boolean;
     storeBlobs?: boolean;
+    extraTags?: string[];
   }
 ): Promise<FileIngestResult> {
   const opts = {
     includeDocxText: options?.includeDocxText ?? true,
     includePdfText: options?.includePdfText ?? true,
     storeBlobs: options?.storeBlobs ?? true,
+    extraTags: options?.extraTags ?? [],
   };
 
   const ext = path.extname(absPath).toLowerCase();
@@ -194,7 +204,16 @@ export async function ingestFile(
 
   // Build file artifact card (created_at excluded from hash per FORMAT.md)
   const originalName = path.basename(absPath);
-  const tags = ["file", ext.replace(".", "")];
+  const tags = Array.from(new Set(["file", ext.replace(".", ""), ...opts.extraTags]));
+
+  // Enforce pack blocked_tags on final tag set (prevents automatic tags like file/pdf)
+  try {
+    const ctx = await getVaultContext();
+    enforceBlockedTags(tags, ctx.policies.blocked_tags);
+  } catch (err) {
+    if (err instanceof PolicyViolationError) throw err;
+    throw err;
+  }
   const base: Omit<FileArtifact, "hash"> = {
     type: "file_artifact",
     spec_version: "1.0",
@@ -246,6 +265,7 @@ export async function ingestFolder(
     includeDocxText?: boolean;
     includePdfText?: boolean;
     storeBlobs?: boolean;
+    extraTags?: string[];
   }
 ): Promise<FolderIngestResult> {
   const allFiles = await walkDir(absFolderPath);
@@ -270,6 +290,9 @@ export async function ingestFolder(
       if (result.text_hash) textCount++;
       fileResults.push(result);
     } catch (err: any) {
+      // Bubble up policy violations so hooks can reject the whole folder import.
+      if (err instanceof PolicyViolationError) throw err;
+
       fileResults.push({
         relative_path: relPath,
         card_id: "",
@@ -314,10 +337,39 @@ export async function ingestFolder(
   const folderIndex: FolderIndex = { ...base, hash: folderHash };
   const folderCardId = await saveFolderIndexCard(folderIndex);
 
+  // Build ingest report card
+  const reportFiles: IngestReportFileEntry[] = fileResults.map((r) => ({
+    relative_path: r.relative_path,
+    card_hash: r.card_hash,
+    blob_hash: r.blob_hash,
+    text_hash: r.text_hash,
+    bytes: r.bytes,
+    mime: r.mime,
+    ...(r.error ? { error: r.error } : {}),
+  }));
+
+  const extraTags = options?.extraTags ?? [];
+  const reportBase: Omit<IngestReport, "hash"> = {
+    type: "ingest_report",
+    spec_version: "1.0",
+    title: `Ingest: ${folderName}`,
+    tags: Array.from(new Set(["ingest", "report", ...extraTags])),
+    source: { root_path: folderName },
+    folder_card_hash: folderHash,
+    files: reportFiles,
+    counts,
+  };
+
+  const reportHash = canonicalHash(reportBase as unknown as Record<string, unknown>);
+  const report: IngestReport = { ...reportBase, hash: reportHash };
+  const reportCardId = await saveIngestReportCard(report);
+
   return {
     folder_card_id: folderCardId,
     folder_card_hash: folderHash,
     files: fileResults,
     counts,
+    report_card_id: reportCardId,
+    report_card_hash: reportHash,
   };
 }

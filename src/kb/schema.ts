@@ -39,6 +39,7 @@ export type PackPolicies = {
   max_results?: number;
   allowed_tags?: string[];
   blocked_tags?: string[];
+  default_export_scope?: "pack_only" | "all";
   style?: "default" | "dark" | "light";
 };
 
@@ -47,6 +48,7 @@ export const PackPoliciesSchema = z.object({
   max_results: z.number().int().positive().optional(),
   allowed_tags: z.array(z.string()).optional(),
   blocked_tags: z.array(z.string()).optional(),
+  default_export_scope: z.enum(["pack_only", "all"]).optional(),
   style: z.enum(["default", "dark", "light"]).optional(),
 });
 
@@ -249,6 +251,58 @@ export const ChatLogIndexSchema = z.object({
     chunk_chars: z.number(),
   }),
   chunks: z.array(z.string()),
+  hash: z.string(),
+});
+
+// --- Ingest Report ---
+
+export type IngestReportFileEntry = {
+  relative_path: string;
+  card_hash: string;
+  blob_hash: string;
+  text_hash?: string;
+  bytes: number;
+  mime: string;
+  error?: string;
+};
+
+export type IngestReport = {
+  type: "ingest_report";
+  spec_version: "1.0";
+  title: string;
+  tags: string[];
+  source: { root_path: string };
+  folder_card_hash: string;
+  files: IngestReportFileEntry[];
+  counts: FolderCounts;
+  hash: string;
+};
+
+export const IngestReportSchema = z.object({
+  type: z.literal("ingest_report"),
+  spec_version: z.literal("1.0"),
+  title: z.string(),
+  tags: z.array(z.string()),
+  source: z.object({ root_path: z.string() }),
+  folder_card_hash: z.string(),
+  files: z.array(
+    z.object({
+      relative_path: z.string(),
+      card_hash: z.string(),
+      blob_hash: z.string(),
+      text_hash: z.string().optional(),
+      bytes: z.number(),
+      mime: z.string(),
+      error: z.string().optional(),
+    })
+  ),
+  counts: z.object({
+    files_total: z.number(),
+    docx: z.number(),
+    pdf: z.number(),
+    other: z.number(),
+    extracted_text_count: z.number(),
+  }),
   hash: z.string(),
 });
 

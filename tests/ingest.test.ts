@@ -187,4 +187,60 @@ describe("folder ingestion", () => {
       process.cwd = origCwd;
     }
   });
+
+  it("produces an ingest report card", async () => {
+    const origCwd = process.cwd;
+    process.cwd = () => TEST_ROOT;
+
+    try {
+      const { ingestFolder } = await import("../src/kb/ingest.js");
+
+      const result = await ingestFolder(FIXTURES);
+
+      assert.ok(result.report_card_id, "Must have report card ID");
+      assert.ok(result.report_card_hash, "Must have report card hash");
+
+      // Read the report card and verify schema
+      const reportPath = path.join(
+        TEST_ROOT,
+        "data",
+        "cards",
+        `${result.report_card_id}.json`
+      );
+      const reportRaw = await fs.readFile(reportPath, "utf-8");
+      const report = JSON.parse(reportRaw);
+
+      assert.equal(report.type, "ingest_report");
+      assert.equal(report.spec_version, "1.0");
+      assert.ok(report.title.startsWith("Ingest:"), "Report title must start with 'Ingest:'");
+      assert.ok(report.tags.includes("ingest"), "Must have 'ingest' tag");
+      assert.ok(report.tags.includes("report"), "Must have 'report' tag");
+      assert.equal(report.folder_card_hash, result.folder_card_hash);
+      assert.ok(Array.isArray(report.files), "Must have files array");
+      assert.equal(report.files.length, result.files.length);
+      assert.equal(report.counts.files_total, result.counts.files_total);
+    } finally {
+      process.cwd = origCwd;
+    }
+  });
+
+  it("ingest report hash is deterministic", async () => {
+    const origCwd = process.cwd;
+    process.cwd = () => TEST_ROOT;
+
+    try {
+      const { ingestFolder } = await import("../src/kb/ingest.js");
+
+      const r1 = await ingestFolder(FIXTURES);
+      const r2 = await ingestFolder(FIXTURES);
+
+      assert.equal(
+        r1.report_card_hash,
+        r2.report_card_hash,
+        "Same folder must produce same report hash"
+      );
+    } finally {
+      process.cwd = origCwd;
+    }
+  });
 });

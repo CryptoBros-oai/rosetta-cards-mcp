@@ -1,0 +1,26 @@
+{
+  "type": "folder_index",
+  "spec_version": "1.0",
+  "title": "golden-folder",
+  "source": {
+    "root_path": "golden-folder"
+  },
+  "files": [
+    {
+      "relative_path": "golden.txt",
+      "blob_hash": "ed744bb64a7eade3f03d8bbf6a657ad8c51d9234e802865f345aaf02a098cc1d",
+      "text_hash": "ed744bb64a7eade3f03d8bbf6a657ad8c51d9234e802865f345aaf02a098cc1d",
+      "card_hash": "4600df903eb31db9ae3249c4f1c572cfd33a3b99224567edb6fdf850c9c5dee0",
+      "bytes": 16,
+      "mime": "text/plain"
+    }
+  ],
+  "counts": {
+    "files_total": 1,
+    "docx": 0,
+    "pdf": 0,
+    "other": 1,
+    "extracted_text_count": 1
+  },
+  "expected_hash": "f22938f5f5ded554e084708b31dd52fd48f2535419ac57b2af71486cf4975bc4"
+}

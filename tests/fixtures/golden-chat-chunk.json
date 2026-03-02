@@ -1,0 +1,14 @@
+{
+  "type": "chat_chunk",
+  "spec_version": "1.0",
+  "title": "Golden Chat [1/2]",
+  "tags": ["chat", "drain", "golden"],
+  "index": 1,
+  "total": 2,
+  "text": {
+    "hash": "d2c1b0860542ef5cb80fef35dd7a76198f11790298f3b28cb68dc83e1485131a",
+    "chars": 45
+  },
+  "next_hash": "65e59a9f3c7bc4f2ca7f599b580771727a9aa8a98da2769113614d28c849d676",
+  "expected_hash": "2794c295f58ab22c55c06872ec8cbc3d584c4bd99989ca7f2f2958740fbfc181"
+}
