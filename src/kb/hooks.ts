@@ -24,6 +24,8 @@ import {
   getBlob,
   putText,
   getText,
+  PolicyViolationError,
+  enforceBlockedTags,
 } from "./vault.js";
 import {
   exportBundle,
@@ -51,6 +53,8 @@ import {
 } from "./schema.js";
 import { exec } from "node:child_process";
 
+// Policy enforcement provided by vault module
+
 // --- Encode hooks ---
 
 export type IngestResult = {
@@ -63,10 +67,15 @@ export async function ingestText(args: {
   text: string;
   tags?: string[];
   source_url?: string;
+  override_blocked?: boolean;
 }): Promise<IngestResult> {
-  // If a pack is active with allowed_tags, auto-tag
   const ctx = await getVaultContext();
   let tags = args.tags ?? [];
+
+  // Enforce blocked_tags
+  enforceBlockedTags(tags, ctx.policies.blocked_tags, args.override_blocked);
+
+  // Auto-tag with allowed_tags
   if (ctx.policies.allowed_tags?.length) {
     tags = Array.from(new Set([...tags, ...ctx.policies.allowed_tags]));
   }
@@ -222,11 +231,19 @@ export async function searchArtifacts(args: {
     );
   }
 
+  // Deterministic scoring weights (fixed, no ML)
+  const EXACT_TITLE_BOOST = 0.3;
+  const TAG_MATCH_BOOST = 0.15;
+  const PACK_TAG_BOOST = 0.1;
+
   // Build pin hash set for boost
   const pinSet = new Set(ctx.pinHashes);
-  const boost = ctx.policies.search_boost;
+  const pinBoost = ctx.policies.search_boost;
+  const queryLower = args.query.toLowerCase();
+  const queryTerms = queryLower.split(/\s+/).filter(Boolean);
+  const packTags = new Set(ctx.policies.allowed_tags ?? []);
 
-  // Map to SearchResult with boost applied
+  // Map to SearchResult with deterministic scoring
   const mapped: SearchResult[] = await Promise.all(
     results.map(async (r: any) => {
       let cardHash: string | undefined;
@@ -237,16 +254,38 @@ export async function searchArtifacts(args: {
         // card might not load
       }
 
+      let score = r.score ?? 0;
+      const tags: string[] = r.tags ?? [];
+
+      // Exact title match boost
+      if (r.title && r.title.toLowerCase() === queryLower) {
+        score += EXACT_TITLE_BOOST;
+      }
+
+      // Tag match boost: query terms appearing in tags
+      for (const term of queryTerms) {
+        if (tags.some((t) => t.toLowerCase() === term)) {
+          score += TAG_MATCH_BOOST;
+          break; // one boost per result
+        }
+      }
+
+      // Pack tag match boost
+      if (packTags.size > 0 && tags.some((t) => packTags.has(t))) {
+        score += PACK_TAG_BOOST;
+      }
+
+      // Pinned card boost
       const isPinned = cardHash ? pinSet.has(cardHash) : false;
-      const boostedScore = isPinned
-        ? Math.min(1, r.score + boost)
-        : r.score;
+      if (isPinned) {
+        score += pinBoost;
+      }
 
       return {
         card_id: r.card_id,
         title: r.title,
-        score: boostedScore,
-        tags: r.tags ?? [],
+        score: Math.min(1, score),
+        tags,
         png_path: cardPngPath(r.card_id),
         pinned: isPinned,
       };
@@ -296,14 +335,28 @@ export async function pinSetCreate(args: {
 
 export async function ingestFolderHook(args: {
   path: string;
+  tags?: string[];
   includeDocxText?: boolean;
   includePdfText?: boolean;
   storeBlobs?: boolean;
+  override_blocked?: boolean;
 }): Promise<FolderIngestResult> {
+  const ctx = await getVaultContext();
+
+  // Enforce blocked_tags against user-supplied tags
+  const userTags = args.tags ?? [];
+  enforceBlockedTags(userTags, ctx.policies.blocked_tags, args.override_blocked);
+
+  // Merge allowed_tags
+  const extraTags = Array.from(
+    new Set([...userTags, ...(ctx.policies.allowed_tags ?? [])])
+  );
+
   return ingestFolder(args.path, {
     includeDocxText: args.includeDocxText,
     includePdfText: args.includePdfText,
     storeBlobs: args.storeBlobs,
+    extraTags,
   });
 }
 
@@ -315,14 +368,164 @@ export async function drainContextHook(args: {
   chatText: string;
   targetMaxChars?: number;
   chunkChars?: number;
+  override_blocked?: boolean;
 }): Promise<DrainResult> {
+  const ctx = await getVaultContext();
+  let tags = args.tags ?? [];
+
+  // Enforce blocked_tags
+  enforceBlockedTags(tags, ctx.policies.blocked_tags, args.override_blocked);
+
+  // Auto-tag with allowed_tags
+  if (ctx.policies.allowed_tags?.length) {
+    tags = Array.from(new Set([...tags, ...ctx.policies.allowed_tags]));
+  }
+
   return drainContext({
     title: args.title,
-    tags: args.tags,
+    tags,
     chat_text: args.chatText,
     target_max_chars: args.targetMaxChars,
     chunk_chars: args.chunkChars,
   });
+}
+
+// --- Pack closure export ---
+
+export type PackClosureResult = {
+  bundle_path: string;
+  manifest: BundleManifest;
+  pack: BehaviorPack;
+  card_count: number;
+  blob_count: number;
+  text_count: number;
+};
+
+/**
+ * Export the active (or specified) pack + all dependencies as a portable bundle.
+ *
+ * Closure includes:
+ *   1. The pack card itself (as JSON in bundle root)
+ *   2. All pinned cards (resolved from pin hashes)
+ *   3. All blobs referenced by file_artifact cards
+ *   4. All text records referenced by file_artifact/chat_chunk cards
+ */
+export async function exportPackClosure(args?: {
+  pack_id?: string;
+  include_png?: boolean;
+  meta?: {
+    description?: string;
+    license_spdx?: string;
+    created_by?: { name?: string };
+  };
+}): Promise<PackClosureResult> {
+  // Resolve pack
+  const packId = args?.pack_id ?? (await getActivePack());
+  if (!packId) {
+    throw new Error("No active behavior pack and no pack_id specified");
+  }
+  const pack = await loadBehaviorPack(packId);
+
+  // Find all cards whose hash matches a pin
+  const pinSet = new Set(pack.pins);
+  const allCards = await listCards();
+  const pinnedCards = allCards.filter((c) => pinSet.has(c.hash));
+  const pinnedCardIds = pinnedCards.map((c) => c.card_id);
+
+  // Also scan for non-CardPayload cards (file_artifact, chat_chunk, etc.)
+  // that might have matching hashes by reading all card JSON files
+  const fs = await import("node:fs/promises");
+  const path = await import("node:path");
+  const cardDir = path.join(process.cwd(), "data", "cards");
+  const allCardFiles = await fs.readdir(cardDir).catch(() => [] as string[]);
+  const extraCardIds: string[] = [];
+  const blobHashes = new Set<string>();
+  const textHashes = new Set<string>();
+
+  for (const f of allCardFiles) {
+    if (!f.endsWith(".json")) continue;
+    try {
+      const raw = await fs.readFile(path.join(cardDir, f), "utf-8");
+      const card = JSON.parse(raw);
+      if (card.hash && pinSet.has(card.hash)) {
+        const cardId = f.replace(".json", "");
+        if (!pinnedCardIds.includes(cardId)) {
+          extraCardIds.push(cardId);
+        }
+
+        // Collect blob/text dependencies from file artifacts
+        if (card.type === "file_artifact") {
+          if (card.blob?.hash) blobHashes.add(card.blob.hash);
+          if (card.text?.hash) textHashes.add(card.text.hash);
+        }
+        // Collect text dependencies from chat chunks
+        if (card.type === "chat_chunk") {
+          if (card.text?.hash) textHashes.add(card.text.hash);
+        }
+      }
+    } catch {
+      // skip corrupt files
+    }
+  }
+
+  const allPinnedIds = [...pinnedCardIds, ...extraCardIds];
+
+  // Export bundle with all pinned cards
+  const { bundle_path, manifest } = await exportBundle({
+    card_ids: allPinnedIds,
+    include_png: args?.include_png,
+    meta: {
+      description: args?.meta?.description ?? `Pack closure: ${pack.name}`,
+      license_spdx: args?.meta?.license_spdx,
+      created_by: args?.meta?.created_by,
+    },
+  });
+
+  // Copy blobs into bundle
+  const blobsOut = path.join(bundle_path, "blobs");
+  let blobCount = 0;
+  for (const hash of blobHashes) {
+    try {
+      const blobData = await getBlob(hash);
+      const dest = path.join(blobsOut, hash.slice(0, 2), hash.slice(2, 4), hash);
+      await fs.mkdir(path.dirname(dest), { recursive: true });
+      await fs.writeFile(dest, blobData);
+      blobCount++;
+    } catch {
+      // blob might not exist
+    }
+  }
+
+  // Copy text records into bundle
+  const textOut = path.join(bundle_path, "text");
+  let textCount = 0;
+  for (const hash of textHashes) {
+    try {
+      const textData = await getText(hash);
+      const dest = path.join(textOut, hash.slice(0, 2), hash.slice(2, 4), `${hash}.txt`);
+      await fs.mkdir(path.dirname(dest), { recursive: true });
+      await fs.writeFile(dest, textData, "utf-8");
+      textCount++;
+    } catch {
+      // text might not exist
+    }
+  }
+
+  // Write pack card into bundle root
+  await fs.writeFile(
+    path.join(bundle_path, "pack.json"),
+    JSON.stringify(pack, null, 2),
+    "utf-8"
+  );
+
+  return {
+    bundle_path,
+    manifest,
+    pack,
+    card_count: allPinnedIds.length,
+    blob_count: blobCount,
+    text_count: textCount,
+  };
 }
 
 // Re-export vault/bundle/ingest functions for TUI convenience
@@ -335,6 +538,7 @@ export {
   getActivePinset,
   getActivePinsetCards,
   listBundles,
+  exportBundle,
   createBehaviorPack,
   createBehaviorPackFromPinset,
   listBehaviorPacks,
@@ -350,4 +554,6 @@ export {
   ingestFile,
   ingestFolder,
   drainContext,
+  PolicyViolationError,
+  enforceBlockedTags,
 };

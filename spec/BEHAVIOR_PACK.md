@@ -75,3 +75,23 @@ When no pack is active, `policies` uses defaults (no boost, no filters).
 
 Packs are hashed identically to cards (see docs/FORMAT.md). Two packs with
 the same pins and policies hash identically regardless of platform.
+
+## Enforcement semantics
+
+Behavior packs may include `blocked_tags` in their `policies`. The runtime
+enforces `blocked_tags` as follows:
+
+- `blocked_tags` apply to both user-supplied tags and automatically-added
+  tags (for example, file ingestion adds extension-derived tags like
+  `pdf`, `docx`, `txt`).
+- Hooks that create artifacts will validate final tag sets against
+  `blocked_tags` and throw a `PolicyViolationError` when any blocked tag is
+  present. Callers can pass an explicit `override_blocked: true` flag to
+  bypass enforcement when appropriate (hooks that accept this include
+  `ingestFolderHook`, `ingestText`, and `drainContextHook`).
+- For folder ingestion, a policy violation on any single file causes the
+  folder ingest operation to abort and surface the violation rather than
+  silently recording it in the ingest report.
+- Enforcement is implemented as a pure check and does not alter or
+  canonicalize artifact bytes; it only prevents writes when a pack policy
+  forbids the artifact's tags, preserving determinism of on-disk artifacts.

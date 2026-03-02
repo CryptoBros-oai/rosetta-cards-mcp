@@ -15,7 +15,29 @@ import {
   type TextRef,
   type ChatChunk,
   type ChatLogIndex,
+  type IngestReport,
 } from "./schema.js";
+// Policy enforcement utilities
+export class PolicyViolationError extends Error {
+  public readonly blocked: string[];
+  constructor(blocked: string[]) {
+    super(`Pack policy violation: tags [${blocked.join(", ")}] are blocked by active behavior pack`);
+    this.name = "PolicyViolationError";
+    this.blocked = blocked;
+  }
+}
+
+export function enforceBlockedTags(
+  tags: string[],
+  blockedTags: string[] | undefined,
+  override?: boolean,
+): void {
+  if (override || !blockedTags?.length) return;
+  const violations = tags.filter((t) => blockedTags.includes(t));
+  if (violations.length > 0) {
+    throw new PolicyViolationError(violations);
+  }
+}
 import {
   canonicalHash,
   verifyHash,
@@ -158,6 +180,17 @@ export async function saveChatLogIndexCard(
   const cardId = `card_chatlog_${hashPrefix}`;
   const dest = path.join(CARD_DIR, `${cardId}.json`);
   await fs.writeFile(dest, JSON.stringify(index, null, 2), "utf-8");
+  return cardId;
+}
+
+export async function saveIngestReportCard(
+  report: IngestReport
+): Promise<string> {
+  await ensureDirs();
+  const hashPrefix = report.hash.slice(0, 12);
+  const cardId = `card_report_${hashPrefix}`;
+  const dest = path.join(CARD_DIR, `${cardId}.json`);
+  await fs.writeFile(dest, JSON.stringify(report, null, 2), "utf-8");
   return cardId;
 }
 
@@ -373,6 +406,7 @@ export async function createBehaviorPack(args: {
     max_results: args.policies?.max_results,
     allowed_tags: args.policies?.allowed_tags,
     blocked_tags: args.policies?.blocked_tags,
+    default_export_scope: args.policies?.default_export_scope,
     style: args.policies?.style,
   };
 
