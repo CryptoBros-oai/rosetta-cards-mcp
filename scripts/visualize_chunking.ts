@@ -47,6 +47,10 @@ function escapeHtml(s: string) {
   return s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
+function escapeForJsonNode(s: string) {
+  return s.replaceAll('\\', '\\\\').replaceAll('`', '\\`');
+}
+
 function buildHtml({ inputPath, fullHash, chunkData }: { inputPath: string; fullHash: string; chunkData: { index: number; text: string; chars: number; hash: string }[] }) {
   const rows = chunkData.map(c => `
       <div class="chunk" id="chunk-${c.index}" data-index="${c.index}">
@@ -122,7 +126,7 @@ function buildHtml({ inputPath, fullHash, chunkData }: { inputPath: string; full
       const cardBase = {
         type: 'chat_chunk',
         spec_version: '1.0',
-        title: `${escapeHtml('Chunk')} ${data.index}/${total}`,
+        title: `Chunk ${data.index}/${total}`,
         tags: ['chat','drain'],
         index: data.index,
         total: total,
@@ -134,7 +138,7 @@ function buildHtml({ inputPath, fullHash, chunkData }: { inputPath: string; full
     }
 
     // Prefetch CHUNK_DATA into client JS
-    const CHUNK_DATA = ${JSON.stringify(chunkData.map(c => ({ index: c.index, chars: c.chars, hash: c.hash, prev_hash: c.prev_hash, next_hash: c.next_hash, canonical: escapeForJson(c.text) }))) };
+    const CHUNK_DATA = ${JSON.stringify(chunkData.map(c => ({ index: c.index, chars: c.chars, hash: c.hash, prev_hash: c.prev_hash, next_hash: c.next_hash, canonical: escapeForJsonNode(c.text) }))) };
 
     function escapeForJson(s) {
       return s.replace(/\\/g, '\\\\').replace(/`/g, '\`');
