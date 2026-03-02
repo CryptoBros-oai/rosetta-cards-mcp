@@ -1,0 +1,27 @@
+{
+  "name": "rosetta-cards-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --loader ts-node/esm src/server.ts",
+    "start": "node --enable-source-maps dist/server.js",
+    "build": "tsc -p tsconfig.json",
+    "tui": "node --loader ts-node/esm src/tui/app.ts",
+    "tui:start": "node --enable-source-maps dist/tui/app.js",
+    "test": "node --loader ts-node/esm --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "mammoth": "^1.11.0",
+    "neo-blessed": "^0.2.0",
+    "pdf-parse": "^2.4.5",
+    "playwright": "^1.47.0",
+    "qrcode": "^1.5.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
