@@ -81,7 +81,7 @@ async function main() {
 
   // Ensure chunk cards exist and text reconstructs
   // placeholder for chunk ids -> will resolve to payload hashes below
-  let chunkHashes = [];
+  let chunkIds = [];
   // Find chunk cards by scanning for chunk card ids -> load list and filter by id
   const listRes = await runWorker(tmp, 'list_cards');
   const cards = listRes.cards || [];
