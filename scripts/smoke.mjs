@@ -9,7 +9,7 @@ function runWorker(vaultRoot, action, payload = {}) {
     const env = { ...process.env, VAULT_ROOT: vaultRoot };
     const worker = path.join(process.cwd(), 'scripts', 'smoke_worker.mjs');
     const args = ['--loader', 'ts-node/esm', worker, action, JSON.stringify(payload)];
-    execFile(process.execPath, args, { env, cwd: vaultRoot, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+    execFile(process.execPath, args, { env, cwd: process.cwd(), maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
       if (err) {
         const msg = stderr || (err && err.message) || 'worker error';
         return reject(new Error(msg + '\n' + stdout));
