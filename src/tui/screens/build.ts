@@ -42,7 +42,6 @@ export function createBuildScreen(screen: Widgets.Screen): {
       tags: true,
       keys: true,
       mouse: true,
-      inputOnFocus: true,
       style: {
         fg: "white",
         bg: "black",
@@ -65,7 +64,6 @@ export function createBuildScreen(screen: Widgets.Screen): {
       tags: true,
       keys: true,
       mouse: true,
-      inputOnFocus: true,
       style: {
         fg: "white",
         bg: "black",
@@ -88,7 +86,6 @@ export function createBuildScreen(screen: Widgets.Screen): {
       tags: true,
       keys: true,
       mouse: true,
-      inputOnFocus: true,
       scrollable: true,
       style: {
         fg: "white",
@@ -155,10 +152,12 @@ export function createBuildScreen(screen: Widgets.Screen): {
       currentStep = 2;
       updateStep();
       tagsInput.focus();
+      tagsInput.readInput(() => {});
     } else if (currentStep === 2) {
       currentStep = 3;
       updateStep();
       textArea.focus();
+      textArea.readInput(() => {});
     }
   }
 
@@ -235,7 +234,6 @@ export function createBuildScreen(screen: Widgets.Screen): {
         tags: true,
         keys: true,
         mouse: true,
-        inputOnFocus: true,
         border: { type: "line" as const },
         style: {
           fg: "white",

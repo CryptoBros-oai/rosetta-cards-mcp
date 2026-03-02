@@ -8,7 +8,8 @@
     "build": "tsc -p tsconfig.json",
     "tui": "node --loader ts-node/esm src/tui/app.ts",
     "tui:start": "node --enable-source-maps dist/tui/app.js",
-    "test": "node --loader ts-node/esm --test tests/*.test.ts"
+    "test": "node --loader ts-node/esm --test tests/*.test.ts",
+    "seed": "node --loader ts-node/esm scripts/seed.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

@@ -1,0 +1,24 @@
+{
+  "type": "file_artifact",
+  "spec_version": "1.0",
+  "title": "golden.txt",
+  "tags": ["file", "txt"],
+  "source": {
+    "relative_path": "golden.txt",
+    "original_name": "golden.txt"
+  },
+  "blob": {
+    "hash": "ed744bb64a7eade3f03d8bbf6a657ad8c51d9234e802865f345aaf02a098cc1d",
+    "bytes": 16,
+    "mime": "text/plain"
+  },
+  "text": {
+    "hash": "ed744bb64a7eade3f03d8bbf6a657ad8c51d9234e802865f345aaf02a098cc1d",
+    "chars": 16,
+    "extractor": {
+      "name": "raw-utf8",
+      "version": "1.0.0"
+    }
+  },
+  "expected_hash": "4600df903eb31db9ae3249c4f1c572cfd33a3b99224567edb6fdf850c9c5dee0"
+}

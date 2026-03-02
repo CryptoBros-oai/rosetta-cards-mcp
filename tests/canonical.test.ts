@@ -59,14 +59,13 @@ describe("canonicalHash", () => {
 });
 
 describe("golden card fixture", () => {
-  it("produces a stable canonical hash", () => {
+  it("produces the frozen expected hash", () => {
     const fixturePath = path.join(__dirname, "fixtures", "golden-card.json");
     const raw = fs.readFileSync(fixturePath, "utf-8");
-    const card = JSON.parse(raw);
-    const hash = canonicalHash(card);
-    // Verify stability across calls
-    assert.equal(canonicalHash(card), hash);
-    assert.equal(hash.length, 64);
+    const fixture = JSON.parse(raw);
+    const { expected_hash, ...card } = fixture;
+    const computed = canonicalHash(card);
+    assert.equal(computed, expected_hash, "Card hash must match frozen expected_hash");
   });
 });
 

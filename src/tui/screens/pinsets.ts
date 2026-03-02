@@ -242,7 +242,6 @@ export function createPinsetsScreen(screen: Widgets.Screen): {
         tags: true,
         keys: true,
         mouse: true,
-        inputOnFocus: true,
         style: {
           fg: "white",
           bg: "black",

@@ -1,0 +1,17 @@
+{
+  "type": "chat_log_index",
+  "spec_version": "1.0",
+  "title": "Golden Chat",
+  "tags": ["chat", "drain", "golden"],
+  "chat_text_hash": "d472713d5e30989810759974db2fb0daba1b782f42a5fde39963541ac62128e6",
+  "chunking": {
+    "target_max_chars": 1000,
+    "threshold": 0.8,
+    "chunk_chars": 200
+  },
+  "chunks": [
+    "2794c295f58ab22c55c06872ec8cbc3d584c4bd99989ca7f2f2958740fbfc181",
+    "054f9c67902cea154702854d95a473fa0bcbd76a9b9d41a71efebb5ca042d0ca"
+  ],
+  "expected_hash": "75d15e6b00ccce8ed21935f67e03eec39625924eebd929a6ff2f43854337d190"
+}
