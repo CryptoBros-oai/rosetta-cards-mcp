@@ -80,10 +80,8 @@ async function main() {
   console.log('Chunk card ids:', JSON.stringify(drain.chunk_card_ids));
 
   // Ensure chunk cards exist and text reconstructs
-  const chunkHashes = drain.chunk_card_ids.map((id) => {
-    // card_id -> need to resolve to hash via list
-    return id;
-  });
+  // placeholder for chunk ids -> will resolve to payload hashes below
+  let chunkHashes = [];
   // Find chunk cards by scanning for chunk card ids -> load list and filter by id
   const listRes = await runWorker(tmp, 'list_cards');
   const cards = listRes.cards || [];
