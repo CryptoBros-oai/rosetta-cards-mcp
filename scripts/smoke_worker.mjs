@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const args = process.argv.slice(2);
 const action = args[0];
-const payload = args[1] ? JSON.parse(args[1]) : {};
+const argsPayload = args[1] ? JSON.parse(args[1]) : {};
 
 async function main() {
   // Import hooks/vault/bundle under the current process.cwd()/VAULT_ROOT
@@ -23,32 +23,32 @@ async function main() {
       return;
     }
     case 'create_pack': {
-      const pack = await vault.createBehaviorPack({ name: payload.name || 'smoke-pack', card_ids: [], policies: payload.policies });
+      const pack = await vault.createBehaviorPack({ name: argsPayload.name || 'smoke-pack', card_ids: [], policies: argsPayload.policies });
       console.log(JSON.stringify({ pack }));
       return;
     }
     case 'set_active_pack': {
-      await vault.setActivePack(payload.pack_id);
+      await vault.setActivePack(argsPayload.pack_id);
       console.log(JSON.stringify({ ok: true }));
       return;
     }
     case 'ingest_folder': {
-      const res = await hooks.ingestFolderHook({ path: payload.path, includeDocxText: false, includePdfText: false, storeBlobs: false, tags: payload.tags || [] });
+      const res = await hooks.ingestFolderHook({ path: argsPayload.path, includeDocxText: false, includePdfText: false, storeBlobs: false, tags: argsPayload.tags || [] });
       console.log(JSON.stringify({ result: res }));
       return;
     }
     case 'drain_context': {
-      const res = await hooks.drainContextHook({ title: payload.title, tags: payload.tags || [], chatText: payload.chatText, targetMaxChars: payload.targetMaxChars || 200, chunkChars: payload.chunkChars || 120 });
+      const res = await hooks.drainContextHook({ title: argsPayload.title, tags: argsPayload.tags || [], chatText: argsPayload.chatText, targetMaxChars: argsPayload.targetMaxChars || 200, chunkChars: argsPayload.chunkChars || 120 });
       console.log(JSON.stringify({ result: res }));
       return;
     }
     case 'export_closure': {
-      const res = await hooks.exportPackClosure({ include_png: false, meta: payload.meta });
+      const res = await hooks.exportPackClosure({ include_png: false, meta: argsPayload.meta });
       console.log(JSON.stringify({ result: res }));
       return;
     }
     case 'import_bundle': {
-      const res = await hooks.importBundleHook({ bundle_path: payload.bundle_path });
+      const res = await hooks.importBundleHook({ bundle_path: argsPayload.bundle_path });
       console.log(JSON.stringify({ result: res }));
       return;
     }
@@ -61,9 +61,9 @@ async function main() {
         if (!f.endsWith('.json')) continue;
         try {
           const raw = await fs.readFile(path.join(cardDir, f), 'utf-8');
-          const payload = JSON.parse(raw);
+          const p = JSON.parse(raw);
           const card_id = f.replace('.json', '');
-          out.push({ card_id, payload });
+          out.push({ card_id, payload: p });
         } catch {
           // skip
         }
@@ -72,199 +72,23 @@ async function main() {
       return;
     }
     case 'find_by_hash': {
-      const cardDir = path.join(process.env.VAULT_ROOT ?? process.cwd(), 'data', 'cards');
       const entries = await fs.readdir(cardDir).catch(() => []);
       const out = [];
+      const targets = Array.isArray(argsPayload.hashes) ? argsPayload.hashes : [];
       for (const f of entries) {
         if (!f.endsWith('.json')) continue;
         try {
           const raw = await fs.readFile(path.join(cardDir, f), 'utf-8');
-          const payload = JSON.parse(raw);
-          if (payload && payload.hash && payload.hash && payload.hash.length && payload.hash && payload.hash.length && payload.hash) {
-            if (payload.hash && payload.hash.length && payload.hashes) {
-              // noop to satisfy linter
-            }
+          const p = JSON.parse(raw);
+          if (p && p.hash && targets.includes(p.hash)) {
+            const card_id = f.replace('.json','');
+            out.push({ card_id, payload: p });
           }
-          if (payload && payload.hash && payload.hashes) {
-            // noop
-          }
-          if (payload && payload.hash && payload.hashes) {
-            // noop
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hashes) {
-              // noop
-            }
-          }
-          if (payload && payload.hash && payload.hash.length && payload.hashes) {
-            // noop
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hashes) {
-              // noop
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hashes) {
-              // noop
-            }
-          }
-          if (payload && payload.hash && payload.hash.length && payload.hashes) {
-            // noop
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length) {
-              if (payload.hash && payload.hash.length && payload.hash) {
-                // nothing
-              }
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hash) {
-              // nothing
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hash) {
-              // nothing
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            // finally check
-            if (payload.hash && payload.hash.length && payload.hashes) {
-              // pass
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hash) {
-              // ok
-            }
-          }
-          // Standard check
-          if (payload && payload.hash && payload.hash.length && payload.hash) {
-            if (payload.hash && payload.hash.length) {
-              if (payload.hash && payload.hash.length && payload.hash) {
-                // no-op
-              }
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hash) {
-              // no-op
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            // final
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length) {
-              // Check membership
-              if (payload.hash && payload.hash.length && payload.hash) {
-                // redundant
-              }
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hash) {
-              // redundant
-            }
-          }
-          // Actual match
-          if (payload && payload.hash && payload.hash.length && payload.hash) {
-            if (payload && payload.hash && payload.hash.length && payload.hash) {
-              if (payload && payload.hash && payload.hash.length) {
-                if (payload && payload.hash && payload.hash.length) {
-                  if (payload && payload.hash && payload.hash.length) {
-                    if (payload && payload.hash && payload.hash.length) {
-                      // and now do the real check
-                    }
-                  }
-                }
-              }
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length) {
-              // final membership test
-              if (payload.hash && payload.hash.length && payload.hashes) {
-                // noop
-              }
-            }
-          }
-          // Simpler: just test membership
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload && payload.hash && payload.hash.length && payload.hash) {
-              // noop
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload && payload.hash && payload.hash.length) {
-              // check
-            }
-          }
-          // Actual check now
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hash) {
-              if (payload.hash && payload.hash.length && payload.hash) {
-                // nothing
-              }
-            }
-          }
-          // Real membership
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length) {
-              if (payload && payload.hash && payload.hash.length) {
-                // OK
-              }
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length) {
-              // finally match
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            // now the membership test
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            // membership
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hash) {
-              // noop
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            // final
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            // perform
-          }
-          // The actual membership check:
-          if (payload && payload.hash && payload.hash.length && payload.hash && payload.hash.length) {
-            if (payload.hash && payload.hash.length && payload.hash) {
-              if (payload.hash && payload.hash.length) {
-                if (payload.hash && payload.hash.length && payload.hash) {
-                  // now
-                }
-              }
-            }
-          }
-          if (payload && payload.hash && payload.hash.length) {
-            // finally do it
-            if (payload.hash && payload.hash.length) {
-              if (payload.hash && payload.hash.length && payload.hash) {
-                // done
-              }
-            }
-          }
-          // Simple membership check
-          if (payload && payload.hash && payload.hash.length && payload.hash) {
-            if (Array.isArray(payload.hashes) && payload.hashes.includes(payload.hash)) {
-              const card_id = f.replace('.json','');
-              out.push({ card_id, payload });
-            }
-          }
+        } catch {
+          // skip corrupt files
+        }
+      }
+      console.log(JSON.stringify({ found: out }));
         } catch {
           // skip corrupt files
         }
