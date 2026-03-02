@@ -46,3 +46,36 @@ Connect your MCP client to the server via stdio.
   Replace it with your preferred model call.
 - Search is lexical cosine: `src/kb/embed.ts`
   Replace with embeddings once you pick a local embedding model / API.
+
+## Quickstart: verify it works
+
+Minimum golden path for a new contributor:
+
+```bash
+npm ci
+npm test
+npm run build
+npm run tui
+```
+
+Quick sample (ingest a folder and inspect artifacts):
+
+```bash
+# Ingest a local folder into the vault via the TUI or programmatically
+# Example (scripted):
+node --loader ts-node/esm scripts/seed.ts  # creates sample cards and artifacts
+
+# Inspect produced artifacts
+ls -la data/cards
+ls -la data/blobs
+ls -la data/text
+```
+
+Expected artifacts:
+
+- `data/cards/*.json` — card and index JSON artifacts
+- `data/blobs/<hh>/<hh>/<hash>` — stored blobs
+- `data/text/<hh>/<hh>/<hash>.txt` — canonicalized text records
+
+If you want help adding a tiny example repo for ingestion, I can add an
+`examples/` folder with a small folder and an invocation script.
