@@ -94,15 +94,16 @@ async function main() {
 
   // Reconstruct canonical text from chunk text references
   let reconstructed = '';
-  for (const c of chunkCards) {
+  for (const entry of chunkCards) {
+    const c = entry.payload;
     if (!c.text || !c.text.hash) throw new Error('Chunk missing text.hash');
     const txt = await runWorker(tmp, 'get_text', { hash: c.text.hash });
     reconstructed += txt.text;
   }
   // Load index card to read chat_text_hash
-  const indexCards = cards.filter((c) => c.hash === drain.index_card_hash);
+  const indexCards = cards.filter((c) => c.payload && c.payload.hash === drain.index_card_hash);
   if (indexCards.length !== 1) throw new Error('Index card missing after drain');
-  const canonicalOriginal = (await runWorker(tmp, 'get_text', { hash: indexCards[0].chat_text_hash || indexCards[0].chat_text_hash })).text;
+  const canonicalOriginal = (await runWorker(tmp, 'get_text', { hash: indexCards[0].payload.chat_text_hash })).text;
   if (!canonicalOriginal) throw new Error('Missing canonical chat text');
   if (!reconstructed.includes(canonicalOriginal.slice(0, 50))) {
     // basic sanity check
