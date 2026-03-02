@@ -7,7 +7,8 @@ import { execFile } from 'node:child_process';
 function runWorker(vaultRoot, action, payload = {}) {
   return new Promise((resolve, reject) => {
     const env = { ...process.env, VAULT_ROOT: vaultRoot };
-    const args = [path.join(process.cwd(), 'scripts', 'smoke_worker.mjs'), action, JSON.stringify(payload)];
+    const worker = path.join(process.cwd(), 'scripts', 'smoke_worker.mjs');
+    const args = ['--loader', 'ts-node/esm', worker, action, JSON.stringify(payload)];
     execFile(process.execPath, args, { env, cwd: vaultRoot, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
       if (err) {
         const msg = stderr || (err && err.message) || 'worker error';
