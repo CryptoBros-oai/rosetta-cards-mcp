@@ -119,8 +119,11 @@ async function main() {
   if ((importRes.result.failed || []).length > 0) throw new Error('Import had failed entries: ' + JSON.stringify(importRes.result.failed));
   console.log('Bundle imported into VAULT_B:', importRes.result.imported, 'imported,', importRes.result.skipped, 'skipped');
 
-  // Verify cross-vault equality: ensure every hash in hashesToCheck + chunkHashes + drain.index.hash exists in VAULT_B
-  const allHashes = [...new Set([...hashesToCheck, ...chunkHashes, drain.index.hash])];
+  // Prepare chunkHashes (card payload hashes) for cross-vault comparison
+  const chunkHashes = chunkCards.map((e) => e.payload.hash);
+
+  // Verify cross-vault equality: ensure every hash in hashesToCheck + chunkHashes + drain.index_card_hash exists in VAULT_B
+  const allHashes = [...new Set([...hashesToCheck, ...chunkHashes, drain.index_card_hash])];
   const foundInB = await runWorker(tmpB, 'find_by_hash', { hashes: allHashes });
   const foundInBHashes = (foundInB.found || []).map((c) => c.payload.hash);
   for (const h of allHashes) {
