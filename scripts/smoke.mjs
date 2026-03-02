@@ -65,7 +65,7 @@ async function main() {
   }
 
   const found = await runWorker(tmp, 'find_by_hash', { hashes: hashesToCheck });
-  const foundHashes = (found.found || []).map((c) => c.hash);
+  const foundHashes = (found.found || []).map((c) => c.payload.hash);
   for (const h of hashesToCheck) {
     if (!foundHashes.includes(h)) throw new Error(`Missing hash in VAULT_A: ${h}`);
   }
@@ -126,7 +126,7 @@ async function main() {
   // Verify cross-vault equality: ensure every hash in hashesToCheck + chunkHashes + drain.index.hash exists in VAULT_B
   const allHashes = [...new Set([...hashesToCheck, ...chunkHashes, drain.index.hash])];
   const foundInB = await runWorker(tmpB, 'find_by_hash', { hashes: allHashes });
-  const foundInBHashes = (foundInB.found || []).map((c) => c.hash);
+  const foundInBHashes = (foundInB.found || []).map((c) => c.payload.hash);
   for (const h of allHashes) {
     if (!foundInBHashes.includes(h)) throw new Error(`Hash ${h} missing after import into VAULT_B`);
   }
