@@ -46,7 +46,7 @@ import {
   hashText,
 } from "./canonical.js";
 
-const ROOT = process.cwd();
+const ROOT = process.env.VAULT_ROOT ?? process.cwd();
 const CARD_DIR = path.join(ROOT, "data", "cards");
 const DOC_DIR = path.join(ROOT, "data", "docs");
 const PINSET_DIR = path.join(ROOT, "data", "pinsets");

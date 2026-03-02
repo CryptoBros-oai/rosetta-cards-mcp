@@ -1,0 +1,6 @@
+Hello Smoke Test
+
+This is a small sample text file used by the smoke pipeline.
+It contains several paragraphs so the chunker will split it.
+
+End of file.

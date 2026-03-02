@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import { CardPayload } from "./schema.js";
 import { verifyHash } from "./canonical.js";
 
-const ROOT = process.cwd();
+const ROOT = process.env.VAULT_ROOT ?? process.cwd();
 const CARD_DIR = path.join(ROOT, "data", "cards");
 const BUNDLE_DIR = path.join(ROOT, "data", "bundles");
 
