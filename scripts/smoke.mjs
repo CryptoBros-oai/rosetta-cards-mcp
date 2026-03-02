@@ -76,24 +76,33 @@ async function main() {
   const drainRes = await runWorker(tmp, 'drain_context', { title: 'smoke-chat', tags: ['smoke'], chatText, chunkChars: 80, targetMaxChars: 200 });
   ensureOk(drainRes, 'drain_context');
   const drain = drainRes.result;
-  console.log('Drain produced index hash:', drain.index.hash, 'chunks:', drain.chunks.length);
+  console.log('Drain produced index hash:', drain.index_card_hash, 'chunks:', drain.chunk_count);
+  console.log('Chunk card ids:', JSON.stringify(drain.chunk_card_ids));
 
   // Ensure chunk cards exist and text reconstructs
-  const chunkHashes = drain.chunks.map((c) => c.hash);
-  const foundChunks = await runWorker(tmp, 'find_by_hash', { hashes: chunkHashes });
-  const foundChunkHashes = (foundChunks.found || []).map((c) => c.hash);
-  for (const h of chunkHashes) {
-    if (!foundChunkHashes.includes(h)) throw new Error(`Missing chunk hash in VAULT_A: ${h}`);
-  }
+  const chunkHashes = drain.chunk_card_ids.map((id) => {
+    // card_id -> need to resolve to hash via list
+    return id;
+  });
+  // Find chunk cards by scanning for chunk card ids -> load list and filter by id
+  const listRes = await runWorker(tmp, 'list_cards');
+  const cards = listRes.cards || [];
+  console.log('Cards present count:', cards.length);
+  console.log('Some card ids:', cards.slice(0,5).map(c=>c.card_id));
+  const chunkCards = cards.filter((c) => drain.chunk_card_ids.includes(c.card_id));
+  if (chunkCards.length !== drain.chunk_card_ids.length) throw new Error('Some chunk cards missing after drain');
 
-  // Reconstruct canonical text from text records
+  // Reconstruct canonical text from chunk text references
   let reconstructed = '';
-  for (const c of drain.chunks) {
+  for (const c of chunkCards) {
     if (!c.text || !c.text.hash) throw new Error('Chunk missing text.hash');
     const txt = await runWorker(tmp, 'get_text', { hash: c.text.hash });
     reconstructed += txt.text;
   }
-  const canonicalOriginal = (await runWorker(tmp, 'get_text', { hash: drain.index.text.hash })).text;
+  // Load index card to read chat_text_hash
+  const indexCards = cards.filter((c) => c.hash === drain.index_card_hash);
+  if (indexCards.length !== 1) throw new Error('Index card missing after drain');
+  const canonicalOriginal = (await runWorker(tmp, 'get_text', { hash: indexCards[0].chat_text_hash || indexCards[0].chat_text_hash })).text;
   if (!canonicalOriginal) throw new Error('Missing canonical chat text');
   if (!reconstructed.includes(canonicalOriginal.slice(0, 50))) {
     // basic sanity check
