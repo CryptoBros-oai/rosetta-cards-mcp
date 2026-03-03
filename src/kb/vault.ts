@@ -16,6 +16,9 @@ import {
   type ChatChunk,
   type ChatLogIndex,
   type IngestReport,
+  type EventCard,
+  type MetaV1,
+  MetaV1Schema,
 } from "./schema.js";
 // Policy enforcement utilities
 export class PolicyViolationError extends Error {
@@ -51,6 +54,7 @@ const CARD_DIR = path.join(ROOT, "data", "cards");
 const DOC_DIR = path.join(ROOT, "data", "docs");
 const PINSET_DIR = path.join(ROOT, "data", "pinsets");
 const PACK_DIR = path.join(ROOT, "data", "packs");
+const BUNDLE_DIR = path.join(ROOT, "data", "bundles");
 const BLOB_DIR = path.join(ROOT, "data", "blobs");
 const TEXT_DIR = path.join(ROOT, "data", "text");
 const ACTIVE_PINSET_PATH = path.join(PINSET_DIR, "active.json");
@@ -86,6 +90,7 @@ async function ensureDirs() {
   await fs.mkdir(DOC_DIR, { recursive: true });
   await fs.mkdir(PINSET_DIR, { recursive: true });
   await fs.mkdir(PACK_DIR, { recursive: true });
+  await fs.mkdir(BUNDLE_DIR, { recursive: true });
 }
 
 // --- Blob store ---
@@ -191,6 +196,18 @@ export async function saveIngestReportCard(
   const cardId = `card_report_${hashPrefix}`;
   const dest = path.join(CARD_DIR, `${cardId}.json`);
   await fs.writeFile(dest, JSON.stringify(report, null, 2), "utf-8");
+  return cardId;
+}
+
+// --- Event card ---
+
+export async function saveEventCard(
+  event: EventCard
+): Promise<string> {
+  await ensureDirs();
+  const cardId = `card_event_${event.hash.slice(0, 12)}`;
+  const dest = path.join(CARD_DIR, `${cardId}.json`);
+  await fs.writeFile(dest, JSON.stringify(event, null, 2), "utf-8");
   return cardId;
 }
 
@@ -504,9 +521,167 @@ export async function getActivePack(): Promise<string | null> {
   }
 }
 
+
+
+// --- Meta (sidecar) operations ---
+
+const EVENT_DIR = path.join(ROOT, "data", "events");
+
+function metaDir(type: MetaV1["artifact_type"]): string {
+  switch (type) {
+    case "card":
+      return CARD_DIR;
+    case "event":
+      return EVENT_DIR;
+    default:
+      throw new Error(`Unknown artifact type: ${type}`);
+  }
+}
+
 /**
+ * Co-located meta sidecar path.
+ *   cards:  data/cards/card_<hash12>.meta.json
+ *   events: data/events/card_event_<hash12>.meta.json
+ */
+export function getMetaPath(
+  type: MetaV1["artifact_type"],
+  hash: string,
+): string {
+  const h12 = hash.slice(0, 12);
+  const prefix = type === "event" ? `card_event_${h12}` : `card_${h12}`;
+  return path.join(metaDir(type), `${prefix}.meta.json`);
+}
+
+/** @deprecated use getMetaPath — kept briefly for migration */
+export const metaPath = (hash: string) => getMetaPath("card", hash);
+
+export async function loadMeta(
+  hash: string,
+  type: MetaV1["artifact_type"],
+): Promise<MetaV1 | null> {
+  try {
+    const raw = await fs.readFile(getMetaPath(type, hash), "utf-8");
+    return MetaV1Schema.parse(JSON.parse(raw));
+  } catch {
+    return null;
+  }
+}
+
+// --- Deterministic merge helpers ---
+
+/** Union sources by (kind, value) tuple, sorted for determinism. */
+function mergeSources(
+  a: MetaV1["sources"],
+  b: MetaV1["sources"],
+): NonNullable<MetaV1["sources"]> {
+  const map = new Map<string, NonNullable<MetaV1["sources"]>[number]>();
+  for (const s of [...(a ?? []), ...(b ?? [])]) {
+    map.set(`${s.kind}\0${s.value}`, s);
+  }
+  return [...map.values()].sort((x, y) =>
+    `${x.kind}\0${x.value}`.localeCompare(`${y.kind}\0${y.value}`),
+  );
+}
+
+/** Embedding key: model + dims + optional embedding_id */
+function embeddingKey(e: { model: string; dims: number; embedding_id?: string }): string {
+  return `${e.model}\0${e.dims}\0${e.embedding_id ?? ""}`;
+}
+
+/** Union embeddings by (model, dims, embedding_id?), last-write-wins per key, sorted. */
+function mergeEmbeddings(
+  a: MetaV1["embeddings"],
+  b: MetaV1["embeddings"],
+): NonNullable<MetaV1["embeddings"]> {
+  const map = new Map<string, NonNullable<MetaV1["embeddings"]>[number]>();
+  for (const e of [...(a ?? []), ...(b ?? [])]) {
+    map.set(embeddingKey(e), e);
+  }
+  return [...map.values()].sort((x, y) =>
+    embeddingKey(x).localeCompare(embeddingKey(y)),
+  );
+}
+
+/** Merge annotations: notes is last-write-wins, meta_tags is union-unique-sorted. */
+function mergeAnnotations(
+  a: MetaV1["annotations"],
+  b: MetaV1["annotations"],
+): MetaV1["annotations"] {
+  if (!a && !b) return undefined;
+  const notes = b?.notes ?? a?.notes;
+  const tags = [...new Set([...(a?.meta_tags ?? []), ...(b?.meta_tags ?? [])])].sort();
+  const result: NonNullable<MetaV1["annotations"]> = {};
+  if (notes !== undefined) result.notes = notes;
+  if (tags.length > 0) result.meta_tags = tags;
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+/** Merge ingest: last-write-wins per field, stats keys merged. */
+function mergeIngest(
+  a: MetaV1["ingest"],
+  b: MetaV1["ingest"],
+): MetaV1["ingest"] {
+  if (!a && !b) return undefined;
+  if (!a) return b;
+  if (!b) return a;
+  return {
+    pipeline: b.pipeline ?? a.pipeline,
+    extractor: b.extractor ?? a.extractor,
+    chunker: b.chunker ?? a.chunker,
+    stats: (a.stats || b.stats)
+      ? { ...a.stats, ...b.stats }
+      : undefined,
+  };
+}
+
+export async function mergeMeta(
+  hash: string,
+  type: MetaV1["artifact_type"],
+  patch: Partial<MetaV1>,
+): Promise<MetaV1> {
+  const existing = await loadMeta(hash, type);
+
+  const merged: MetaV1 = {
+    schema_version: "meta.v1",
+    artifact_hash: hash,
+    artifact_type: type,
+    // Scalar: last-write-wins
+    occurred_at: patch.occurred_at ?? existing?.occurred_at,
+    // Array-of-objects: union by stable key
+    sources: mergeSources(existing?.sources, patch.sources),
+    // Deep-merge object
+    ingest: mergeIngest(existing?.ingest, patch.ingest),
+    // Array-of-objects: union by stable key
+    embeddings: mergeEmbeddings(existing?.embeddings, patch.embeddings),
+    // Mixed: notes LWW, meta_tags union-sorted
+    annotations: mergeAnnotations(existing?.annotations, patch.annotations),
+  };
+
+  // Strip undefined optional fields before validation
+  const clean = JSON.parse(JSON.stringify(merged));
+  const final: MetaV1 = MetaV1Schema.parse(clean);
+
+  const dest = getMetaPath(type, hash);
+  await fs.mkdir(path.dirname(dest), { recursive: true });
+  await fs.writeFile(dest, JSON.stringify(final, null, 2), "utf-8");
+  return final;
+}
+
+export async function deleteMeta(
+  hash: string,
+  type: MetaV1["artifact_type"],
+): Promise<void> {
+  await fs.unlink(getMetaPath(type, hash)).catch(() => {});
+}
+
+
+
+/**
+
  * Build the VaultContext for the currently active pack.
+
  * This is the core state object that hooks consume.
+
  */
 export async function getVaultContext(): Promise<VaultContext> {
   const pack_id = await getActivePack();

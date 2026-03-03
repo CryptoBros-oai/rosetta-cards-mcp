@@ -306,6 +306,164 @@ export const IngestReportSchema = z.object({
   hash: z.string(),
 });
 
+// --- Event Card ---
+
+export type EventParticipant = {
+  role: string;
+  name: string;
+};
+
+export type EventRef = {
+  ref_type: "artifact_id" | "url" | "external_id";
+  value: string;
+};
+
+export type EventKind =
+  | "deployment" | "incident" | "decision" | "meeting"
+  | "build" | "research" | "ops" | "personal" | "other";
+
+export type EventStatus = "observed" | "confirmed" | "resolved" | "superseded";
+export type EventSeverity = "info" | "low" | "medium" | "high" | "critical";
+export type RosettaVerb = "Attract" | "Contain" | "Release" | "Repel" | "Transform";
+export type RosettaPolarity = "+" | "0" | "-";
+
+export type EventDetail = {
+  kind: EventKind;
+  status: EventStatus;
+  severity: EventSeverity;
+  confidence: number;
+  participants: EventParticipant[];
+  refs: EventRef[];
+};
+
+export type RosettaMeta = {
+  verb: RosettaVerb;
+  polarity: RosettaPolarity;
+  weights: { A: number; C: number; L: number; P: number; T: number };
+};
+
+export type EventCard = {
+  schema_version: "event.v1";
+  artifact_type: "event";
+  title: string;
+  summary: string;
+  event: EventDetail;
+  tags: string[];
+  rosetta: RosettaMeta;
+  hash: string;
+};
+
+export const EventCardSchema = z.object({
+  schema_version: z.literal("event.v1"),
+  artifact_type: z.literal("event"),
+  title: z.string(),
+  summary: z.string(),
+  event: z.object({
+    kind: z.enum([
+      "deployment", "incident", "decision", "meeting",
+      "build", "research", "ops", "personal", "other",
+    ]),
+    status: z.enum(["observed", "confirmed", "resolved", "superseded"]),
+    severity: z.enum(["info", "low", "medium", "high", "critical"]),
+    confidence: z.number().min(0).max(1),
+    participants: z.array(z.object({ role: z.string(), name: z.string() })),
+    refs: z.array(z.object({
+      ref_type: z.enum(["artifact_id", "url", "external_id"]),
+      value: z.string(),
+    })),
+  }).strict(),
+  tags: z.array(z.string()),
+  rosetta: z.object({
+    verb: z.enum(["Attract", "Contain", "Release", "Repel", "Transform"]),
+    polarity: z.enum(["+", "0", "-"]),
+    weights: z.object({
+      A: z.number(), C: z.number(), L: z.number(),
+      P: z.number(), T: z.number(),
+    }).strict(),
+  }).strict(),
+  hash: z.string(),
+}).strict();
+
+// --- Event card hash payload builder (single source of truth) ---
+
+export type EventHashPayload = Omit<EventCard, "hash">;
+
+/**
+ * Build the exact object that gets canonicalized and hashed for an event card.
+ * This is the **single source of truth** for event card identity.
+ *
+ * All code paths (hook, MCP, tests) must hash only this builder's output.
+ */
+export function buildEventHashPayload(parsed: {
+  title: string;
+  summary: string;
+  event: EventDetail;
+  tags: string[];
+  rosetta: RosettaMeta;
+}): EventHashPayload {
+  return {
+    schema_version: "event.v1",
+    artifact_type: "event",
+    title: parsed.title,
+    summary: parsed.summary,
+    event: parsed.event,
+    tags: parsed.tags,
+    rosetta: parsed.rosetta,
+  };
+}
+
+// --- Meta (Sidecar Artifact) ---
+
+export type MetaV1 = {
+    schema_version: "meta.v1";
+    artifact_hash: string;
+    artifact_type: "card" | "event";
+    occurred_at?: string; // ISO 8601
+    sources?: Array<{ kind: "url" | "note" | "file" | "system"; value: string }>;
+    ingest?: { pipeline?: string; extractor?: string; chunker?: string; stats?: Record<string, number> };
+    embeddings?: Array<{ model: string; dims: number; embedding_id?: string; status: "present" | "missing" | "stale"; updated_at?: string }>;
+    annotations?: { notes?: string; meta_tags?: string[] };
+};
+
+const SourceSchema = z.object({
+    kind: z.enum(["url", "note", "file", "system"]),
+    value: z.string(),
+}).strict();
+
+const IngestSchema = z.object({
+    pipeline: z.string().optional(),
+    extractor: z.string().optional(),
+    chunker: z.string().optional(),
+    stats: z.record(z.number()).optional(),
+}).strict();
+
+const EmbeddingSchema = z.object({
+    model: z.string(),
+    dims: z.number(),
+    embedding_id: z.string().optional(),
+    status: z.enum(["present", "missing", "stale"]),
+    updated_at: z.string().optional(),
+}).strict();
+
+const AnnotationsSchema = z.object({
+    notes: z.string().optional(),
+    meta_tags: z.array(z.string()).optional(),
+}).strict();
+
+export const MetaV1Schema = z.object({
+    schema_version: z.literal("meta.v1"),
+    artifact_hash: z.string(),
+    artifact_type: z.enum(["card", "event"]),
+    occurred_at: z.string().optional(),
+    sources: z.array(SourceSchema).optional(),
+    ingest: IngestSchema.optional(),
+    embeddings: z.array(EmbeddingSchema).optional(),
+    annotations: AnnotationsSchema.optional(),
+}).strict();
+
+
+
+
 // --- Vault Context ---
 
 export const DEFAULT_POLICIES: PackPolicies = {

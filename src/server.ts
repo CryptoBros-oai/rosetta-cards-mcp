@@ -8,6 +8,9 @@ import {
 import { z } from "zod";
 
 import { addDocument, buildCard, searchCards, getCard } from "./kb/store.js";
+import { createEventCard } from "./kb/hooks.js";
+import { loadMeta, mergeMeta } from "./kb/vault.js";
+import { MetaV1Schema } from "./kb/schema.js";
 
 const server = new Server(
   { name: "rosetta-cards-kb", version: "0.1.0" },
@@ -67,6 +70,65 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
           required: ["card_id"]
         }
+      },
+      {
+        name: "kb.create_event",
+        description: "Create a deterministic event card (temporal memory atom). Timestamps are excluded from the hashed payload.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            title: { type: "string" as const },
+            summary: { type: "string" as const },
+            event: {
+              type: "object" as const,
+              properties: {
+                kind: { type: "string" as const, enum: ["deployment", "incident", "decision", "meeting", "build", "research", "ops", "personal", "other"] },
+                status: { type: "string" as const, enum: ["observed", "confirmed", "resolved", "superseded"] },
+                severity: { type: "string" as const, enum: ["info", "low", "medium", "high", "critical"] },
+                confidence: { type: "number" as const },
+                participants: { type: "array" as const, items: { type: "object" as const, properties: { role: { type: "string" as const }, name: { type: "string" as const } }, required: ["role", "name"] } },
+                refs: { type: "array" as const, items: { type: "object" as const, properties: { ref_type: { type: "string" as const, enum: ["artifact_id", "url", "external_id"] }, value: { type: "string" as const } }, required: ["ref_type", "value"] } }
+              },
+              required: ["kind", "status", "severity", "confidence", "participants", "refs"]
+            },
+            tags: { type: "array" as const, items: { type: "string" as const } },
+            rosetta: {
+              type: "object" as const,
+              properties: {
+                verb: { type: "string" as const, enum: ["Attract", "Contain", "Release", "Repel", "Transform"] },
+                polarity: { type: "string" as const, enum: ["+", "0", "-"] },
+                weights: { type: "object" as const, properties: { A: { type: "number" as const }, C: { type: "number" as const }, L: { type: "number" as const }, P: { type: "number" as const }, T: { type: "number" as const } }, required: ["A", "C", "L", "P", "T"] }
+              },
+              required: ["verb", "polarity", "weights"]
+            }
+          },
+          required: ["title", "summary", "event", "tags", "rosetta"]
+        }
+      },
+      {
+        name: "kb.get_meta",
+        description: "Retrieve the sidecar metadata for an artifact by hash and type.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            artifact_hash: { type: "string" as const },
+            artifact_type: { type: "string" as const, enum: ["card", "event"] }
+          },
+          required: ["artifact_hash", "artifact_type"]
+        }
+      },
+      {
+        name: "kb.merge_meta",
+        description: "Merge a patch into the sidecar metadata for an artifact. Creates the meta file if it does not exist.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            artifact_hash: { type: "string" as const },
+            artifact_type: { type: "string" as const, enum: ["card", "event"] },
+            patch: { type: "object" as const }
+          },
+          required: ["artifact_hash", "artifact_type", "patch"]
+        }
       }
     ]
   };
@@ -116,6 +178,76 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const parsed = z.object({ card_id: z.string() }).parse(args);
     const out = await getCard(parsed.card_id);
     return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "kb.create_event") {
+    const parsed = z
+      .object({
+        title: z.string(),
+        summary: z.string(),
+        event: z.object({
+          kind: z.enum(["deployment", "incident", "decision", "meeting", "build", "research", "ops", "personal", "other"]),
+          status: z.enum(["observed", "confirmed", "resolved", "superseded"]),
+          severity: z.enum(["info", "low", "medium", "high", "critical"]),
+          confidence: z.number().min(0).max(1),
+          participants: z.array(z.object({ role: z.string(), name: z.string() })),
+          refs: z.array(z.object({
+            ref_type: z.enum(["artifact_id", "url", "external_id"]),
+            value: z.string(),
+          })),
+        }),
+        tags: z.array(z.string()),
+        rosetta: z.object({
+          verb: z.enum(["Attract", "Contain", "Release", "Repel", "Transform"]),
+          polarity: z.enum(["+", "0", "-"]),
+          weights: z.object({
+            A: z.number(), C: z.number(), L: z.number(),
+            P: z.number(), T: z.number(),
+          }),
+        }),
+      })
+      .parse(args);
+    const out = await createEventCard(parsed);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "kb.get_meta") {
+    const parsed = z
+      .object({
+        artifact_hash: z.string(),
+        artifact_type: z.enum(["card", "event"]),
+      })
+      .strict()
+      .parse(args);
+    const meta = await loadMeta(parsed.artifact_hash, parsed.artifact_type);
+    if (!meta) {
+      return { content: [{ type: "text" as const, text: JSON.stringify({ error: "not_found" }) }] };
+    }
+    return { content: [{ type: "text" as const, text: JSON.stringify(meta, null, 2) }] };
+  }
+
+  if (name === "kb.merge_meta") {
+    const parsed = z
+      .object({
+        artifact_hash: z.string(),
+        artifact_type: z.enum(["card", "event"]),
+        patch: z.record(z.unknown()),
+      })
+      .strict()
+      .parse(args);
+    // Validate the patch shape against the meta schema (partial, so strip required fields)
+    const patchSchema = MetaV1Schema.partial().omit({
+      schema_version: true,
+      artifact_hash: true,
+      artifact_type: true,
+    });
+    const validPatch = patchSchema.parse(parsed.patch);
+    const result = await mergeMeta(
+      parsed.artifact_hash,
+      parsed.artifact_type,
+      validPatch,
+    );
+    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
   }
 
   throw new Error(`Unknown tool: ${name}`);
