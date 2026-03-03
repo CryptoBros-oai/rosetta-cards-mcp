@@ -11,6 +11,7 @@ import { addDocument, buildCard, searchCards, getCard } from "./kb/store.js";
 import { createEventCard } from "./kb/hooks.js";
 import { loadMeta, mergeMeta } from "./kb/vault.js";
 import { MetaPatchSchema } from "./kb/schema.js";
+import { rebuildIndex, loadIndexSnapshot, SNAPSHOT_PATH } from "./kb/index.js";
 
 const server = new Server(
   { name: "rosetta-cards-kb", version: "0.1.0" },
@@ -129,6 +130,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
           required: ["artifact_hash", "artifact_type", "patch"]
         }
+      },
+      {
+        name: "kb.rebuild_index",
+        description: "Scan all on-disk artifacts and meta sidecars and rebuild the index snapshot. Returns summary counts and the snapshot path.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {},
+          required: []
+        }
+      },
+      {
+        name: "kb.index_status",
+        description: "Return the current index snapshot if it exists, or {status: 'none'} if not yet built.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {},
+          required: []
+        }
       }
     ]
   };
@@ -245,6 +264,24 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       validPatch,
     );
     return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+  }
+
+  if (name === "kb.rebuild_index") {
+    const snapshot = await rebuildIndex();
+    const summary = {
+      counts: snapshot.counts,
+      snapshot_path: SNAPSHOT_PATH,
+      built_at: snapshot.built_at,
+    };
+    return { content: [{ type: "text" as const, text: JSON.stringify(summary, null, 2) }] };
+  }
+
+  if (name === "kb.index_status") {
+    const snapshot = await loadIndexSnapshot();
+    if (!snapshot) {
+      return { content: [{ type: "text" as const, text: JSON.stringify({ status: "none" }) }] };
+    }
+    return { content: [{ type: "text" as const, text: JSON.stringify(snapshot, null, 2) }] };
   }
 
   throw new Error(`Unknown tool: ${name}`);

@@ -479,8 +479,39 @@ export const MetaPatchSchema = z.object({
 
 export type MetaPatch = z.infer<typeof MetaPatchSchema>;
 
+// --- Index Snapshot ---
 
+const ByHashEntrySchema = z.object({
+  artifact_type: z.enum(["card", "event"]),
+  path: z.string(),
+  meta_path: z.string().optional(),
+}).strict();
 
+export const IndexSnapshotV1Schema = z.object({
+  schema_version: z.literal("index_snapshot.v1"),
+  built_at: z.string(), // ISO 8601; derived field, not part of identity
+  counts: z.object({
+    cards: z.number().int().nonnegative(),
+    events: z.number().int().nonnegative(),
+    metas: z.number().int().nonnegative(),
+  }).strict(),
+  by_hash: z.record(ByHashEntrySchema),
+  tags: z.record(z.array(z.string())),
+  rosetta: z.object({
+    verb: z.record(z.array(z.string())),
+    polarity: z.record(z.array(z.string())),
+  }).strict(),
+  time: z.object({
+    occurred_at: z.array(
+      z.object({
+        hash: z.string(),
+        occurred_at: z.string(),
+      }).strict(),
+    ),
+  }).strict(),
+}).strict();
+
+export type IndexSnapshotV1 = z.infer<typeof IndexSnapshotV1Schema>;
 
 // --- Vault Context ---
 
