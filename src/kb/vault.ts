@@ -18,6 +18,7 @@ import {
   type IngestReport,
   type EventCard,
   type MetaV1,
+  type MetaPatch,
   MetaV1Schema,
 } from "./schema.js";
 // Policy enforcement utilities
@@ -637,7 +638,7 @@ function mergeIngest(
 export async function mergeMeta(
   hash: string,
   type: MetaV1["artifact_type"],
-  patch: Partial<MetaV1>,
+  patch: MetaPatch,
 ): Promise<MetaV1> {
   const existing = await loadMeta(hash, type);
 

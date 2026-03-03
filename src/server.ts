@@ -10,7 +10,7 @@ import { z } from "zod";
 import { addDocument, buildCard, searchCards, getCard } from "./kb/store.js";
 import { createEventCard } from "./kb/hooks.js";
 import { loadMeta, mergeMeta } from "./kb/vault.js";
-import { MetaV1Schema } from "./kb/schema.js";
+import { MetaPatchSchema } from "./kb/schema.js";
 
 const server = new Server(
   { name: "rosetta-cards-kb", version: "0.1.0" },
@@ -235,13 +235,10 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       })
       .strict()
       .parse(args);
-    // Validate the patch shape against the meta schema (partial, so strip required fields)
-    const patchSchema = MetaV1Schema.partial().omit({
-      schema_version: true,
-      artifact_hash: true,
-      artifact_type: true,
-    });
-    const validPatch = patchSchema.parse(parsed.patch);
+    // Validate with MetaPatchSchema — identity fields are structurally absent,
+    // so any attempt to spoof schema_version / artifact_hash / artifact_type
+    // is rejected as an unrecognized key.
+    const validPatch = MetaPatchSchema.parse(parsed.patch);
     const result = await mergeMeta(
       parsed.artifact_hash,
       parsed.artifact_type,

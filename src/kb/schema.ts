@@ -461,6 +461,24 @@ export const MetaV1Schema = z.object({
     annotations: AnnotationsSchema.optional(),
 }).strict();
 
+/**
+ * MetaPatchSchema — the only safe input surface for kb.merge_meta.
+ *
+ * Intentionally excludes identity fields (schema_version, artifact_hash,
+ * artifact_type) so callers cannot spoof them via the patch payload.
+ * All nested schemas inherit .strict() so unknown keys at any level
+ * are rejected immediately.
+ */
+export const MetaPatchSchema = z.object({
+    occurred_at: z.string().optional(),
+    sources: z.array(SourceSchema).optional(),
+    ingest: IngestSchema.optional(),
+    embeddings: z.array(EmbeddingSchema).optional(),
+    annotations: AnnotationsSchema.optional(),
+}).strict();
+
+export type MetaPatch = z.infer<typeof MetaPatchSchema>;
+
 
 
 
