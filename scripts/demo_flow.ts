@@ -13,9 +13,9 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { upsertCardEmbedding } from "../src/kb/embed.js";
 import { type CardPayload, CardPayloadSchema } from "../src/kb/schema.js";
+import { canonicalHash } from "../src/kb/canonical.js";
 import {
   nowISO,
-  safeCanonicalHash,
   loadJsonStrict,
   loadSearch,
   type SearchResult,
@@ -61,15 +61,9 @@ async function main() {
     tags: ["rosetta", "rks-vm", "opcodes"], // Inferred from doc or passed in
     sources: [{ doc_id: docId, chunk_id: 0 }],
     created_at: createdAt,
-    // Metadata from 'style' and 'include_qr' params would go here or affect rendering
-    metadata: {
-      style: "default",
-      include_qr: true
-    }
   };
-  
-  // The cast here is consistent with other scripts like seed.ts
-  const hash = safeCanonicalHash(cardBase as unknown as Record<string, unknown>);
+
+  const hash = canonicalHash(cardBase as unknown as Record<string, unknown>);
   const card: CardPayload = { ...cardBase, hash };
   
   await fs.mkdir(CARD_DIR, { recursive: true });
