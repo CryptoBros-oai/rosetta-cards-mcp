@@ -656,6 +656,8 @@ export async function mergeMeta(
     embeddings: mergeEmbeddings(existing?.embeddings, patch.embeddings),
     // Mixed: notes LWW, meta_tags union-sorted
     annotations: mergeAnnotations(existing?.annotations, patch.annotations),
+    // Render pointer: last-write-wins (each render supersedes the previous)
+    render: patch.render ?? existing?.render,
   };
 
   // Strip undefined optional fields before validation

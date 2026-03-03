@@ -13,6 +13,7 @@ import { loadMeta, mergeMeta } from "./kb/vault.js";
 import { MetaPatchSchema } from "./kb/schema.js";
 import { rebuildIndex, loadIndexSnapshot, SNAPSHOT_PATH } from "./kb/index.js";
 import { createWeeklySummary } from "./kb/summary.js";
+import { renderCardPngToDerived, renderSummaryPngToDerived, storageReport } from "./kb/derived.js";
 
 const server = new Server(
   { name: "rosetta-cards-kb", version: "0.1.0" },
@@ -179,6 +180,53 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
           required: ["week_start", "references", "highlights", "decisions", "open_loops", "risks"]
         }
+      },
+      {
+        name: "kb.render_card_png",
+        description: "Render a card's PNG into derived/cards/ by hash. Updates the MetaV1 sidecar render pointer. The PNG never affects the card's identity hash.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            hash: { type: "string" as const, description: "Full SHA-256 hex hash of the card." },
+            style: { type: "string" as const, enum: ["default", "dark", "light"] },
+            include_qr: { type: "boolean" as const }
+          },
+          required: ["hash"]
+        }
+      },
+      {
+        name: "kb.render_weekly_summary_png",
+        description: "Render a weekly summary PNG into derived/summaries/ by hash. Writes a lightweight render.v1 sidecar. Never affects the summary's identity hash.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            hash: { type: "string" as const, description: "Full SHA-256 hex hash of the weekly summary." }
+          },
+          required: ["hash"]
+        }
+      },
+      {
+        name: "kb.storage_report",
+        description: "Report vault disk usage across all data/ and derived/ subdirectories with optional budget threshold warnings.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            thresholds: {
+              type: "object" as const,
+              description: "Optional per-directory budget thresholds in GB. Keys: docs_gb, cards_gb, events_gb, blobs_gb, index_gb, derived_gb, total_gb.",
+              properties: {
+                docs_gb:    { type: "number" as const },
+                cards_gb:   { type: "number" as const },
+                events_gb:  { type: "number" as const },
+                blobs_gb:   { type: "number" as const },
+                index_gb:   { type: "number" as const },
+                derived_gb: { type: "number" as const },
+                total_gb:   { type: "number" as const }
+              }
+            }
+          },
+          required: []
+        }
       }
     ]
   };
@@ -339,6 +387,53 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       return { content: [{ type: "text" as const, text: JSON.stringify({ status: "none" }) }] };
     }
     return { content: [{ type: "text" as const, text: JSON.stringify(snapshot, null, 2) }] };
+  }
+
+  if (name === "kb.render_card_png") {
+    const parsed = z
+      .object({
+        hash: z.string(),
+        style: z.enum(["default", "dark", "light"]).optional(),
+        include_qr: z.boolean().optional(),
+      })
+      .strict()
+      .parse(args);
+    const result = await renderCardPngToDerived(parsed.hash, {
+      style: parsed.style,
+      include_qr: parsed.include_qr,
+    });
+    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+  }
+
+  if (name === "kb.render_weekly_summary_png") {
+    const parsed = z
+      .object({ hash: z.string() })
+      .strict()
+      .parse(args);
+    const result = await renderSummaryPngToDerived(parsed.hash);
+    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+  }
+
+  if (name === "kb.storage_report") {
+    const parsed = z
+      .object({
+        thresholds: z
+          .object({
+            docs_gb:    z.number().optional(),
+            cards_gb:   z.number().optional(),
+            events_gb:  z.number().optional(),
+            blobs_gb:   z.number().optional(),
+            index_gb:   z.number().optional(),
+            derived_gb: z.number().optional(),
+            total_gb:   z.number().optional(),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .parse(args);
+    const report = await storageReport(parsed.thresholds ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
   }
 
   throw new Error(`Unknown tool: ${name}`);

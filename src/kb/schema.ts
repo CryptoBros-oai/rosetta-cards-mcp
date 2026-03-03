@@ -423,6 +423,8 @@ export type MetaV1 = {
     ingest?: { pipeline?: string; extractor?: string; chunker?: string; stats?: Record<string, number> };
     embeddings?: Array<{ model: string; dims: number; embedding_id?: string; status: "present" | "missing" | "stale"; updated_at?: string }>;
     annotations?: { notes?: string; meta_tags?: string[] };
+    /** Pointer to the last derived PNG render of this artifact. Never affects identity. */
+    render?: { path: string; template: string; rendered_at: string };
 };
 
 const SourceSchema = z.object({
@@ -450,6 +452,12 @@ const AnnotationsSchema = z.object({
     meta_tags: z.array(z.string()).optional(),
 }).strict();
 
+const RenderInfoSchema = z.object({
+    path: z.string(),        // relative path from vault root
+    template: z.string(),    // template identifier used to produce the PNG
+    rendered_at: z.string(), // ISO 8601 — never hashed, lives in sidecar only
+}).strict();
+
 export const MetaV1Schema = z.object({
     schema_version: z.literal("meta.v1"),
     artifact_hash: z.string(),
@@ -459,6 +467,7 @@ export const MetaV1Schema = z.object({
     ingest: IngestSchema.optional(),
     embeddings: z.array(EmbeddingSchema).optional(),
     annotations: AnnotationsSchema.optional(),
+    render: RenderInfoSchema.optional(),
 }).strict();
 
 /**
@@ -475,6 +484,7 @@ export const MetaPatchSchema = z.object({
     ingest: IngestSchema.optional(),
     embeddings: z.array(EmbeddingSchema).optional(),
     annotations: AnnotationsSchema.optional(),
+    render: RenderInfoSchema.optional(),
 }).strict();
 
 export type MetaPatch = z.infer<typeof MetaPatchSchema>;
