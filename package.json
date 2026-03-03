@@ -18,7 +18,8 @@
     "visualize": "node --loader ts-node/esm scripts/visualize_chunking.ts",
     "visualize:render": "node --loader ts-node/esm scripts/render_visualization.ts",
     "smoke": "node scripts/smoke.mjs",
-    "smoke:render": "SMOKE_RENDER=1 node scripts/smoke.mjs"
+    "smoke:render": "SMOKE_RENDER=1 node scripts/smoke.mjs",
+    "genesis": "node --loader ts-node/esm scripts/genesis_prove.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
