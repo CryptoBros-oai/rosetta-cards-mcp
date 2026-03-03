@@ -513,6 +513,37 @@ export const IndexSnapshotV1Schema = z.object({
 
 export type IndexSnapshotV1 = z.infer<typeof IndexSnapshotV1Schema>;
 
+// --- Weekly Summary ---
+
+/**
+ * WeeklySummarySchema — derived synthesis artifact.
+ *
+ * Identity rule: hash = canonicalHash(all fields except hash).
+ * week_start must be normalized to the Monday of that ISO week (YYYY-MM-DD).
+ * week_end is the following Sunday (week_start + 6 days).
+ * references.events and references.cards must be sorted before hashing
+ * (callers may supply them in any order; the create function sorts them).
+ */
+export const WeeklySummarySchema = z.object({
+  schema_version: z.literal("summary.week.v1"),
+  week_start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "week_start must be YYYY-MM-DD"),
+  week_end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "week_end must be YYYY-MM-DD"),
+  references: z.object({
+    events: z.array(z.string()),
+    cards: z.array(z.string()),
+  }).strict(),
+  highlights: z.array(z.string()),
+  decisions: z.array(z.string()),
+  open_loops: z.array(z.string()),
+  risks: z.array(z.string()),
+  rosetta_balance: z.object({
+    A: z.number(), C: z.number(), L: z.number(), P: z.number(), T: z.number(),
+  }).strict().optional(),
+  hash: z.string(),
+}).strict();
+
+export type WeeklySummary = z.infer<typeof WeeklySummarySchema>;
+
 // --- Vault Context ---
 
 export const DEFAULT_POLICIES: PackPolicies = {

@@ -12,6 +12,7 @@ import { createEventCard } from "./kb/hooks.js";
 import { loadMeta, mergeMeta } from "./kb/vault.js";
 import { MetaPatchSchema } from "./kb/schema.js";
 import { rebuildIndex, loadIndexSnapshot, SNAPSHOT_PATH } from "./kb/index.js";
+import { createWeeklySummary } from "./kb/summary.js";
 
 const server = new Server(
   { name: "rosetta-cards-kb", version: "0.1.0" },
@@ -148,6 +149,36 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {},
           required: []
         }
+      },
+      {
+        name: "kb.create_weekly_summary",
+        description: "Create a deterministic weekly summary artifact from referenced events and cards. week_start is normalized to Monday of that ISO week.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            week_start: { type: "string" as const, description: "Any date in YYYY-MM-DD; normalized to Monday of that week." },
+            references: {
+              type: "object" as const,
+              properties: {
+                events: { type: "array" as const, items: { type: "string" as const } },
+                cards: { type: "array" as const, items: { type: "string" as const } }
+              }
+            },
+            highlights: { type: "array" as const, items: { type: "string" as const } },
+            decisions: { type: "array" as const, items: { type: "string" as const } },
+            open_loops: { type: "array" as const, items: { type: "string" as const } },
+            risks: { type: "array" as const, items: { type: "string" as const } },
+            rosetta_balance: {
+              type: "object" as const,
+              properties: {
+                A: { type: "number" as const }, C: { type: "number" as const },
+                L: { type: "number" as const }, P: { type: "number" as const },
+                T: { type: "number" as const }
+              }
+            }
+          },
+          required: ["week_start", "references", "highlights", "decisions", "open_loops", "risks"]
+        }
       }
     ]
   };
@@ -264,6 +295,32 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       validPatch,
     );
     return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+  }
+
+  if (name === "kb.create_weekly_summary") {
+    const parsed = z
+      .object({
+        week_start: z.string(),
+        references: z.object({
+          events: z.array(z.string()).optional(),
+          cards: z.array(z.string()).optional(),
+        }).strict(),
+        highlights: z.array(z.string()),
+        decisions: z.array(z.string()),
+        open_loops: z.array(z.string()),
+        risks: z.array(z.string()),
+        rosetta_balance: z
+          .object({
+            A: z.number(), C: z.number(), L: z.number(),
+            P: z.number(), T: z.number(),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .parse(args);
+    const summary = await createWeeklySummary(parsed);
+    return { content: [{ type: "text" as const, text: JSON.stringify(summary, null, 2) }] };
   }
 
   if (name === "kb.rebuild_index") {
