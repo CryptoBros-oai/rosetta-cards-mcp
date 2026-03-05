@@ -1,0 +1,11 @@
+{
+  "version": "artifact_v1",
+  "kind": "skill",
+  "payload": {
+    "name": "deterministic_hashing",
+    "description": "Canonicalize then SHA-256"
+  },
+  "tags": ["blessed", "canonical"],
+  "refs": [],
+  "expected_hash": "1f50587aaabffebb7936ca486b6ecbea74105704d8bf6758ca82f841f8eeab93"
+}

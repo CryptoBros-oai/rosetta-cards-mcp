@@ -8,12 +8,14 @@ import {
 import { z } from "zod";
 
 import { addDocument, buildCard, searchCards, getCard } from "./kb/store.js";
-import { createEventCard } from "./kb/hooks.js";
+import { createEventCard, storagePlanHook, storageApplyHook, storageRestoreHook } from "./kb/hooks.js";
 import { loadMeta, mergeMeta } from "./kb/vault.js";
-import { MetaPatchSchema } from "./kb/schema.js";
+import { MetaPatchSchema, EventCreateInputSchema } from "./kb/schema.js";
 import { rebuildIndex, loadIndexSnapshot, SNAPSHOT_PATH } from "./kb/index.js";
 import { createWeeklySummary } from "./kb/summary.js";
 import { renderCardPngToDerived, renderSummaryPngToDerived, storageReport } from "./kb/derived.js";
+import { vmExecuteHook, vmListOpcodesHook, vmValidateProgramHook, vmCompareHook, vmPhaseScanHook, vmListRunsHook, vmSearchRunsHook, vmSearchScansHook, vmGetScanHook, vmTopScansHook, vmTopTransitionsHook, vmTopNovelScansHook } from "./kb/vm_hooks.js";
+import { vaultPut, vaultGet, vaultSearch, VaultPutInputSchema, VaultGetInputSchema, VaultSearchInputSchema } from "./vault/index.js";
 
 const server = new Server(
   { name: "rosetta-cards-kb", version: "0.1.0" },
@@ -227,6 +229,250 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
           required: []
         }
+      },
+      {
+        name: "kb.storage_plan",
+        description: "Dry-run: compute what storage actions would be taken (prune derived PNGs, archive cold docs/blobs, vacuum embeddings) without executing anything. Reads data/storage_policy.json if present.",
+        inputSchema: { type: "object" as const, properties: {}, required: [] }
+      },
+      {
+        name: "kb.storage_apply",
+        description: "Execute the storage plan safely: prune derived PNGs first, archive cold docs/blobs/text to cold store, vacuum embeddings index, prune old bundles. Never touches identity or meta artifacts.",
+        inputSchema: {
+          type: "object" as const,
+          properties: { dry_run: { type: "boolean" as const } },
+          required: []
+        }
+      },
+      {
+        name: "kb.storage_restore",
+        description: "Restore a cold-archived artifact by tier and hash list. For derived PNGs that were pruned (not archived), re-renders from identity JSON.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            tier: { type: "string" as const, enum: ["derived", "docs", "blobs", "text", "bundles", "embeddings"] },
+            hashes: { type: "array" as const, items: { type: "string" as const } },
+            all: { type: "boolean" as const }
+          },
+          required: ["tier"]
+        }
+      },
+      {
+        name: "vm.execute",
+        description: "Execute a deterministic opcode program against structured state. Returns final state, execution trace, and metrics. Optionally persist the run to disk.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            program: { type: "object" as const, description: "VmProgram with program_id, version, and opcodes array" },
+            state: { type: "object" as const, description: "Initial VmState with bags, stack, flags, notes" },
+            env: { type: "object" as const, description: "VmEnv with run_seed, world_seed, optional max_steps and params" },
+            options: {
+              type: "object" as const,
+              properties: {
+                fullTrace: { type: "boolean" as const },
+                expectedBagTotal: { type: "number" as const },
+                maxStackDepth: { type: "number" as const },
+                softHalt: { type: "boolean" as const },
+                persist: { type: "boolean" as const, description: "If true, persist the run to data/runs/<hash12>/" },
+                tags: { type: "array" as const, items: { type: "string" as const }, description: "Tags to attach to the run index entry (requires persist=true)" }
+              }
+            }
+          },
+          required: ["program", "state", "env"]
+        }
+      },
+      {
+        name: "vm.list_opcodes",
+        description: "List all registered opcodes with their verb family, description, and required args. Optionally filter by verb.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            verb: { type: "string" as const, enum: ["Attract", "Contain", "Release", "Repel", "Transform"] }
+          }
+        }
+      },
+      {
+        name: "vm.validate_program",
+        description: "Validate a program without executing it. Checks all opcode_ids exist, verbs match, and args are well-formed.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            program: { type: "object" as const }
+          },
+          required: ["program"]
+        }
+      },
+      {
+        name: "vm.compare",
+        description: "Compare two VmResult objects using configurable alignment (step, opcode_signature, or milestone). Produces deltas for scalars, verb distribution, bag values, opcode frequency, and a summary.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            a: { type: "object" as const, description: "First VmResult (state, trace, metrics)" },
+            b: { type: "object" as const, description: "Second VmResult (state, trace, metrics)" },
+            a_run_hash: { type: "string" as const, description: "Optional run hash for result A" },
+            b_run_hash: { type: "string" as const, description: "Optional run hash for result B" },
+            align: { type: "string" as const, enum: ["step", "opcode_signature", "milestone"], description: "Alignment mode (default: step)" },
+            milestones: { type: "object" as const, properties: { opcode_ids: { type: "array" as const, items: { type: "string" as const } } }, description: "Custom milestone opcode IDs (for milestone alignment)" }
+          },
+          required: ["a", "b"]
+        }
+      },
+      {
+        name: "vm.phase_scan",
+        description: "Run a parameter sweep over env knobs. Supports grid mode (cartesian) and adaptive mode (bisection refinement around phase transitions).",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            program: { type: "object" as const, description: "VmProgram to scan" },
+            state0: { type: "object" as const, description: "Initial VmState" },
+            base_env: { type: "object" as const, description: "Base VmEnv (knobs override specific fields)" },
+            knobs: { type: "array" as const, items: { type: "object" as const, properties: { key: { type: "string" as const }, values: { type: "array" as const } }, required: ["key", "values"] }, description: "Array of knobs: { key, values[] }" },
+            include_trace: { type: "boolean" as const, description: "Include full trace per grid point (default false)" },
+            options: { type: "object" as const, properties: { softHalt: { type: "boolean" as const }, expectedBagTotal: { type: "number" as const } } },
+            scan_mode: { type: "string" as const, enum: ["grid", "adaptive", "hunt_boundaries"], description: "Scan mode (default: grid)" },
+            adaptive: { type: "object" as const, properties: { max_refinements: { type: "number" as const, description: "Max bisection rounds (default 3)" }, max_total_runs: { type: "number" as const, description: "Max total executions (default 100)" } }, description: "Adaptive mode options" },
+            boundary_hunt: { type: "object" as const, properties: { max_refinements: { type: "number" as const }, max_total_runs: { type: "number" as const }, expansion_steps: { type: "number" as const }, expansion_factor: { type: "number" as const } }, description: "Boundary hunt mode options" }
+          },
+          required: ["program", "state0", "base_env", "knobs"]
+        }
+      },
+      {
+        name: "vm.list_runs",
+        description: "List all persisted VM run metadata, sorted by hash prefix.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {},
+          required: []
+        }
+      },
+      {
+        name: "vm.search_runs",
+        description: "Search the run index with filters: program fingerprint/id, env ranges, metric thresholds, tags, halted_early. Supports pagination.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            program_fingerprint: { type: "string" as const },
+            program_id: { type: "string" as const },
+            run_seed_min: { type: "number" as const },
+            run_seed_max: { type: "number" as const },
+            world_seed_min: { type: "number" as const },
+            world_seed_max: { type: "number" as const },
+            total_steps_min: { type: "number" as const },
+            total_steps_max: { type: "number" as const },
+            final_bag_sum_min: { type: "number" as const },
+            final_bag_sum_max: { type: "number" as const },
+            halted_early: { type: "boolean" as const },
+            tags: { type: "array" as const, items: { type: "string" as const }, description: "Filter by tags (AND logic)" },
+            limit: { type: "number" as const, description: "Max results (default 50)" },
+            offset: { type: "number" as const, description: "Skip first N results (default 0)" }
+          }
+        }
+      },
+      {
+        name: "vm.search_scans",
+        description: "Search the scan index with filters: program_id, hint counts, grid size, adaptive mode, halt fraction. Supports pagination.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            program_id: { type: "string" as const },
+            program_fingerprint: { type: "string" as const },
+            min_hints: { type: "number" as const },
+            max_hints: { type: "number" as const },
+            min_grid_points: { type: "number" as const },
+            max_grid_points: { type: "number" as const },
+            has_adaptive: { type: "boolean" as const },
+            halt_fraction_min: { type: "number" as const },
+            halt_fraction_max: { type: "number" as const },
+            limit: { type: "number" as const, description: "Max results (default 50)" },
+            offset: { type: "number" as const, description: "Skip first N results (default 0)" }
+          }
+        }
+      },
+      {
+        name: "vm.get_scan",
+        description: "Get a scan by ID (full hash or 12-char prefix). Returns the scan index record plus paths to report and signature files.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            scan_id: { type: "string" as const, description: "Scan hash (full or 12-char prefix)" }
+          },
+          required: ["scan_id"]
+        }
+      },
+      {
+        name: "vm.top_scans",
+        description: "Get the top scans ranked by interestingness score. Scores are based on transition density, metric cliff magnitude, opcode concentration, and adaptive refinements.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            limit: { type: "number" as const, description: "Max results (default 50)" },
+            program_id: { type: "string" as const, description: "Filter by program ID" }
+          }
+        }
+      },
+      {
+        name: "vm.top_transitions",
+        description: "Get the top individual phase transitions ranked by interestingness. Scores transitions by scalar delta magnitude, opcode gating, and cliff significance.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            limit: { type: "number" as const, description: "Max results (default 200)" },
+            program_id: { type: "string" as const, description: "Filter by program ID" }
+          }
+        }
+      },
+      {
+        name: "vm.top_novel_scans",
+        description: "Get the top scans ranked by novelty (cosine distance from other scans). Novel scans explore unique regions of behavior space.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            limit: { type: "number" as const, description: "Max results (default 50)" },
+            program_id: { type: "string" as const, description: "Filter by program ID" }
+          }
+        }
+      },
+      {
+        name: "vault.put",
+        description: "Store a content-addressed artifact in the vault. Deduplicates by structural hash of (version, kind, payload, tags, refs). Returns artifact ID and whether it was newly created.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            kind: { type: "string" as const, enum: ["event", "fact", "decision", "skill", "profile", "tool_obs", "summary", "project"], description: "Artifact kind" },
+            payload: { type: "object" as const, description: "Arbitrary structured payload (no temporal/env keys allowed)" },
+            tags: { type: "array" as const, items: { type: "string" as const }, description: "Structural tags (affect identity hash). Use personal: prefix for private artifacts." },
+            refs: { type: "array" as const, items: { type: "object" as const, properties: { kind: { type: "string" as const }, id: { type: "string" as const } }, required: ["kind", "id"] }, description: "Referenced artifact IDs" },
+            source: { type: "object" as const, properties: { agent: { type: "string" as const }, tool: { type: "string" as const }, repo: { type: "string" as const }, run_id: { type: "string" as const } }, description: "Provenance (excluded from hash)" },
+          },
+          required: ["kind", "payload"]
+        }
+      },
+      {
+        name: "vault.get",
+        description: "Retrieve an artifact by its content-addressed ID (sha256 hex).",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            id: { type: "string" as const, description: "Artifact ID (sha256 hex)" },
+          },
+          required: ["id"]
+        }
+      },
+      {
+        name: "vault.search",
+        description: "Search artifacts by full-text query over payload+tags+kind, with optional filters. Use exclude_personal=true to omit personal: tagged artifacts.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            query: { type: "string" as const, description: "Full-text search query" },
+            kind: { type: "string" as const, enum: ["event", "fact", "decision", "skill", "profile", "tool_obs", "summary", "project"], description: "Filter by artifact kind" },
+            tags: { type: "array" as const, items: { type: "string" as const }, description: "Filter by tags (AND logic)" },
+            exclude_personal: { type: "boolean" as const, description: "Exclude artifacts with personal: tags (default false)" },
+            limit: { type: "number" as const, description: "Max results (default 10)" },
+            offset: { type: "number" as const, description: "Pagination offset (default 0)" },
+          }
+        }
       }
     ]
   };
@@ -279,33 +525,8 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   }
 
   if (name === "kb.create_event") {
-    const parsed = z
-      .object({
-        title: z.string(),
-        summary: z.string(),
-        event: z.object({
-          kind: z.enum(["deployment", "incident", "decision", "meeting", "build", "research", "ops", "personal", "other"]),
-          status: z.enum(["observed", "confirmed", "resolved", "superseded"]),
-          severity: z.enum(["info", "low", "medium", "high", "critical"]),
-          confidence: z.number().min(0).max(1),
-          participants: z.array(z.object({ role: z.string(), name: z.string() })),
-          refs: z.array(z.object({
-            ref_type: z.enum(["artifact_id", "url", "external_id"]),
-            value: z.string(),
-          })),
-        }),
-        tags: z.array(z.string()),
-        rosetta: z.object({
-          verb: z.enum(["Attract", "Contain", "Release", "Repel", "Transform"]),
-          polarity: z.enum(["+", "0", "-"]),
-          weights: z.object({
-            A: z.number(), C: z.number(), L: z.number(),
-            P: z.number(), T: z.number(),
-          }),
-        }),
-      })
-      .parse(args);
-    const out = await createEventCard(parsed);
+    // Validation is fully delegated to createEventCard (uses EventCreateInputSchema internally)
+    const out = await createEventCard(args);
     return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
   }
 
@@ -434,6 +655,110 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       .parse(args);
     const report = await storageReport(parsed.thresholds ?? {});
     return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
+  }
+
+  if (name === "kb.storage_plan") {
+    const out = await storagePlanHook(args ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "kb.storage_apply") {
+    const out = await storageApplyHook(args ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "kb.storage_restore") {
+    const out = await storageRestoreHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.execute") {
+    const out = await vmExecuteHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.list_opcodes") {
+    const out = await vmListOpcodesHook(args ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.validate_program") {
+    const out = await vmValidateProgramHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.compare") {
+    const out = await vmCompareHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.phase_scan") {
+    const out = await vmPhaseScanHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.list_runs") {
+    const out = await vmListRunsHook(args ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.search_runs") {
+    const out = await vmSearchRunsHook(args ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.search_scans") {
+    const out = await vmSearchScansHook(args ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.get_scan") {
+    const out = await vmGetScanHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.top_scans") {
+    const out = await vmTopScansHook(args ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.top_transitions") {
+    const out = await vmTopTransitionsHook(args ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vm.top_novel_scans") {
+    const out = await vmTopNovelScansHook(args ?? {});
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vault.put") {
+    try {
+      const parsed = VaultPutInputSchema.parse(args);
+      const out = await vaultPut(parsed);
+      return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("Determinism violation")) {
+        return { content: [{ type: "text" as const, text: JSON.stringify({ error: "INVALID_ARTIFACT", message: msg }) }] };
+      }
+      throw e;
+    }
+  }
+
+  if (name === "vault.get") {
+    const parsed = VaultGetInputSchema.parse(args);
+    const out = await vaultGet(parsed.id);
+    if (!out) {
+      return { content: [{ type: "text" as const, text: JSON.stringify({ error: "NOT_FOUND" }) }] };
+    }
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "vault.search") {
+    const parsed = VaultSearchInputSchema.parse(args);
+    const out = await vaultSearch(parsed);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
   }
 
   throw new Error(`Unknown tool: ${name}`);
