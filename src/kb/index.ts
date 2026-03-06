@@ -14,6 +14,7 @@ import path from "node:path";
 
 import {
   EventCardSchema,
+  ExecutionCardSchema,
   MetaV1Schema,
   IndexSnapshotV1Schema,
   type IndexSnapshotV1,
@@ -74,18 +75,22 @@ function metaPathFor(
   hash: string,
 ): string {
   const h12 = hash.slice(0, 12);
-  const dir =
-    type === "event"
-      ? path.join(vaultRoot, "data", "events")
-      : path.join(vaultRoot, "data", "cards");
-  const prefix = type === "event" ? `card_event_${h12}` : `card_${h12}`;
-  return path.join(dir, `${prefix}.meta.json`);
+  if (type === "event") {
+    return path.join(vaultRoot, "data", "events", `card_event_${h12}.meta.json`);
+  }
+  if (type === "execution") {
+    return path.join(vaultRoot, "data", "cards", `card_execution_${h12}.meta.json`);
+  }
+  return path.join(vaultRoot, "data", "cards", `card_${h12}.meta.json`);
 }
 
-/** Detect artifact type from parsed JSON. Returns "event" or "card". */
-function detectType(obj: Record<string, unknown>): "card" | "event" {
+/** Detect artifact type from parsed JSON. */
+function detectType(obj: Record<string, unknown>): "card" | "event" | "execution" {
   if (obj.schema_version === "event.v1" && obj.artifact_type === "event") {
     return "event";
+  }
+  if (obj.schema_version === "execution.v1" && obj.artifact_type === "execution") {
+    return "execution";
   }
   return "card";
 }
@@ -124,6 +129,7 @@ export async function rebuildIndex(
 
   let cardCount = 0;
   let eventCount = 0;
+  let executionCount = 0;
   let metaCount = 0;
 
   // Effective root for relative paths
@@ -155,7 +161,7 @@ export async function rebuildIndex(
       }
     }
 
-    // --- Rosetta index (events only) ---
+    // --- Rosetta index (events and executions) ---
     if (artifactType === "event") {
       try {
         const parsed = EventCardSchema.parse(obj);
@@ -163,7 +169,15 @@ export async function rebuildIndex(
         addToIndex(rosettaPolarity, parsed.rosetta.polarity, hash);
         eventCount++;
       } catch {
-        // Invalid event schema — classify as plain card
+        cardCount++;
+      }
+    } else if (artifactType === "execution") {
+      try {
+        const parsed = ExecutionCardSchema.parse(obj);
+        addToIndex(rosettaVerb, parsed.rosetta.verb, hash);
+        addToIndex(rosettaPolarity, parsed.rosetta.polarity, hash);
+        executionCount++;
+      } catch {
         cardCount++;
       }
     } else {
@@ -207,7 +221,7 @@ export async function rebuildIndex(
   const snapshot: IndexSnapshotV1 = IndexSnapshotV1Schema.parse({
     schema_version: "index_snapshot.v1",
     built_at: builtAt,
-    counts: { cards: cardCount, events: eventCount, metas: metaCount },
+    counts: { cards: cardCount, events: eventCount, executions: executionCount, metas: metaCount },
     by_hash: byHash,
     tags,
     rosetta: { verb: rosettaVerb, polarity: rosettaPolarity },

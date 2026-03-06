@@ -493,4 +493,134 @@ describe("execution card -- input schema boundary", () => {
     };
     assert.throws(() => ExecutionCreateInputSchema.parse(input));
   });
+
+  it("accepts valid input with chain fields", () => {
+    const input = {
+      title: "test",
+      summary: "test",
+      execution: {
+        kind: "validation",
+        status: "validated",
+        actor: { type: "system", name: "checker" },
+        target: { type: "artifact", name: "card_123" },
+        inputs: [],
+        outputs: [],
+        validation: { state: "verified", method: "hash_check" },
+        chain: {
+          pipeline_id: "pipe-1",
+          step_index: 1,
+          parent_execution_id: "abc123",
+          related_execution_ids: ["def456"],
+        },
+      },
+      tags: ["test"],
+      rosetta: { verb: "Contain", polarity: "0", weights: { A: 0, C: 1, L: 0, P: 0, T: 0 } },
+    };
+    assert.doesNotThrow(() => ExecutionCreateInputSchema.parse(input));
+  });
+
+  it("rejects unknown keys inside chain", () => {
+    const input = {
+      title: "test",
+      summary: "test",
+      execution: {
+        kind: "job",
+        status: "succeeded",
+        actor: { type: "agent", name: "test" },
+        target: { type: "tool", name: "test" },
+        inputs: [],
+        outputs: [],
+        validation: { state: "unvalidated", method: "none" },
+        chain: { pipeline_id: "pipe-1", unknown_field: "bad" },
+      },
+      tags: ["test"],
+      rosetta: { verb: "Contain", polarity: "0", weights: { A: 0, C: 1, L: 0, P: 0, T: 0 } },
+    };
+    assert.throws(
+      () => ExecutionCreateInputSchema.parse(input),
+      /unrecognized_keys/i,
+      "Chain sub-object should reject unknown keys"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Execution chain -- golden fixture
+// ---------------------------------------------------------------------------
+
+describe("execution card -- chain golden fixture", () => {
+  it("all 3 pipeline steps match expected hashes", () => {
+    const fixturePath = join(import.meta.dirname ?? __dirname, "fixtures", "golden-execution-chain.json");
+    const fixture = JSON.parse(readFileSync(fixturePath, "utf-8"));
+
+    for (let i = 0; i < fixture.steps.length; i++) {
+      const { expected_hash, ...payload } = fixture.steps[i];
+      const computed = canonicalHash(payload as Record<string, unknown>);
+      assert.equal(computed, expected_hash, `Step ${i} hash mismatch`);
+    }
+  });
+
+  it("chain fields affect identity (with vs without chain)", () => {
+    const withChain = buildExecutionHashPayload({
+      title: "Test",
+      summary: "Test",
+      execution: {
+        kind: "job",
+        status: "succeeded",
+        actor: { type: "agent", name: "test" },
+        target: { type: "tool", name: "test" },
+        inputs: [],
+        outputs: [],
+        validation: { state: "unvalidated", method: "none" },
+        chain: { pipeline_id: "pipe-1", step_index: 0 },
+      },
+      tags: ["test"],
+      rosetta: { verb: "Contain", polarity: "0", weights: { A: 0, C: 1, L: 0, P: 0, T: 0 } },
+    });
+
+    const withoutChain = buildExecutionHashPayload({
+      title: "Test",
+      summary: "Test",
+      execution: {
+        kind: "job",
+        status: "succeeded",
+        actor: { type: "agent", name: "test" },
+        target: { type: "tool", name: "test" },
+        inputs: [],
+        outputs: [],
+        validation: { state: "unvalidated", method: "none" },
+      },
+      tags: ["test"],
+      rosetta: { verb: "Contain", polarity: "0", weights: { A: 0, C: 1, L: 0, P: 0, T: 0 } },
+    });
+
+    const hashWith = canonicalHash(withChain as unknown as Record<string, unknown>);
+    const hashWithout = canonicalHash(withoutChain as unknown as Record<string, unknown>);
+    assert.notEqual(hashWith, hashWithout, "Chain fields must affect identity");
+  });
+
+  it("parent_execution_id links are consistent across chain", () => {
+    const fixturePath = join(import.meta.dirname ?? __dirname, "fixtures", "golden-execution-chain.json");
+    const fixture = JSON.parse(readFileSync(fixturePath, "utf-8"));
+
+    // Step 1's parent should be step 0's hash
+    assert.equal(
+      fixture.steps[1].execution.chain.parent_execution_id,
+      fixture.steps[0].expected_hash,
+      "Step 1 parent should reference step 0"
+    );
+
+    // Step 2's parent should be step 1's hash
+    assert.equal(
+      fixture.steps[2].execution.chain.parent_execution_id,
+      fixture.steps[1].expected_hash,
+      "Step 2 parent should reference step 1"
+    );
+
+    // Step 2's related should include step 0's hash
+    assert.ok(
+      fixture.steps[2].execution.chain.related_execution_ids.includes(fixture.steps[0].expected_hash),
+      "Step 2 related should include step 0"
+    );
+  });
 });

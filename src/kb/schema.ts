@@ -462,6 +462,13 @@ export type ExecutionValidation = {
   method: ValidationMethod;
 };
 
+export type ExecutionChain = {
+  parent_execution_id?: string;
+  pipeline_id?: string;
+  step_index?: number;
+  related_execution_ids?: string[];
+};
+
 export type ExecutionDetail = {
   kind: ExecutionKind;
   status: ExecutionStatus;
@@ -470,6 +477,7 @@ export type ExecutionDetail = {
   inputs: ExecutionRef[];
   outputs: ExecutionRef[];
   validation: ExecutionValidation;
+  chain?: ExecutionChain;
 };
 
 export type ExecutionCard = {
@@ -503,6 +511,13 @@ const ExecutionValidationSchema = z.object({
   method: z.enum(["none", "hash_check", "human_review", "replay", "consensus"]),
 }).strict();
 
+const ExecutionChainSchema = z.object({
+  parent_execution_id: z.string().optional(),
+  pipeline_id: z.string().optional(),
+  step_index: z.number().int().nonnegative().optional(),
+  related_execution_ids: z.array(z.string()).optional(),
+}).strict();
+
 export const ExecutionDetailSchema = z.object({
   kind: z.enum([
     "job", "tool_call", "model_call", "pipeline",
@@ -517,6 +532,7 @@ export const ExecutionDetailSchema = z.object({
   inputs: z.array(ExecutionRefSchema),
   outputs: z.array(ExecutionRefSchema),
   validation: ExecutionValidationSchema,
+  chain: ExecutionChainSchema.optional(),
 }).strict();
 
 export const ExecutionCardSchema = z.object({
@@ -823,7 +839,7 @@ export type MetaPatch = z.infer<typeof MetaPatchSchema>;
 // --- Index Snapshot ---
 
 const ByHashEntrySchema = z.object({
-  artifact_type: z.enum(["card", "event"]),
+  artifact_type: z.enum(["card", "event", "execution"]),
   path: z.string(),
   meta_path: z.string().optional(),
 }).strict();

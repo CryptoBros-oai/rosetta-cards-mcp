@@ -127,7 +127,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                 target: { type: "object" as const, properties: { type: { type: "string" as const, enum: ["artifact", "tool", "model", "node", "external"] }, name: { type: "string" as const } }, required: ["type", "name"] },
                 inputs: { type: "array" as const, items: { type: "object" as const, properties: { ref_type: { type: "string" as const, enum: ["artifact_id", "url", "external_id", "inline"] }, value: { type: "string" as const } }, required: ["ref_type", "value"] } },
                 outputs: { type: "array" as const, items: { type: "object" as const, properties: { ref_type: { type: "string" as const, enum: ["artifact_id", "url", "external_id", "inline"] }, value: { type: "string" as const } }, required: ["ref_type", "value"] } },
-                validation: { type: "object" as const, properties: { state: { type: "string" as const, enum: ["unvalidated", "self_reported", "verified", "disputed"] }, method: { type: "string" as const, enum: ["none", "hash_check", "human_review", "replay", "consensus"] } }, required: ["state", "method"] }
+                validation: { type: "object" as const, properties: { state: { type: "string" as const, enum: ["unvalidated", "self_reported", "verified", "disputed"] }, method: { type: "string" as const, enum: ["none", "hash_check", "human_review", "replay", "consensus"] } }, required: ["state", "method"] },
+                chain: { type: "object" as const, properties: { parent_execution_id: { type: "string" as const }, pipeline_id: { type: "string" as const }, step_index: { type: "number" as const }, related_execution_ids: { type: "array" as const, items: { type: "string" as const } } }, description: "Optional workflow chain references (structural, affects identity)" }
               },
               required: ["kind", "status", "actor", "target", "inputs", "outputs", "validation"]
             },

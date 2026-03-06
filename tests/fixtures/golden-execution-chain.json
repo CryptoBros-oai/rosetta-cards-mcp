@@ -1,0 +1,67 @@
+{
+  "description": "3-step pipeline chain: ingest -> validate -> export",
+  "steps": [
+    {
+      "schema_version": "execution.v1",
+      "artifact_type": "execution",
+      "title": "Ingest research corpus",
+      "summary": "Ingested 12 markdown files from research corpus.",
+      "execution": {
+        "kind": "import",
+        "status": "succeeded",
+        "actor": { "type": "agent", "name": "Claude Code" },
+        "target": { "type": "tool", "name": "kb.ingest_folder" },
+        "inputs": [{ "ref_type": "url", "value": "file:///data/research-corpus/" }],
+        "outputs": [{ "ref_type": "artifact_id", "value": "card_report_a1b2c3d4e5f6" }],
+        "validation": { "state": "self_reported", "method": "hash_check" },
+        "chain": { "pipeline_id": "corpus-pipeline-v1", "step_index": 0 }
+      },
+      "tags": ["pipeline", "ingestion"],
+      "rosetta": { "verb": "Contain", "polarity": "+", "weights": { "A": 0, "C": 1, "L": 0, "P": 0, "T": 0 } },
+      "expected_hash": "df5f78f675e827218c8822da7f50997c31b0e7b5c125944dcdba3d15e42a97f3"
+    },
+    {
+      "schema_version": "execution.v1",
+      "artifact_type": "execution",
+      "title": "Validate ingested corpus integrity",
+      "summary": "Verified hash integrity of all 12 ingested cards.",
+      "execution": {
+        "kind": "validation",
+        "status": "validated",
+        "actor": { "type": "system", "name": "integrity-checker" },
+        "target": { "type": "artifact", "name": "card_report_a1b2c3d4e5f6" },
+        "inputs": [{ "ref_type": "artifact_id", "value": "card_report_a1b2c3d4e5f6" }],
+        "outputs": [],
+        "validation": { "state": "verified", "method": "hash_check" },
+        "chain": { "pipeline_id": "corpus-pipeline-v1", "step_index": 1, "parent_execution_id": "df5f78f675e827218c8822da7f50997c31b0e7b5c125944dcdba3d15e42a97f3" }
+      },
+      "tags": ["pipeline", "validation"],
+      "rosetta": { "verb": "Contain", "polarity": "+", "weights": { "A": 0, "C": 1, "L": 0, "P": 0, "T": 0 } },
+      "expected_hash": "3636408ff2d4a63f3d2a5fe31afa4447b3e47d292374ee81ceb354d7deecc97e"
+    },
+    {
+      "schema_version": "execution.v1",
+      "artifact_type": "execution",
+      "title": "Export corpus bundle",
+      "summary": "Exported validated corpus as portable bundle.",
+      "execution": {
+        "kind": "export",
+        "status": "succeeded",
+        "actor": { "type": "agent", "name": "Claude Code" },
+        "target": { "type": "tool", "name": "kb.export_bundle" },
+        "inputs": [{ "ref_type": "artifact_id", "value": "card_report_a1b2c3d4e5f6" }],
+        "outputs": [{ "ref_type": "url", "value": "file:///data/bundles/corpus-v1.zip" }],
+        "validation": { "state": "self_reported", "method": "hash_check" },
+        "chain": {
+          "pipeline_id": "corpus-pipeline-v1",
+          "step_index": 2,
+          "parent_execution_id": "3636408ff2d4a63f3d2a5fe31afa4447b3e47d292374ee81ceb354d7deecc97e",
+          "related_execution_ids": ["df5f78f675e827218c8822da7f50997c31b0e7b5c125944dcdba3d15e42a97f3"]
+        }
+      },
+      "tags": ["pipeline", "export"],
+      "rosetta": { "verb": "Release", "polarity": "+", "weights": { "A": 0, "C": 0, "L": 0, "P": 0, "T": 0 } },
+      "expected_hash": "d926251915cfabf77f738a0fedd77821bdd1ab1d8a41d0bd9017e0c5e4f491ca"
+    }
+  ]
+}

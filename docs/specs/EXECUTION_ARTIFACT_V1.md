@@ -89,6 +89,12 @@ deterministic.
     "validation": {
       "state": "unvalidated | self_reported | verified | disputed",
       "method": "none | hash_check | human_review | replay | consensus"
+    },
+    "chain": {
+      "parent_execution_id": "string (optional, hash of parent execution)",
+      "pipeline_id": "string (optional, shared pipeline identifier)",
+      "step_index": "number (optional, 0-based step within pipeline)",
+      "related_execution_ids": ["string (optional, hashes of related executions)"]
     }
   },
   "tags": ["string"],
@@ -139,6 +145,29 @@ Same rules as event cards:
 | inputs | ExecutionRef[] | yes | Input references (may be empty) |
 | outputs | ExecutionRef[] | yes | Output references (may be empty) |
 | validation | {state, method} | yes | Validation status |
+| chain | ExecutionChain | no | Workflow chain references |
+
+### 4.5 ExecutionChain Fields (v1.1)
+
+Chain fields are **structural** -- they affect identity because they define
+what this execution IS in relation to other executions.
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| parent_execution_id | string | no | Hash of parent execution artifact |
+| pipeline_id | string | no | Shared identifier for a pipeline/workflow |
+| step_index | number | no | 0-based step position within pipeline |
+| related_execution_ids | string[] | no | Hashes of related execution artifacts |
+
+A chain like:
+```
+execution A (step 0, pipeline "ingest-v3")
+  -> execution B (step 1, parent=A, pipeline "ingest-v3")
+    -> execution C (step 2, parent=B, pipeline "ingest-v3", validation)
+      -> execution D (step 3, parent=C, pipeline "ingest-v3", export)
+```
+
+Enables causal trace reconstruction from the artifact graph alone.
 
 ## 5. Non-Hashed Metadata (Sidecar)
 
