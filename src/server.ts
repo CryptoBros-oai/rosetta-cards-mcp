@@ -8,7 +8,7 @@ import {
 import { z } from "zod";
 
 import { addDocument, buildCard, searchCards, getCard } from "./kb/store.js";
-import { createEventCard, createExecutionArtifact, storagePlanHook, storageApplyHook, storageRestoreHook } from "./kb/hooks.js";
+import { createEventCard, createExecutionArtifact, storagePlanHook, storageApplyHook, storageRestoreHook, executionGetPipelineHook, executionWalkParentsHook, executionGetChildrenHook, executionGetSiblingsHook, executionCheckIntegrityHook, executionGetPipelineViewHook, executionListPipelinesHook } from "./kb/hooks.js";
 import { loadMeta, mergeMeta } from "./kb/vault.js";
 import { MetaPatchSchema, EventCreateInputSchema, ExecutionCreateInputSchema } from "./kb/schema.js";
 import { rebuildIndex, loadIndexSnapshot, SNAPSHOT_PATH } from "./kb/index.js";
@@ -509,6 +509,79 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             offset: { type: "number" as const, description: "Pagination offset (default 0)" },
           }
         }
+      },
+      {
+        name: "execution.get_pipeline",
+        description: "Get all execution artifacts in a pipeline, ordered by step_index.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            pipeline_id: { type: "string" as const, description: "Pipeline identifier" }
+          },
+          required: ["pipeline_id"]
+        }
+      },
+      {
+        name: "execution.walk_parents",
+        description: "Walk the parent chain from an execution artifact back to the root. Returns root-first order.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            hash: { type: "string" as const, description: "Execution artifact hash to start from" }
+          },
+          required: ["hash"]
+        }
+      },
+      {
+        name: "execution.get_children",
+        description: "Get all execution artifacts whose parent_execution_id matches the given hash.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            hash: { type: "string" as const, description: "Parent execution artifact hash" }
+          },
+          required: ["hash"]
+        }
+      },
+      {
+        name: "execution.get_siblings",
+        description: "Get all execution artifacts in the same pipeline as the given hash, ordered by step_index.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            hash: { type: "string" as const, description: "Execution artifact hash" }
+          },
+          required: ["hash"]
+        }
+      },
+      {
+        name: "execution.check_integrity",
+        description: "Check chain integrity across execution artifacts. Detects missing parents, cycles, duplicate step_index, and pipeline contamination.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            pipeline_id: { type: "string" as const, description: "Optional: check only this pipeline" }
+          }
+        }
+      },
+      {
+        name: "execution.get_pipeline_view",
+        description: "Get a complete pipeline view: ordered steps + integrity issues.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            pipeline_id: { type: "string" as const, description: "Pipeline identifier" }
+          },
+          required: ["pipeline_id"]
+        }
+      },
+      {
+        name: "execution.list_pipelines",
+        description: "List all distinct pipeline IDs found in execution artifacts.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {}
+        }
       }
     ]
   };
@@ -799,6 +872,41 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   if (name === "vault.search") {
     const parsed = VaultSearchInputSchema.parse(args);
     const out = await vaultSearch(parsed);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "execution.get_pipeline") {
+    const out = await executionGetPipelineHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "execution.walk_parents") {
+    const out = await executionWalkParentsHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "execution.get_children") {
+    const out = await executionGetChildrenHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "execution.get_siblings") {
+    const out = await executionGetSiblingsHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "execution.check_integrity") {
+    const out = await executionCheckIntegrityHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "execution.get_pipeline_view") {
+    const out = await executionGetPipelineViewHook(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
+  if (name === "execution.list_pipelines") {
+    const out = await executionListPipelinesHook(args);
     return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
   }
 

@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { addDocument, buildCard, searchCards, getCard } from './store.js';
 import { renderCardPng } from './render.js';
 import {
@@ -28,6 +29,7 @@ import {
   enforceBlockedTags,
   saveEventCard,
   saveExecutionCard,
+  loadAllExecutionCards,
 } from './vault.js';
 import {
   exportBundle,
@@ -628,6 +630,105 @@ export async function exportActivePackHook(args?: unknown): Promise<PackClosureR
     include_png: parsed.include_png,
     meta: parsed.meta,
   });
+}
+
+// --- Execution Graph Query hooks ---
+
+import {
+  getPipeline,
+  walkParentChain,
+  getChildren,
+  getSiblings,
+  checkChainIntegrity,
+  getPipelineView,
+  listPipelineIds,
+  type ChainIssue,
+  type PipelineView,
+} from './execution_graph.js';
+
+export async function executionGetPipelineHook(args: unknown): Promise<{ pipeline_id: string; steps: Array<{ hash: string; title: string; step_index?: number; status: string }> }> {
+  const parsed = z.object({ pipeline_id: z.string() }).strict().parse(args);
+  const cards = await loadAllExecutionCards();
+  const steps = getPipeline(cards, parsed.pipeline_id);
+  return {
+    pipeline_id: parsed.pipeline_id,
+    steps: steps.map((c) => ({
+      hash: c.hash,
+      title: c.title,
+      step_index: c.execution.chain?.step_index,
+      status: c.execution.status,
+    })),
+  };
+}
+
+export async function executionWalkParentsHook(args: unknown): Promise<{ chain: Array<{ hash: string; title: string; step_index?: number }> }> {
+  const parsed = z.object({ hash: z.string() }).strict().parse(args);
+  const cards = await loadAllExecutionCards();
+  const chain = walkParentChain(cards, parsed.hash);
+  return {
+    chain: chain.map((c) => ({
+      hash: c.hash,
+      title: c.title,
+      step_index: c.execution.chain?.step_index,
+    })),
+  };
+}
+
+export async function executionGetChildrenHook(args: unknown): Promise<{ parent_hash: string; children: Array<{ hash: string; title: string; step_index?: number; status: string }> }> {
+  const parsed = z.object({ hash: z.string() }).strict().parse(args);
+  const cards = await loadAllExecutionCards();
+  const children = getChildren(cards, parsed.hash);
+  return {
+    parent_hash: parsed.hash,
+    children: children.map((c) => ({
+      hash: c.hash,
+      title: c.title,
+      step_index: c.execution.chain?.step_index,
+      status: c.execution.status,
+    })),
+  };
+}
+
+export async function executionGetSiblingsHook(args: unknown): Promise<{ hash: string; pipeline_id: string | null; siblings: Array<{ hash: string; title: string; step_index?: number; status: string }> }> {
+  const parsed = z.object({ hash: z.string() }).strict().parse(args);
+  const cards = await loadAllExecutionCards();
+  const siblings = getSiblings(cards, parsed.hash);
+  const card = cards.find((c) => c.hash === parsed.hash);
+  return {
+    hash: parsed.hash,
+    pipeline_id: card?.execution.chain?.pipeline_id ?? null,
+    siblings: siblings.map((c) => ({
+      hash: c.hash,
+      title: c.title,
+      step_index: c.execution.chain?.step_index,
+      status: c.execution.status,
+    })),
+  };
+}
+
+export async function executionCheckIntegrityHook(args: unknown): Promise<{ total_cards: number; issues: ChainIssue[]; clean: boolean }> {
+  const parsed = z.object({ pipeline_id: z.string().optional() }).strict().parse(args);
+  const allCards = await loadAllExecutionCards();
+  const cards = parsed.pipeline_id
+    ? allCards.filter((c) => c.execution.chain?.pipeline_id === parsed.pipeline_id)
+    : allCards;
+  const issues = checkChainIntegrity(cards);
+  return { total_cards: cards.length, issues, clean: issues.length === 0 };
+}
+
+export async function executionGetPipelineViewHook(args: unknown): Promise<PipelineView & { total_steps: number }> {
+  const parsed = z.object({ pipeline_id: z.string() }).strict().parse(args);
+  const cards = await loadAllExecutionCards();
+  const view = getPipelineView(cards, parsed.pipeline_id);
+  if (!view) {
+    return { pipeline_id: parsed.pipeline_id, steps: [], issues: [], total_steps: 0 };
+  }
+  return { ...view, total_steps: view.steps.length };
+}
+
+export async function executionListPipelinesHook(_args: unknown): Promise<{ pipelines: string[] }> {
+  const cards = await loadAllExecutionCards();
+  return { pipelines: listPipelineIds(cards) };
 }
 
 // --- Storage Policy Engine hooks ---
