@@ -12,6 +12,93 @@
 
 import crypto from "node:crypto";
 
+// ---------------------------------------------------------------------------
+// Prohibited-key tripwires
+// ---------------------------------------------------------------------------
+
+// Keys that universally indicate prototype-pollution vectors and should be
+// blocked for all hashed payloads.
+const PROTO_PROHIBITED = new Set(["__proto__", "prototype", "constructor"]);
+
+// Keys that are forbidden in *event* hashed payloads (temporal/provenance).
+const EVENT_PROHIBITED = new Set([
+  "occurred_at",
+  "created_at",
+  "updated_at",
+  "timestamp",
+  "time",
+  "source",
+  "provenance",
+]);
+
+// Keys that are forbidden in *execution* hashed payloads.
+// Superset of EVENT_PROHIBITED plus runtime/cost fields.
+const EXECUTION_PROHIBITED = new Set([
+  "occurred_at",
+  "created_at",
+  "updated_at",
+  "timestamp",
+  "time",
+  "source",
+  "provenance",
+  "runtime",
+  "duration_ms",
+  "cost_estimate",
+  "hostname",
+  "cwd",
+  "pid",
+  "ppid",
+  "uid",
+  "home",
+  "user",
+  "username",
+  "env",
+]);
+
+function _assertKeys(set: Set<string>, x: unknown, path = "$"): void {
+  if (x && typeof x === "object") {
+    if (Array.isArray(x)) {
+      x.forEach((v, i) => _assertKeys(set, v, `${path}[${i}]`));
+      return;
+    }
+    for (const [k, v] of Object.entries(x as Record<string, unknown>)) {
+      if (set.has(k)) {
+        throw new Error(`Determinism violation: prohibited key "${k}" at ${path}.${k}`);
+      }
+      _assertKeys(set, v, `${path}.${k}`);
+    }
+  }
+}
+
+/**
+ * Assert no prototype-pollution keys are present anywhere in the object.
+ * This is a universal guard and is invoked by `canonicalHash` so that every
+ * artifact hashing pass rejects prototype-pollution vectors.
+ */
+export function assertNoProtoPollution(x: unknown, path = "$"): void {
+  _assertKeys(PROTO_PROHIBITED, x, path);
+}
+
+/**
+ * Full prohibited-key guard for event payloads. This checks both prototype
+ * pollution vectors and temporal/provenance keys that must never enter
+ * an event's hashed identity.
+ */
+export function assertNoProhibitedKeys(x: unknown, path = "$"): void {
+  _assertKeys(PROTO_PROHIBITED, x, path);
+  _assertKeys(EVENT_PROHIBITED, x, path);
+}
+
+/**
+ * Full prohibited-key guard for execution payloads. This checks prototype
+ * pollution vectors plus temporal/provenance/runtime keys that must never
+ * enter an execution's hashed identity.
+ */
+export function assertNoExecutionProhibitedKeys(x: unknown, path = "$"): void {
+  _assertKeys(PROTO_PROHIBITED, x, path);
+  _assertKeys(EXECUTION_PROHIBITED, x, path);
+}
+
 /**
  * Recursively sort all object keys and normalize strings to NFC.
  */
@@ -61,6 +148,9 @@ export function canonicalizeToBytes(obj: Record<string, unknown>): Buffer {
  * SHA-256 hash of the canonical JSON bytes.
  */
 export function canonicalHash(obj: Record<string, unknown>): string {
+  // Universal proto-pollution guard before hashing.
+  assertNoProtoPollution(obj);
+
   const bytes = canonicalizeToBytes(obj);
   return crypto.createHash("sha256").update(bytes).digest("hex");
 }

@@ -366,7 +366,7 @@ export const EventCardSchema = z.object({
     status: z.enum(["observed", "confirmed", "resolved", "superseded"]),
     severity: z.enum(["info", "low", "medium", "high", "critical"]),
     confidence: z.number().min(0).max(1),
-    participants: z.array(z.object({ role: z.string(), name: z.string() })),
+    participants: z.array(z.object({ role: z.string(), name: z.string() }).strict()),
     refs: z.array(z.object({
       ref_type: z.enum(["artifact_id", "url", "external_id"]),
       value: z.string(),
@@ -383,6 +383,190 @@ export const EventCardSchema = z.object({
   }).strict(),
   hash: z.string(),
 }).strict();
+
+// Reusable sub-schemas for input validation at hook/tool boundaries
+export const EventDetailSchema = z
+  .object({
+    kind: z.enum([
+      "deployment",
+      "incident",
+      "decision",
+      "meeting",
+      "build",
+      "research",
+      "ops",
+      "personal",
+      "other",
+    ]),
+    status: z.enum(["observed", "confirmed", "resolved", "superseded"]),
+    severity: z.enum(["info", "low", "medium", "high", "critical"]),
+    confidence: z.number().min(0).max(1),
+    participants: z.array(z.object({ role: z.string(), name: z.string() }).strict()),
+    refs: z.array(z.object({ ref_type: z.enum(["artifact_id", "url", "external_id"]), value: z.string() }).strict()),
+  })
+  .strict();
+
+export const RosettaMetaSchema = z
+  .object({
+    verb: z.enum(["Attract", "Contain", "Release", "Repel", "Transform"]),
+    polarity: z.enum(["+", "0", "-"]),
+    weights: z.object({ A: z.number(), C: z.number(), L: z.number(), P: z.number(), T: z.number() }).strict(),
+  })
+  .strict();
+
+// Input schema used at the hook/tool boundary to reject unknown root keys early.
+export const EventCreateInputSchema = z
+  .object({
+    title: z.string(),
+    summary: z.string(),
+    event: EventDetailSchema,
+    tags: z.array(z.string()).optional(),
+    rosetta: RosettaMetaSchema,
+    override_blocked: z.boolean().optional(),
+  })
+  .strict();
+
+// --- Execution Card ---
+
+export type ExecutionKind =
+  | "job" | "tool_call" | "model_call" | "pipeline"
+  | "validation" | "import" | "export" | "other";
+
+export type ExecutionStatus =
+  | "requested" | "running" | "succeeded" | "failed"
+  | "partial" | "validated" | "rejected";
+
+export type ActorType = "human" | "agent" | "system" | "node";
+export type TargetType = "artifact" | "tool" | "model" | "node" | "external";
+export type ExecutionRefType = "artifact_id" | "url" | "external_id" | "inline";
+export type ValidationState = "unvalidated" | "self_reported" | "verified" | "disputed";
+export type ValidationMethod = "none" | "hash_check" | "human_review" | "replay" | "consensus";
+
+export type ExecutionActor = {
+  type: ActorType;
+  name: string;
+};
+
+export type ExecutionTarget = {
+  type: TargetType;
+  name: string;
+};
+
+export type ExecutionRef = {
+  ref_type: ExecutionRefType;
+  value: string;
+};
+
+export type ExecutionValidation = {
+  state: ValidationState;
+  method: ValidationMethod;
+};
+
+export type ExecutionDetail = {
+  kind: ExecutionKind;
+  status: ExecutionStatus;
+  actor: ExecutionActor;
+  target: ExecutionTarget;
+  inputs: ExecutionRef[];
+  outputs: ExecutionRef[];
+  validation: ExecutionValidation;
+};
+
+export type ExecutionCard = {
+  schema_version: "execution.v1";
+  artifact_type: "execution";
+  title: string;
+  summary: string;
+  execution: ExecutionDetail;
+  tags: string[];
+  rosetta: RosettaMeta;
+  hash: string;
+};
+
+const ExecutionActorSchema = z.object({
+  type: z.enum(["human", "agent", "system", "node"]),
+  name: z.string(),
+}).strict();
+
+const ExecutionTargetSchema = z.object({
+  type: z.enum(["artifact", "tool", "model", "node", "external"]),
+  name: z.string(),
+}).strict();
+
+const ExecutionRefSchema = z.object({
+  ref_type: z.enum(["artifact_id", "url", "external_id", "inline"]),
+  value: z.string(),
+}).strict();
+
+const ExecutionValidationSchema = z.object({
+  state: z.enum(["unvalidated", "self_reported", "verified", "disputed"]),
+  method: z.enum(["none", "hash_check", "human_review", "replay", "consensus"]),
+}).strict();
+
+export const ExecutionDetailSchema = z.object({
+  kind: z.enum([
+    "job", "tool_call", "model_call", "pipeline",
+    "validation", "import", "export", "other",
+  ]),
+  status: z.enum([
+    "requested", "running", "succeeded", "failed",
+    "partial", "validated", "rejected",
+  ]),
+  actor: ExecutionActorSchema,
+  target: ExecutionTargetSchema,
+  inputs: z.array(ExecutionRefSchema),
+  outputs: z.array(ExecutionRefSchema),
+  validation: ExecutionValidationSchema,
+}).strict();
+
+export const ExecutionCardSchema = z.object({
+  schema_version: z.literal("execution.v1"),
+  artifact_type: z.literal("execution"),
+  title: z.string(),
+  summary: z.string(),
+  execution: ExecutionDetailSchema,
+  tags: z.array(z.string()),
+  rosetta: RosettaMetaSchema,
+  hash: z.string(),
+}).strict();
+
+// Input schema used at the hook/tool boundary to reject unknown root keys early.
+export const ExecutionCreateInputSchema = z.object({
+  title: z.string(),
+  summary: z.string(),
+  execution: ExecutionDetailSchema,
+  tags: z.array(z.string()).optional(),
+  rosetta: RosettaMetaSchema,
+  override_blocked: z.boolean().optional(),
+}).strict();
+
+// --- Execution card hash payload builder (single source of truth) ---
+
+export type ExecutionHashPayload = Omit<ExecutionCard, "hash">;
+
+/**
+ * Build the exact object that gets canonicalized and hashed for an execution card.
+ * This is the **single source of truth** for execution card identity.
+ *
+ * All code paths (hook, MCP, tests) must hash only this builder's output.
+ */
+export function buildExecutionHashPayload(parsed: {
+  title: string;
+  summary: string;
+  execution: ExecutionDetail;
+  tags: string[];
+  rosetta: RosettaMeta;
+}): ExecutionHashPayload {
+  return {
+    schema_version: "execution.v1",
+    artifact_type: "execution",
+    title: parsed.title,
+    summary: parsed.summary,
+    execution: parsed.execution,
+    tags: parsed.tags,
+    rosetta: parsed.rosetta,
+  };
+}
 
 // --- Event card hash payload builder (single source of truth) ---
 
@@ -412,12 +596,159 @@ export function buildEventHashPayload(parsed: {
   };
 }
 
+// --- Hook input schemas (strict boundary validation) ---
+
+/** Shared sub-schema for bundle export metadata. */
+const BundleMetaInputSchema = z.object({
+  description: z.string().optional(),
+  license_spdx: z.string().optional(),
+  created_by: z.object({ name: z.string().optional() }).strict().optional(),
+}).strict();
+
+export const IngestTextInputSchema = z.object({
+  title: z.string(),
+  text: z.string(),
+  tags: z.array(z.string()).optional(),
+  source_url: z.string().optional(),
+  override_blocked: z.boolean().optional(),
+}).strict();
+
+export const BuildArtifactCardInputSchema = z.object({
+  title: z.string().optional(),
+  text: z.string(),
+  tags: z.array(z.string()).optional(),
+  source: z.string().optional(),
+  render_png: z.boolean().optional(),
+}).strict();
+
+export const RenderExistingCardInputSchema = z.object({
+  card_id: z.string(),
+  style: z.enum(["default", "dark", "light"]).optional(),
+}).strict();
+
+export const ExportBundleInputSchema = z.object({
+  select: z.object({
+    card_ids: z.array(z.string()).optional(),
+    tags_any: z.array(z.string()).optional(),
+    tags_all: z.array(z.string()).optional(),
+  }).strict(),
+  include_png: z.boolean().optional(),
+  meta: BundleMetaInputSchema.optional(),
+}).strict();
+
+export const ImportBundleInputSchema = z.object({
+  bundle_path: z.string(),
+}).strict();
+
+export const SearchArtifactsInputSchema = z.object({
+  query: z.string(),
+  top_k: z.number().int().positive().optional(),
+  tags_any: z.array(z.string()).optional(),
+  tags_all: z.array(z.string()).optional(),
+}).strict();
+
+export const PinSetCreateInputSchema = z.object({
+  name: z.string(),
+  card_ids: z.array(z.string()),
+  description: z.string().optional(),
+}).strict();
+
+export const IngestFolderInputSchema = z.object({
+  path: z.string(),
+  tags: z.array(z.string()).optional(),
+  includeDocxText: z.boolean().optional(),
+  includePdfText: z.boolean().optional(),
+  storeBlobs: z.boolean().optional(),
+  override_blocked: z.boolean().optional(),
+}).strict();
+
+export const DrainContextInputSchema = z.object({
+  title: z.string(),
+  tags: z.array(z.string()).optional(),
+  chatText: z.string(),
+  targetMaxChars: z.number().int().positive().optional(),
+  chunkChars: z.number().int().positive().optional(),
+  override_blocked: z.boolean().optional(),
+}).strict();
+
+export const ExportPackClosureInputSchema = z.object({
+  pack_id: z.string().optional(),
+  include_png: z.boolean().optional(),
+  meta: BundleMetaInputSchema.optional(),
+}).strict();
+
+export const ExportActivePackInputSchema = z.object({
+  include_png: z.boolean().optional(),
+  meta: BundleMetaInputSchema.optional(),
+}).strict();
+
+// Storage hook input schemas
+export const StoragePlanInputSchema = z.object({}).strict();
+
+export const StorageApplyInputSchema = z.object({
+  dry_run: z.boolean().optional(),
+}).strict();
+
+export const StorageRestoreInputSchema = z.object({
+  tier: z.enum(["derived", "docs", "blobs", "text", "bundles", "embeddings"]),
+  hashes: z.array(z.string()).optional(),
+  all: z.boolean().optional(),
+}).strict();
+
+// Storage operation output types
+
+export type PlanAction = {
+  action: "prune" | "archive" | "vacuum" | "skip";
+  tier: string;
+  path: string;
+  reason: string;
+  bytes: number;
+  reversible: boolean;
+  last_modified_at?: string;
+};
+
+export type StoragePlan = {
+  schema_version: "storage_plan.v1";
+  generated_at: string;
+  policy_source: "file" | "default";
+  actions: PlanAction[];
+  summary: {
+    prune_count: number;
+    archive_count: number;
+    estimated_freed_bytes: number;
+    estimated_cold_bytes: number;
+  };
+};
+
+export type ApplyRecord = {
+  action: "pruned" | "archived" | "vacuumed" | "skipped" | "failed";
+  tier: string;
+  path: string;
+  bytes: number;
+  reason: string;
+};
+
+export type StorageApplyResult = {
+  schema_version: "storage_apply.v1";
+  applied_at: string;
+  actions_executed: ApplyRecord[];
+  freed_bytes: number;
+  cold_bytes: number;
+  errors: string[];
+};
+
+export type StorageRestoreResult = {
+  restored: Array<{ path: string; tier: string; bytes: number }>;
+  re_rendered: Array<{ hash: string; png_path: string }>;
+  errors: string[];
+};
+
 // --- Meta (Sidecar Artifact) ---
 
 export type MetaV1 = {
     schema_version: "meta.v1";
     artifact_hash: string;
-    artifact_type: "card" | "event";
+    artifact_type: "card" | "event" | "execution";
     occurred_at?: string; // ISO 8601
     sources?: Array<{ kind: "url" | "note" | "file" | "system"; value: string }>;
     ingest?: { pipeline?: string; extractor?: string; chunker?: string; stats?: Record<string, number> };
@@ -461,7 +792,7 @@ const RenderInfoSchema = z.object({
 export const MetaV1Schema = z.object({
     schema_version: z.literal("meta.v1"),
     artifact_hash: z.string(),
-    artifact_type: z.enum(["card", "event"]),
+    artifact_type: z.enum(["card", "event", "execution"]),
     occurred_at: z.string().optional(),
     sources: z.array(SourceSchema).optional(),
     ingest: IngestSchema.optional(),
@@ -503,6 +834,7 @@ export const IndexSnapshotV1Schema = z.object({
   counts: z.object({
     cards: z.number().int().nonnegative(),
     events: z.number().int().nonnegative(),
+    executions: z.number().int().nonnegative().optional(),
     metas: z.number().int().nonnegative(),
   }).strict(),
   by_hash: z.record(ByHashEntrySchema),

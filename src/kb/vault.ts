@@ -17,6 +17,7 @@ import {
   type ChatLogIndex,
   type IngestReport,
   type EventCard,
+  type ExecutionCard,
   type MetaV1,
   type MetaPatch,
   MetaV1Schema,
@@ -209,6 +210,18 @@ export async function saveEventCard(
   const cardId = `card_event_${event.hash.slice(0, 12)}`;
   const dest = path.join(CARD_DIR, `${cardId}.json`);
   await fs.writeFile(dest, JSON.stringify(event, null, 2), "utf-8");
+  return cardId;
+}
+
+// --- Execution card ---
+
+export async function saveExecutionCard(
+  execution: ExecutionCard
+): Promise<string> {
+  await ensureDirs();
+  const cardId = `card_execution_${execution.hash.slice(0, 12)}`;
+  const dest = path.join(CARD_DIR, `${cardId}.json`);
+  await fs.writeFile(dest, JSON.stringify(execution, null, 2), "utf-8");
   return cardId;
 }
 
@@ -534,6 +547,8 @@ function metaDir(type: MetaV1["artifact_type"]): string {
       return CARD_DIR;
     case "event":
       return EVENT_DIR;
+    case "execution":
+      return CARD_DIR; // execution cards live alongside other cards
     default:
       throw new Error(`Unknown artifact type: ${type}`);
   }

@@ -8,9 +8,9 @@ import {
 import { z } from "zod";
 
 import { addDocument, buildCard, searchCards, getCard } from "./kb/store.js";
-import { createEventCard, storagePlanHook, storageApplyHook, storageRestoreHook } from "./kb/hooks.js";
+import { createEventCard, createExecutionArtifact, storagePlanHook, storageApplyHook, storageRestoreHook } from "./kb/hooks.js";
 import { loadMeta, mergeMeta } from "./kb/vault.js";
-import { MetaPatchSchema, EventCreateInputSchema } from "./kb/schema.js";
+import { MetaPatchSchema, EventCreateInputSchema, ExecutionCreateInputSchema } from "./kb/schema.js";
 import { rebuildIndex, loadIndexSnapshot, SNAPSHOT_PATH } from "./kb/index.js";
 import { createWeeklySummary } from "./kb/summary.js";
 import { renderCardPngToDerived, renderSummaryPngToDerived, storageReport } from "./kb/derived.js";
@@ -111,13 +111,48 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         }
       },
       {
+        name: "kb.create_execution",
+        description: "Create a deterministic execution artifact (operational evidence atom). Timestamps, duration, and runtime info are excluded from the hashed payload.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            title: { type: "string" as const },
+            summary: { type: "string" as const },
+            execution: {
+              type: "object" as const,
+              properties: {
+                kind: { type: "string" as const, enum: ["job", "tool_call", "model_call", "pipeline", "validation", "import", "export", "other"] },
+                status: { type: "string" as const, enum: ["requested", "running", "succeeded", "failed", "partial", "validated", "rejected"] },
+                actor: { type: "object" as const, properties: { type: { type: "string" as const, enum: ["human", "agent", "system", "node"] }, name: { type: "string" as const } }, required: ["type", "name"] },
+                target: { type: "object" as const, properties: { type: { type: "string" as const, enum: ["artifact", "tool", "model", "node", "external"] }, name: { type: "string" as const } }, required: ["type", "name"] },
+                inputs: { type: "array" as const, items: { type: "object" as const, properties: { ref_type: { type: "string" as const, enum: ["artifact_id", "url", "external_id", "inline"] }, value: { type: "string" as const } }, required: ["ref_type", "value"] } },
+                outputs: { type: "array" as const, items: { type: "object" as const, properties: { ref_type: { type: "string" as const, enum: ["artifact_id", "url", "external_id", "inline"] }, value: { type: "string" as const } }, required: ["ref_type", "value"] } },
+                validation: { type: "object" as const, properties: { state: { type: "string" as const, enum: ["unvalidated", "self_reported", "verified", "disputed"] }, method: { type: "string" as const, enum: ["none", "hash_check", "human_review", "replay", "consensus"] } }, required: ["state", "method"] }
+              },
+              required: ["kind", "status", "actor", "target", "inputs", "outputs", "validation"]
+            },
+            tags: { type: "array" as const, items: { type: "string" as const } },
+            rosetta: {
+              type: "object" as const,
+              properties: {
+                verb: { type: "string" as const, enum: ["Attract", "Contain", "Release", "Repel", "Transform"] },
+                polarity: { type: "string" as const, enum: ["+", "0", "-"] },
+                weights: { type: "object" as const, properties: { A: { type: "number" as const }, C: { type: "number" as const }, L: { type: "number" as const }, P: { type: "number" as const }, T: { type: "number" as const } }, required: ["A", "C", "L", "P", "T"] }
+              },
+              required: ["verb", "polarity", "weights"]
+            }
+          },
+          required: ["title", "summary", "execution", "tags", "rosetta"]
+        }
+      },
+      {
         name: "kb.get_meta",
         description: "Retrieve the sidecar metadata for an artifact by hash and type.",
         inputSchema: {
           type: "object" as const,
           properties: {
             artifact_hash: { type: "string" as const },
-            artifact_type: { type: "string" as const, enum: ["card", "event"] }
+            artifact_type: { type: "string" as const, enum: ["card", "event", "execution"] }
           },
           required: ["artifact_hash", "artifact_type"]
         }
@@ -129,7 +164,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           type: "object" as const,
           properties: {
             artifact_hash: { type: "string" as const },
-            artifact_type: { type: "string" as const, enum: ["card", "event"] },
+            artifact_type: { type: "string" as const, enum: ["card", "event", "execution"] },
             patch: { type: "object" as const }
           },
           required: ["artifact_hash", "artifact_type", "patch"]
@@ -530,11 +565,16 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
   }
 
+  if (name === "kb.create_execution") {
+    const out = await createExecutionArtifact(args);
+    return { content: [{ type: "text" as const, text: JSON.stringify(out, null, 2) }] };
+  }
+
   if (name === "kb.get_meta") {
     const parsed = z
       .object({
         artifact_hash: z.string(),
-        artifact_type: z.enum(["card", "event"]),
+        artifact_type: z.enum(["card", "event", "execution"]),
       })
       .strict()
       .parse(args);
@@ -549,7 +589,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const parsed = z
       .object({
         artifact_hash: z.string(),
-        artifact_type: z.enum(["card", "event"]),
+        artifact_type: z.enum(["card", "event", "execution"]),
         patch: z.record(z.unknown()),
       })
       .strict()
