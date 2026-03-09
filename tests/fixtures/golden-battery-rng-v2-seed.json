@@ -1,0 +1,9 @@
+{
+  "name": "rng_v2_seed",
+  "scan_hash": "121efb81baa2",
+  "program_id": "rng_phase_transition_v2",
+  "grid_size": 5,
+  "hints": 2,
+  "halted": 2,
+  "completed": 3
+}

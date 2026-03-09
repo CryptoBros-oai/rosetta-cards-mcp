@@ -1,0 +1,654 @@
+{
+  "schema_version": "compare.v1",
+  "scalars": {
+    "total_steps": {
+      "a": 12,
+      "b": 10,
+      "delta": -2
+    },
+    "final_bag_sum": {
+      "a": 0,
+      "b": 900,
+      "delta": 900
+    }
+  },
+  "verb_distribution": [
+    {
+      "verb": "Attract",
+      "a": 1,
+      "b": 2,
+      "delta": 1
+    },
+    {
+      "verb": "Contain",
+      "a": 4,
+      "b": 3,
+      "delta": -1
+    },
+    {
+      "verb": "Release",
+      "a": 4,
+      "b": 3,
+      "delta": -1
+    },
+    {
+      "verb": "Repel",
+      "a": 0,
+      "b": 0,
+      "delta": 0
+    },
+    {
+      "verb": "Transform",
+      "a": 3,
+      "b": 2,
+      "delta": -1
+    }
+  ],
+  "bag_variance": [
+    {
+      "bag": "engineering",
+      "a": 60763.889,
+      "b": 123600,
+      "delta": 62836.111
+    },
+    {
+      "bag": "marketing",
+      "a": 21875,
+      "b": 0,
+      "delta": -21875
+    },
+    {
+      "bag": "operations",
+      "a": 9722.222,
+      "b": 30900,
+      "delta": 21177.778
+    },
+    {
+      "bag": "reserve",
+      "a": 0,
+      "b": 2100,
+      "delta": 2100
+    },
+    {
+      "bag": "total",
+      "a": 87430.556,
+      "b": 134400,
+      "delta": 46969.444
+    }
+  ],
+  "opcode_frequency": [
+    {
+      "opcode_id": "attract.add",
+      "a": 1,
+      "b": 2,
+      "delta": 1
+    },
+    {
+      "opcode_id": "contain.clamp",
+      "a": 3,
+      "b": 2,
+      "delta": -1
+    },
+    {
+      "opcode_id": "contain.threshold",
+      "a": 1,
+      "b": 1,
+      "delta": 0
+    },
+    {
+      "opcode_id": "release.emit",
+      "a": 1,
+      "b": 1,
+      "delta": 0
+    },
+    {
+      "opcode_id": "release.export",
+      "a": 3,
+      "b": 2,
+      "delta": -1
+    },
+    {
+      "opcode_id": "transform.convert",
+      "a": 3,
+      "b": 2,
+      "delta": -1
+    }
+  ],
+  "step_deltas": [
+    {
+      "step": 0,
+      "a_index": 0,
+      "b_index": 0,
+      "a_bags": {
+        "total": 1000
+      },
+      "b_bags": {
+        "total": 2000
+      },
+      "bag_deltas": [
+        {
+          "bag": "total",
+          "a": 1000,
+          "b": 2000,
+          "delta": 1000
+        }
+      ]
+    },
+    {
+      "step": 1,
+      "a_index": 1,
+      "b_index": 1,
+      "a_bags": {
+        "total": 500,
+        "engineering": 500
+      },
+      "b_bags": {
+        "total": 1200,
+        "engineering": 800
+      },
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 500,
+          "b": 800,
+          "delta": 300
+        },
+        {
+          "bag": "total",
+          "a": 500,
+          "b": 1200,
+          "delta": 700
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "a_index": 2,
+      "b_index": 2,
+      "a_bags": {
+        "total": 200,
+        "engineering": 500,
+        "marketing": 300
+      },
+      "b_bags": {
+        "total": 800,
+        "engineering": 800,
+        "operations": 400
+      },
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 500,
+          "b": 800,
+          "delta": 300
+        },
+        {
+          "bag": "marketing",
+          "a": 300,
+          "b": null,
+          "delta": null
+        },
+        {
+          "bag": "operations",
+          "a": null,
+          "b": 400,
+          "delta": null
+        },
+        {
+          "bag": "total",
+          "a": 200,
+          "b": 800,
+          "delta": 600
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "a_index": 3,
+      "b_index": 3,
+      "a_bags": {
+        "total": 0,
+        "engineering": 500,
+        "marketing": 300,
+        "operations": 200
+      },
+      "b_bags": {
+        "total": 800,
+        "engineering": 800,
+        "operations": 400,
+        "reserve": 100
+      },
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 500,
+          "b": 800,
+          "delta": 300
+        },
+        {
+          "bag": "marketing",
+          "a": 300,
+          "b": null,
+          "delta": null
+        },
+        {
+          "bag": "operations",
+          "a": 200,
+          "b": 400,
+          "delta": 200
+        },
+        {
+          "bag": "reserve",
+          "a": null,
+          "b": 100,
+          "delta": null
+        },
+        {
+          "bag": "total",
+          "a": 0,
+          "b": 800,
+          "delta": 800
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "a_index": 4,
+      "b_index": 4,
+      "a_bags": {
+        "total": 0,
+        "engineering": 500,
+        "marketing": 300,
+        "operations": 200
+      },
+      "b_bags": {
+        "total": 800,
+        "engineering": 600,
+        "operations": 400,
+        "reserve": 100
+      },
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 500,
+          "b": 600,
+          "delta": 100
+        },
+        {
+          "bag": "marketing",
+          "a": 300,
+          "b": null,
+          "delta": null
+        },
+        {
+          "bag": "operations",
+          "a": 200,
+          "b": 400,
+          "delta": 200
+        },
+        {
+          "bag": "reserve",
+          "a": null,
+          "b": 100,
+          "delta": null
+        },
+        {
+          "bag": "total",
+          "a": 0,
+          "b": 800,
+          "delta": 800
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "a_index": 5,
+      "b_index": 5,
+      "a_bags": {
+        "total": 0,
+        "engineering": 500,
+        "marketing": 300,
+        "operations": 200
+      },
+      "b_bags": {
+        "total": 800,
+        "engineering": 600,
+        "operations": 300,
+        "reserve": 100
+      },
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 500,
+          "b": 600,
+          "delta": 100
+        },
+        {
+          "bag": "marketing",
+          "a": 300,
+          "b": null,
+          "delta": null
+        },
+        {
+          "bag": "operations",
+          "a": 200,
+          "b": 300,
+          "delta": 100
+        },
+        {
+          "bag": "reserve",
+          "a": null,
+          "b": 100,
+          "delta": null
+        },
+        {
+          "bag": "total",
+          "a": 0,
+          "b": 800,
+          "delta": 800
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "a_index": 6,
+      "b_index": null,
+      "a_bags": {
+        "total": 0,
+        "engineering": 500,
+        "marketing": 300,
+        "operations": 200
+      },
+      "b_bags": null,
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 500,
+          "b": null,
+          "delta": null,
+          "missing": true
+        },
+        {
+          "bag": "marketing",
+          "a": 300,
+          "b": null,
+          "delta": null,
+          "missing": true
+        },
+        {
+          "bag": "operations",
+          "a": 200,
+          "b": null,
+          "delta": null,
+          "missing": true
+        },
+        {
+          "bag": "total",
+          "a": 0,
+          "b": null,
+          "delta": null,
+          "missing": true
+        }
+      ],
+      "missing": true
+    },
+    {
+      "step": 7,
+      "a_index": 7,
+      "b_index": 6,
+      "a_bags": {
+        "total": 0,
+        "engineering": 500,
+        "marketing": 300,
+        "operations": 200
+      },
+      "b_bags": {
+        "total": 800,
+        "engineering": 600,
+        "operations": 300,
+        "reserve": 100
+      },
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 500,
+          "b": 600,
+          "delta": 100
+        },
+        {
+          "bag": "marketing",
+          "a": 300,
+          "b": null,
+          "delta": null
+        },
+        {
+          "bag": "operations",
+          "a": 200,
+          "b": 300,
+          "delta": 100
+        },
+        {
+          "bag": "reserve",
+          "a": null,
+          "b": 100,
+          "delta": null
+        },
+        {
+          "bag": "total",
+          "a": 0,
+          "b": 800,
+          "delta": 800
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "a_index": 8,
+      "b_index": 7,
+      "a_bags": {
+        "total": 0,
+        "engineering": 0,
+        "marketing": 300,
+        "operations": 200
+      },
+      "b_bags": {
+        "total": 800,
+        "engineering": 0,
+        "operations": 300,
+        "reserve": 100
+      },
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 0,
+          "b": 0,
+          "delta": 0
+        },
+        {
+          "bag": "marketing",
+          "a": 300,
+          "b": null,
+          "delta": null
+        },
+        {
+          "bag": "operations",
+          "a": 200,
+          "b": 300,
+          "delta": 100
+        },
+        {
+          "bag": "reserve",
+          "a": null,
+          "b": 100,
+          "delta": null
+        },
+        {
+          "bag": "total",
+          "a": 0,
+          "b": 800,
+          "delta": 800
+        }
+      ]
+    },
+    {
+      "step": 9,
+      "a_index": 9,
+      "b_index": 8,
+      "a_bags": {
+        "total": 0,
+        "engineering": 0,
+        "marketing": 0,
+        "operations": 200
+      },
+      "b_bags": {
+        "total": 800,
+        "engineering": 0,
+        "operations": 0,
+        "reserve": 100
+      },
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 0,
+          "b": 0,
+          "delta": 0
+        },
+        {
+          "bag": "marketing",
+          "a": 0,
+          "b": null,
+          "delta": null
+        },
+        {
+          "bag": "operations",
+          "a": 200,
+          "b": 0,
+          "delta": -200
+        },
+        {
+          "bag": "reserve",
+          "a": null,
+          "b": 100,
+          "delta": null
+        },
+        {
+          "bag": "total",
+          "a": 0,
+          "b": 800,
+          "delta": 800
+        }
+      ]
+    },
+    {
+      "step": 10,
+      "a_index": 10,
+      "b_index": 9,
+      "a_bags": {
+        "total": 0,
+        "engineering": 0,
+        "marketing": 0,
+        "operations": 0
+      },
+      "b_bags": {
+        "total": 800,
+        "engineering": 0,
+        "operations": 0,
+        "reserve": 100
+      },
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 0,
+          "b": 0,
+          "delta": 0
+        },
+        {
+          "bag": "marketing",
+          "a": 0,
+          "b": null,
+          "delta": null
+        },
+        {
+          "bag": "operations",
+          "a": 0,
+          "b": 0,
+          "delta": 0
+        },
+        {
+          "bag": "reserve",
+          "a": null,
+          "b": 100,
+          "delta": null
+        },
+        {
+          "bag": "total",
+          "a": 0,
+          "b": 800,
+          "delta": 800
+        }
+      ]
+    },
+    {
+      "step": 11,
+      "a_index": 11,
+      "b_index": null,
+      "a_bags": {
+        "total": 0,
+        "engineering": 0,
+        "marketing": 0,
+        "operations": 0
+      },
+      "b_bags": null,
+      "bag_deltas": [
+        {
+          "bag": "engineering",
+          "a": 0,
+          "b": null,
+          "delta": null,
+          "missing": true
+        },
+        {
+          "bag": "marketing",
+          "a": 0,
+          "b": null,
+          "delta": null,
+          "missing": true
+        },
+        {
+          "bag": "operations",
+          "a": 0,
+          "b": null,
+          "delta": null,
+          "missing": true
+        },
+        {
+          "bag": "total",
+          "a": 0,
+          "b": null,
+          "delta": null,
+          "missing": true
+        }
+      ],
+      "missing": true
+    }
+  ],
+  "summary": {
+    "most_changed_bags": [
+      "engineering",
+      "total",
+      "marketing",
+      "operations",
+      "reserve"
+    ],
+    "most_shifted_verbs": [
+      "Attract",
+      "Contain",
+      "Release",
+      "Transform"
+    ],
+    "a_halted": false,
+    "b_halted": false
+  },
+  "compare_hash": "d1159a15d43184c4761f93521935a224005f659cba1ace805b6e34b652f9a11a",
+  "align_mode": "milestone"
+}

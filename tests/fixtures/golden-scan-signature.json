@@ -1,0 +1,13 @@
+{
+  "scan_id": "5a34e0b5e64c0e66e31f8171651618c5caee20d91eba7bc64dd90c5d07b67bc6",
+  "program_id": "rng_phase_transition",
+  "transition_density": 0.4,
+  "avg_delta_magnitude": 5172.121541666668,
+  "max_delta_magnitude": 102269.204,
+  "opcode_concentration": 1,
+  "cliff_score": 79.87285535770071,
+  "opcode_count": 2,
+  "metric_count": 10,
+  "halted": 5,
+  "completed": 5
+}

@@ -126,5 +126,6 @@ export const VaultSearchInputSchema = z
     exclude_personal: z.boolean().default(false),
     limit: z.number().int().positive().default(10),
     offset: z.number().int().nonnegative().default(0),
+    search_mode: z.enum(["hybrid", "semantic", "lexical"]).default("hybrid"),
   })
   .strict();

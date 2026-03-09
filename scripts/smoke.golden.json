@@ -1,0 +1,22 @@
+{
+  "folder_index_hash": "2fb9ab57d628ea9699af68de08bdcc6594fab5329ce98181ebf85d721c8b0b4c",
+  "report_hash": "31cd1a5a62de719e22c5a195ae5a28c6b36d0dc7dd82735978017d3b446d90a7",
+  "chat_index_hash": "8a64f352d36190bc192057c0e08c08dff5ca09855b1ef23dd00d59fc35255acb",
+  "chunk_count": 5,
+  "chunk_hashes": [
+    "0619170a1fc8f621f9e67d325919c9d685f5b041613d2354ecefbeae2e406f75",
+    "07cee5acb0272ee86619587ab20ef0e94559b8178e2c4cfba6b8e13464ed4539",
+    "2acde4fdb8b0c8a86045feea720a20a2898448b4f18cfd657afe3cf6624f9807",
+    "ca944991ec90fe3e2694eaa4d346d4e2b9857236b36299181742d090adc19ae5",
+    "febb4cec7fd2863e32690f28984354e4f9d2712fb2f41c1f2cc246e8081acc99"
+  ],
+  "file_artifact_count": 2,
+  "file_artifact_hashes": [
+    "4b6a21b3d75fda39cb9c13cf04558629e978ca735bba46a1035f3255e5fc1bcf",
+    "ad7deb5298198e2b862743a8b226e808e3f83d8ed7a3d4272de62c7b793eae28"
+  ],
+  "blob_count": 2,
+  "bundle_integrity_hash": "6c5f764459bfdf5777df971d9081d8b48af341a6e4d02bcb7cfbae79ec36451c",
+  "import_ok": true,
+  "deterministic": true
+}

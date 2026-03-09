@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "_comment_dev": "Development mode — runs TypeScript directly via ts-node (no build step needed)",
+    "rosetta-cards": {
+      "command": "node",
+      "args": ["--loader", "ts-node/esm", "src/server.ts"],
+      "env": {
+        "ARTIFACT_VAULT_ROOT": ".vault",
+        "EMBEDDING_ENDPOINT": "http://localhost:1234/v1/embeddings"
+      }
+    },
+
+    "_comment_compiled": "Production mode — runs compiled JS (requires: npm run build)",
+    "rosetta-cards-compiled": {
+      "command": "node",
+      "args": ["dist/server.js"],
+      "env": {
+        "ARTIFACT_VAULT_ROOT": ".vault",
+        "EMBEDDING_ENDPOINT": "http://localhost:1234/v1/embeddings"
+      }
+    },
+
+    "_comment_script": "Alternative: use the start script",
+    "rosetta-cards-script": {
+      "command": "bash",
+      "args": ["scripts/mcp-start.sh"]
+    }
+  }
+}

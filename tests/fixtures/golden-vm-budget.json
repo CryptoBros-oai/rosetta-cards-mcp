@@ -1,0 +1,447 @@
+{
+  "state": {
+    "bags": {
+      "total": 0,
+      "engineering": 0,
+      "marketing": 0,
+      "operations": 0
+    },
+    "stack": [],
+    "flags": {
+      "eng_above_400": true
+    },
+    "notes": [
+      "export:engineering=500",
+      "export:marketing=300",
+      "export:operations=200",
+      "budget allocation complete"
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "opcode_id": "attract.add",
+      "verb": "Attract",
+      "args": {
+        "bag": "total",
+        "amount": 1000
+      },
+      "state_before": {
+        "bags": {},
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "total": 1000
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 1,
+      "opcode_id": "transform.convert",
+      "verb": "Transform",
+      "args": {
+        "source": "total",
+        "dest": "engineering",
+        "amount": 500
+      },
+      "state_before": {
+        "bags": {
+          "total": 1000
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "total": 500,
+          "engineering": 500
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 2,
+      "opcode_id": "transform.convert",
+      "verb": "Transform",
+      "args": {
+        "source": "total",
+        "dest": "marketing",
+        "amount": 300
+      },
+      "state_before": {
+        "bags": {
+          "total": 500,
+          "engineering": 500
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "total": 200,
+          "engineering": 500,
+          "marketing": 300
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 3,
+      "opcode_id": "transform.convert",
+      "verb": "Transform",
+      "args": {
+        "source": "total",
+        "dest": "operations",
+        "amount": 200
+      },
+      "state_before": {
+        "bags": {
+          "total": 200,
+          "engineering": 500,
+          "marketing": 300
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 4,
+      "opcode_id": "contain.clamp",
+      "verb": "Contain",
+      "args": {
+        "bag": "engineering",
+        "min": 100,
+        "max": 600
+      },
+      "state_before": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 5,
+      "opcode_id": "contain.clamp",
+      "verb": "Contain",
+      "args": {
+        "bag": "marketing",
+        "min": 50,
+        "max": 400
+      },
+      "state_before": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 6,
+      "opcode_id": "contain.clamp",
+      "verb": "Contain",
+      "args": {
+        "bag": "operations",
+        "min": 50,
+        "max": 300
+      },
+      "state_before": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 7,
+      "opcode_id": "contain.threshold",
+      "verb": "Contain",
+      "args": {
+        "bag": "engineering",
+        "threshold": 400,
+        "flag": "eng_above_400"
+      },
+      "state_before": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {
+          "eng_above_400": true
+        },
+        "notes": []
+      }
+    },
+    {
+      "step": 8,
+      "opcode_id": "release.export",
+      "verb": "Release",
+      "args": {
+        "bag": "engineering"
+      },
+      "state_before": {
+        "bags": {
+          "total": 0,
+          "engineering": 500,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {
+          "eng_above_400": true
+        },
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "total": 0,
+          "engineering": 0,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {
+          "eng_above_400": true
+        },
+        "notes": [
+          "export:engineering=500"
+        ]
+      }
+    },
+    {
+      "step": 9,
+      "opcode_id": "release.export",
+      "verb": "Release",
+      "args": {
+        "bag": "marketing"
+      },
+      "state_before": {
+        "bags": {
+          "total": 0,
+          "engineering": 0,
+          "marketing": 300,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {
+          "eng_above_400": true
+        },
+        "notes": [
+          "export:engineering=500"
+        ]
+      },
+      "state_after": {
+        "bags": {
+          "total": 0,
+          "engineering": 0,
+          "marketing": 0,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {
+          "eng_above_400": true
+        },
+        "notes": [
+          "export:engineering=500",
+          "export:marketing=300"
+        ]
+      }
+    },
+    {
+      "step": 10,
+      "opcode_id": "release.export",
+      "verb": "Release",
+      "args": {
+        "bag": "operations"
+      },
+      "state_before": {
+        "bags": {
+          "total": 0,
+          "engineering": 0,
+          "marketing": 0,
+          "operations": 200
+        },
+        "stack": [],
+        "flags": {
+          "eng_above_400": true
+        },
+        "notes": [
+          "export:engineering=500",
+          "export:marketing=300"
+        ]
+      },
+      "state_after": {
+        "bags": {
+          "total": 0,
+          "engineering": 0,
+          "marketing": 0,
+          "operations": 0
+        },
+        "stack": [],
+        "flags": {
+          "eng_above_400": true
+        },
+        "notes": [
+          "export:engineering=500",
+          "export:marketing=300",
+          "export:operations=200"
+        ]
+      }
+    },
+    {
+      "step": 11,
+      "opcode_id": "release.emit",
+      "verb": "Release",
+      "args": {
+        "message": "budget allocation complete"
+      },
+      "state_before": {
+        "bags": {
+          "total": 0,
+          "engineering": 0,
+          "marketing": 0,
+          "operations": 0
+        },
+        "stack": [],
+        "flags": {
+          "eng_above_400": true
+        },
+        "notes": [
+          "export:engineering=500",
+          "export:marketing=300",
+          "export:operations=200"
+        ]
+      },
+      "state_after": {
+        "bags": {
+          "total": 0,
+          "engineering": 0,
+          "marketing": 0,
+          "operations": 0
+        },
+        "stack": [],
+        "flags": {
+          "eng_above_400": true
+        },
+        "notes": [
+          "export:engineering=500",
+          "export:marketing=300",
+          "export:operations=200",
+          "budget allocation complete"
+        ]
+      }
+    }
+  ],
+  "metrics": {
+    "total_steps": 12,
+    "opcode_frequency": {
+      "attract.add": 1,
+      "contain.clamp": 3,
+      "contain.threshold": 1,
+      "release.emit": 1,
+      "release.export": 3,
+      "transform.convert": 3
+    },
+    "verb_distribution": {
+      "Attract": 1,
+      "Contain": 4,
+      "Release": 4,
+      "Repel": 0,
+      "Transform": 3
+    },
+    "bag_variance": {
+      "engineering": 60763.889,
+      "marketing": 21875,
+      "operations": 9722.222,
+      "total": 87430.556
+    },
+    "final_bag_sum": 0,
+    "halted_early": false
+  }
+}

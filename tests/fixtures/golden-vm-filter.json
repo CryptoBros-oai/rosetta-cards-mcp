@@ -1,0 +1,242 @@
+{
+  "state": {
+    "bags": {
+      "item_a": 46,
+      "item_b": 0,
+      "item_c": 54,
+      "item_d": 0
+    },
+    "stack": [],
+    "flags": {},
+    "notes": [
+      "filter pipeline complete"
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "opcode_id": "attract.add",
+      "verb": "Attract",
+      "args": {
+        "bag": "item_a",
+        "amount": 80
+      },
+      "state_before": {
+        "bags": {},
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "item_a": 80
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 1,
+      "opcode_id": "attract.add",
+      "verb": "Attract",
+      "args": {
+        "bag": "item_b",
+        "amount": 30
+      },
+      "state_before": {
+        "bags": {
+          "item_a": 80
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "item_a": 80,
+          "item_b": 30
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 2,
+      "opcode_id": "attract.add",
+      "verb": "Attract",
+      "args": {
+        "bag": "item_c",
+        "amount": 95
+      },
+      "state_before": {
+        "bags": {
+          "item_a": 80,
+          "item_b": 30
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "item_a": 80,
+          "item_b": 30,
+          "item_c": 95
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 3,
+      "opcode_id": "attract.add",
+      "verb": "Attract",
+      "args": {
+        "bag": "item_d",
+        "amount": 10
+      },
+      "state_before": {
+        "bags": {
+          "item_a": 80,
+          "item_b": 30,
+          "item_c": 95
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "item_a": 80,
+          "item_b": 30,
+          "item_c": 95,
+          "item_d": 10
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 4,
+      "opcode_id": "repel.filter",
+      "verb": "Repel",
+      "args": {
+        "threshold": 50,
+        "bags_list": "item_a,item_b,item_c,item_d"
+      },
+      "state_before": {
+        "bags": {
+          "item_a": 80,
+          "item_b": 30,
+          "item_c": 95,
+          "item_d": 10
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "item_a": 80,
+          "item_b": 0,
+          "item_c": 95,
+          "item_d": 0
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 5,
+      "opcode_id": "contain.normalize",
+      "verb": "Contain",
+      "args": {
+        "bags_list": "item_a,item_b,item_c,item_d",
+        "target": 100
+      },
+      "state_before": {
+        "bags": {
+          "item_a": 80,
+          "item_b": 0,
+          "item_c": 95,
+          "item_d": 0
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "item_a": 46,
+          "item_b": 0,
+          "item_c": 54,
+          "item_d": 0
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 6,
+      "opcode_id": "release.emit",
+      "verb": "Release",
+      "args": {
+        "message": "filter pipeline complete"
+      },
+      "state_before": {
+        "bags": {
+          "item_a": 46,
+          "item_b": 0,
+          "item_c": 54,
+          "item_d": 0
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "item_a": 46,
+          "item_b": 0,
+          "item_c": 54,
+          "item_d": 0
+        },
+        "stack": [],
+        "flags": {},
+        "notes": [
+          "filter pipeline complete"
+        ]
+      }
+    }
+  ],
+  "metrics": {
+    "total_steps": 7,
+    "opcode_frequency": {
+      "attract.add": 4,
+      "contain.normalize": 1,
+      "release.emit": 1,
+      "repel.filter": 1
+    },
+    "verb_distribution": {
+      "Attract": 4,
+      "Contain": 1,
+      "Release": 1,
+      "Repel": 1,
+      "Transform": 0
+    },
+    "bag_variance": {
+      "item_a": 235.918,
+      "item_b": 220.408,
+      "item_c": 1548.98,
+      "item_d": 12.245
+    },
+    "final_bag_sum": 100,
+    "halted_early": false
+  }
+}

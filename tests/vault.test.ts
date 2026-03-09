@@ -7,6 +7,7 @@ import path from "node:path";
 import { buildArtifactHashPayload } from "../src/vault/schema.js";
 import { computeArtifactId, assertVaultPayloadClean } from "../src/vault/canon.js";
 import { vaultPut, vaultGet, vaultSearch, isPersonalArtifact } from "../src/vault/store.js";
+import { closeDb } from "../src/vault/db.js";
 import type { ArtifactKind } from "../src/vault/schema.js";
 
 let tmpDir: string;
@@ -19,6 +20,7 @@ before(() => {
 });
 
 after(() => {
+  closeDb();
   if (origEnv === undefined) {
     delete process.env.ARTIFACT_VAULT_ROOT;
   } else {
@@ -234,5 +236,88 @@ describe("vault — search", () => {
     const withoutPersonal = await vaultSearch({ tags: ["ep-test"], exclude_personal: true });
     assert.equal(withoutPersonal.results.length, 1);
     assert.ok(!isPersonalArtifact(withoutPersonal.results[0].tags));
+  });
+});
+
+// ── SQLite index storage ─────────────────────────────────────────────────────
+
+describe("vault — SQLite index", () => {
+  it("index.sqlite is created in vault root", async () => {
+    // Trigger DB creation via a put
+    await vaultPut({ kind: "fact", payload: { content: "sqlite-check" }, tags: ["sqlite-test"], refs: [] });
+    const dbFile = path.join(tmpDir, "index.sqlite");
+    assert.ok(fs.existsSync(dbFile), "index.sqlite should exist in vault root");
+  });
+
+  it("no index.jsonl is created", async () => {
+    const jsonlFile = path.join(tmpDir, "index.jsonl");
+    assert.ok(!fs.existsSync(jsonlFile), "index.jsonl should NOT exist");
+  });
+
+  it("FTS search returns results matching query", async () => {
+    await vaultPut({ kind: "fact", payload: { content: "quantum entanglement discovery" }, tags: ["fts-test"], refs: [] });
+    await vaultPut({ kind: "fact", payload: { content: "classical mechanics review" }, tags: ["fts-test"], refs: [] });
+
+    const result = await vaultSearch({ query: "quantum", tags: ["fts-test"] });
+    assert.ok(result.results.length >= 1);
+    assert.ok(result.results[0].snippet.includes("quantum"));
+    assert.ok(result.results[0].score > 0);
+  });
+
+  it("FTS search returns empty for non-matching query", async () => {
+    const result = await vaultSearch({ query: "zzzznonexistent999", tags: ["fts-test"] });
+    assert.equal(result.results.length, 0);
+  });
+});
+
+// ── JSONL migration ──────────────────────────────────────────────────────────
+
+describe("vault — JSONL migration", () => {
+  let migrationDir: string;
+  let origRoot: string | undefined;
+
+  before(() => {
+    // Close current DB so we can switch vault root
+    closeDb();
+    migrationDir = fs.mkdtempSync(path.join(os.tmpdir(), "vault-migration-"));
+    origRoot = process.env.ARTIFACT_VAULT_ROOT;
+    process.env.ARTIFACT_VAULT_ROOT = migrationDir;
+  });
+
+  after(() => {
+    closeDb();
+    if (origRoot === undefined) {
+      delete process.env.ARTIFACT_VAULT_ROOT;
+    } else {
+      process.env.ARTIFACT_VAULT_ROOT = origRoot;
+    }
+    fs.rmSync(migrationDir, { recursive: true, force: true });
+  });
+
+  it("migrates JSONL to SQLite and renames to .migrated", async () => {
+    // Write a fake JSONL
+    const jsonlFile = path.join(migrationDir, "index.jsonl");
+    const lines = [
+      { id: "aaa111", kind: "fact", tags: ["migration"], created_at: "2026-01-01T00:00:00Z", last_seen_at: "2026-01-02T00:00:00Z", snippet: '{"content":"hello"}' },
+      { id: "bbb222", kind: "skill", tags: ["migration", "code"], created_at: "2026-01-03T00:00:00Z", last_seen_at: "2026-01-04T00:00:00Z", snippet: '{"name":"coding"}' },
+    ];
+    fs.writeFileSync(jsonlFile, lines.map((l) => JSON.stringify(l)).join("\n") + "\n", "utf-8");
+
+    // Trigger migration by opening the DB
+    const { getDb: getDbFresh } = await import("../src/vault/db.js");
+    const db = getDbFresh();
+
+    // Verify SQLite has the data
+    const rows = db.prepare("SELECT * FROM artifacts ORDER BY id").all() as Array<{ id: string; kind: string; tags: string }>;
+    assert.equal(rows.length, 2);
+    assert.equal(rows[0].id, "aaa111");
+    assert.equal(rows[0].kind, "fact");
+    assert.deepEqual(JSON.parse(rows[0].tags), ["migration"]);
+    assert.equal(rows[1].id, "bbb222");
+    assert.equal(rows[1].kind, "skill");
+
+    // JSONL should be renamed
+    assert.ok(!fs.existsSync(jsonlFile), "index.jsonl should be removed");
+    assert.ok(fs.existsSync(path.join(migrationDir, "index.jsonl.migrated")), "index.jsonl.migrated should exist");
   });
 });

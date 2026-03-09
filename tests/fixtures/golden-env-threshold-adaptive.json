@@ -1,0 +1,28 @@
+{
+  "coarse_grid_size": 4,
+  "coarse_hints": 2,
+  "all_points_count": 6,
+  "all_hints_count": 2,
+  "refinement_rounds": 2,
+  "point_knob_values": [
+    {
+      "halt_threshold": 10.5
+    },
+    {
+      "halt_threshold": 100.5
+    },
+    {
+      "halt_threshold": 200.5
+    },
+    {
+      "halt_threshold": 300.5
+    },
+    {
+      "halt_threshold": 500.5
+    },
+    {
+      "halt_threshold": 900.5
+    }
+  ],
+  "refined_dossier_entry_count": 2
+}

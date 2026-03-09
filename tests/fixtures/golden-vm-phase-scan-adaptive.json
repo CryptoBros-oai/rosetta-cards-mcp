@@ -1,0 +1,17 @@
+{
+  "all_points_count": 3,
+  "all_hints_count": 0,
+  "refinement_rounds": 0,
+  "point_knob_values": [
+    {
+      "factor": 0.1
+    },
+    {
+      "factor": 0.5
+    },
+    {
+      "factor": 0.9
+    }
+  ],
+  "refined_dossier_entry_count": 0
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": "event.v1",
+  "artifact_type": "event",
+  "title": "Deployed export preview modal to Pinsets",
+  "summary": "Added deterministic dry-run export plan preview in TUI before exporting bundles.",
+  "event": {
+    "kind": "deployment",
+    "status": "confirmed",
+    "severity": "info",
+    "confidence": 0.95,
+    "participants": [
+      { "role": "builder", "name": "Claude Code" },
+      { "role": "reviewer", "name": "Brock" }
+    ],
+    "refs": [
+      { "ref_type": "artifact_id", "value": "card_abc123def456" }
+    ]
+  },
+  "tags": ["export", "tui", "determinism"],
+  "rosetta": {
+    "verb": "Transform",
+    "polarity": "+",
+    "weights": { "A": 0, "C": 0, "L": 0, "P": 0, "T": 1 }
+  },
+  "expected_hash": "2e41810e94e40e74c0559a839d1a058d305006f74575a3fe20c0411a131bdf53"
+}

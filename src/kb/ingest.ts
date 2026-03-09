@@ -151,6 +151,8 @@ export async function ingestFile(
     includePdfText?: boolean;
     storeBlobs?: boolean;
     extraTags?: string[];
+    blockedTags?: string[];
+    overrideBlocked?: boolean;
   }
 ): Promise<FileIngestResult> {
   const opts = {
@@ -158,10 +160,17 @@ export async function ingestFile(
     includePdfText: options?.includePdfText ?? true,
     storeBlobs: options?.storeBlobs ?? true,
     extraTags: options?.extraTags ?? [],
+    blockedTags: options?.blockedTags ?? [],
+    overrideBlocked: options?.overrideBlocked ?? false,
   };
 
   const ext = path.extname(absPath).toLowerCase();
   const mime = mimeFromExt(ext);
+  
+  // Enforce blocked tags early, before reading file
+  const autoTags = ["file", ext.replace(".", "")];
+  enforceBlockedTags(autoTags, opts.blockedTags, opts.overrideBlocked);
+
   const rawData = await fs.readFile(absPath);
   const bytes = rawData.length;
 
@@ -204,16 +213,11 @@ export async function ingestFile(
 
   // Build file artifact card (created_at excluded from hash per FORMAT.md)
   const originalName = path.basename(absPath);
-  const tags = Array.from(new Set(["file", ext.replace(".", ""), ...opts.extraTags]));
+  const tags = Array.from(new Set([...autoTags, ...opts.extraTags]));
+  
+  // Final check on combined tags
+  enforceBlockedTags(tags, opts.blockedTags, opts.overrideBlocked);
 
-  // Enforce pack blocked_tags on final tag set (prevents automatic tags like file/pdf)
-  try {
-    const ctx = await getVaultContext();
-    enforceBlockedTags(tags, ctx.policies.blocked_tags);
-  } catch (err) {
-    if (err instanceof PolicyViolationError) throw err;
-    throw err;
-  }
   const base: Omit<FileArtifact, "hash"> = {
     type: "file_artifact",
     spec_version: "1.0",
@@ -266,6 +270,8 @@ export async function ingestFolder(
     includePdfText?: boolean;
     storeBlobs?: boolean;
     extraTags?: string[];
+    blockedTags?: string[];
+    overrideBlocked?: boolean;
   }
 ): Promise<FolderIngestResult> {
   const allFiles = await walkDir(absFolderPath);

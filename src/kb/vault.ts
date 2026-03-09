@@ -225,6 +225,64 @@ export async function saveExecutionCard(
   return cardId;
 }
 
+/**
+ * Load all execution cards from disk. Used by graph query helpers.
+ * Returns only cards that pass ExecutionCardSchema validation.
+ */
+export async function loadAllExecutionCards(): Promise<ExecutionCard[]> {
+  await ensureDirs();
+  const { ExecutionCardSchema } = await import("./schema.js");
+  const files = await fs.readdir(CARD_DIR);
+  const results: ExecutionCard[] = [];
+  for (const f of files) {
+    if (!f.startsWith("card_execution_") || !f.endsWith(".json")) continue;
+    try {
+      const raw = await fs.readFile(path.join(CARD_DIR, f), "utf-8");
+      const parsed = ExecutionCardSchema.parse(JSON.parse(raw));
+      results.push(parsed);
+    } catch {
+      // skip corrupt / invalid files
+    }
+  }
+  return results;
+}
+
+/**
+ * Save a blessing record to the card directory.
+ * Returns a stable card_id based on the record hash.
+ */
+export async function saveBlessingRecord(
+  record: import("./schema.js").BlessingRecord
+): Promise<string> {
+  await ensureDirs();
+  const cardId = `blessing_${record.hash.slice(0, 12)}`;
+  const dest = path.join(CARD_DIR, `${cardId}.json`);
+  await fs.writeFile(dest, JSON.stringify(record, null, 2), "utf-8");
+  return cardId;
+}
+
+/**
+ * Load all blessing records from disk.
+ * Returns only records that pass BlessingRecordSchema validation.
+ */
+export async function loadAllBlessingRecords(): Promise<import("./schema.js").BlessingRecord[]> {
+  await ensureDirs();
+  const { BlessingRecordSchema } = await import("./schema.js");
+  const files = await fs.readdir(CARD_DIR);
+  const results: import("./schema.js").BlessingRecord[] = [];
+  for (const f of files) {
+    if (!f.startsWith("blessing_") || !f.endsWith(".json")) continue;
+    try {
+      const raw = await fs.readFile(path.join(CARD_DIR, f), "utf-8");
+      const parsed = BlessingRecordSchema.parse(JSON.parse(raw));
+      results.push(parsed);
+    } catch {
+      // skip corrupt / invalid files
+    }
+  }
+  return results;
+}
+
 // --- Card operations ---
 
 export async function loadCard(card_id: string): Promise<CardPayload> {

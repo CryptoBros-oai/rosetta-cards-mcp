@@ -30,6 +30,8 @@ import {
   saveEventCard,
   saveExecutionCard,
   loadAllExecutionCards,
+  saveBlessingRecord,
+  loadAllBlessingRecords,
 } from './vault.js';
 import {
   exportBundle,
@@ -77,6 +79,11 @@ import {
   StoragePlanInputSchema,
   StorageApplyInputSchema,
   StorageRestoreInputSchema,
+  BlessArtifactInputSchema,
+  DeprecateArtifactInputSchema,
+  SupersedeArtifactInputSchema,
+  CollectEvidenceInputSchema,
+  BuildEvidenceBundleInputSchema,
   type StoragePlan,
   type StorageApplyResult,
   type StorageRestoreResult,
@@ -729,6 +736,77 @@ export async function executionGetPipelineViewHook(args: unknown): Promise<Pipel
 export async function executionListPipelinesHook(_args: unknown): Promise<{ pipelines: string[] }> {
   const cards = await loadAllExecutionCards();
   return { pipelines: listPipelineIds(cards) };
+}
+
+// --- Blessing & Evidence hooks ---
+
+import {
+  blessArtifact,
+  deprecateArtifact,
+  supersedeArtifact,
+  collectEvidenceRefs,
+} from './blessing.js';
+import {
+  buildExecutionEvidenceBundle,
+  collectPipelineRefs,
+  summarizeIntegrityIssues,
+  type ExecutionEvidenceBundle,
+} from './evidence.js';
+
+export async function blessArtifactHook(args: unknown) {
+  const parsed = BlessArtifactInputSchema.parse(args);
+  const cards = await loadAllExecutionCards();
+  const record = blessArtifact({
+    target_hash: parsed.target_hash,
+    evidence_refs: parsed.evidence_refs,
+    reason: parsed.reason,
+    integrity_summary: parsed.integrity_summary,
+    override_integrity: parsed.override_integrity,
+    tags: parsed.tags,
+  });
+  const recordId = await saveBlessingRecord(record);
+  return { record_id: recordId, record_hash: record.hash, transition: record.transition, new_status: record.new_status };
+}
+
+export async function deprecateArtifactHook(args: unknown) {
+  const parsed = DeprecateArtifactInputSchema.parse(args);
+  const record = deprecateArtifact({
+    target_hash: parsed.target_hash,
+    reason: parsed.reason,
+    evidence_refs: parsed.evidence_refs,
+    tags: parsed.tags,
+  });
+  const recordId = await saveBlessingRecord(record);
+  return { record_id: recordId, record_hash: record.hash, transition: record.transition, new_status: record.new_status };
+}
+
+export async function supersedeArtifactHook(args: unknown) {
+  const parsed = SupersedeArtifactInputSchema.parse(args);
+  const record = supersedeArtifact({
+    old_hash: parsed.old_hash,
+    new_hash: parsed.new_hash,
+    reason: parsed.reason,
+    evidence_refs: parsed.evidence_refs,
+    tags: parsed.tags,
+  });
+  const recordId = await saveBlessingRecord(record);
+  return { record_id: recordId, record_hash: record.hash, transition: record.transition, new_status: record.new_status, superseded_by: record.superseded_by };
+}
+
+export async function collectEvidenceHook(args: unknown) {
+  const parsed = CollectEvidenceInputSchema.parse(args);
+  const refs = collectEvidenceRefs({
+    pipeline_ids: parsed.pipeline_id ? [parsed.pipeline_id] : undefined,
+    execution_hashes: parsed.execution_hashes,
+    artifact_hashes: parsed.artifact_hashes,
+  });
+  return { evidence_refs: refs, count: refs.length };
+}
+
+export async function buildEvidenceBundleHook(args: unknown): Promise<ExecutionEvidenceBundle> {
+  const parsed = BuildEvidenceBundleInputSchema.parse(args);
+  const cards = await loadAllExecutionCards();
+  return buildExecutionEvidenceBundle(parsed.pipeline_id, cards);
 }
 
 // --- Storage Policy Engine hooks ---

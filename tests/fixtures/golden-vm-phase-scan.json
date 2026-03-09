@@ -1,0 +1,91 @@
+{
+  "scan_index": {
+    "schema_version": "phase_scan.v1",
+    "scan_hash": "107ceba13b92bd86c8d918330c9637c2c3c5619f503029b48868e4add5e10955",
+    "program_id": "smoke_budget_allocator",
+    "program_fingerprint": "2a0007541ea8a50bd7821c04b75d5ff01a625c125b4cbde4a1cf3d869a060692",
+    "knobs": [
+      {
+        "key": "run_seed",
+        "values": [
+          1,
+          42
+        ]
+      }
+    ],
+    "grid_size": 2,
+    "points": [
+      {
+        "index": 0,
+        "knob_values": {
+          "run_seed": 1
+        },
+        "metrics": {
+          "total_steps": 12,
+          "opcode_frequency": {
+            "attract.add": 1,
+            "contain.clamp": 3,
+            "contain.threshold": 1,
+            "release.emit": 1,
+            "release.export": 3,
+            "transform.convert": 3
+          },
+          "verb_distribution": {
+            "Attract": 1,
+            "Contain": 4,
+            "Release": 4,
+            "Repel": 0,
+            "Transform": 3
+          },
+          "bag_variance": {
+            "engineering": 60763.889,
+            "marketing": 21875,
+            "operations": 9722.222,
+            "total": 87430.556
+          },
+          "final_bag_sum": 0,
+          "halted_early": false
+        },
+        "final_state_hash": "e30b8d71487b2427feff1026fe9af915fceb3c9a0981ac3332b15a3b41b64660"
+      },
+      {
+        "index": 1,
+        "knob_values": {
+          "run_seed": 42
+        },
+        "metrics": {
+          "total_steps": 12,
+          "opcode_frequency": {
+            "attract.add": 1,
+            "contain.clamp": 3,
+            "contain.threshold": 1,
+            "release.emit": 1,
+            "release.export": 3,
+            "transform.convert": 3
+          },
+          "verb_distribution": {
+            "Attract": 1,
+            "Contain": 4,
+            "Release": 4,
+            "Repel": 0,
+            "Transform": 3
+          },
+          "bag_variance": {
+            "engineering": 60763.889,
+            "marketing": 21875,
+            "operations": 9722.222,
+            "total": 87430.556
+          },
+          "final_bag_sum": 0,
+          "halted_early": false
+        },
+        "final_state_hash": "e30b8d71487b2427feff1026fe9af915fceb3c9a0981ac3332b15a3b41b64660"
+      }
+    ]
+  },
+  "phase_hints": {
+    "schema_version": "phase_hints.v1",
+    "scan_hash": "107ceba13b92bd86c8d918330c9637c2c3c5619f503029b48868e4add5e10955",
+    "hints": []
+  }
+}

@@ -86,3 +86,16 @@ describe("golden fixtures — folder index", () => {
     );
   });
 });
+
+describe("golden fixtures — event card", () => {
+  it("event card hash matches frozen expected_hash", () => {
+    const fixture = loadFixture("golden-event.json");
+    const { expected_hash, ...payload } = fixture;
+    const computed = canonicalHash(payload);
+    assert.equal(
+      computed,
+      expected_hash,
+      `Event card hash drift detected!\n  expected: ${expected_hash}\n  computed: ${computed}`
+    );
+  });
+});

@@ -1,0 +1,317 @@
+{
+  "state": {
+    "bags": {
+      "raw_signal": 200,
+      "noise_floor": 50,
+      "composite": 0,
+      "final_metric": 0
+    },
+    "stack": [],
+    "flags": {},
+    "notes": [
+      "export:final_metric=700",
+      "provenance compilation complete"
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "opcode_id": "attract.add",
+      "verb": "Attract",
+      "args": {
+        "bag": "raw_signal",
+        "amount": 200
+      },
+      "state_before": {
+        "bags": {},
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "raw_signal": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 1,
+      "opcode_id": "attract.add",
+      "verb": "Attract",
+      "args": {
+        "bag": "noise_floor",
+        "amount": 50
+      },
+      "state_before": {
+        "bags": {
+          "raw_signal": 200
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 2,
+      "opcode_id": "transform.derive",
+      "verb": "Transform",
+      "args": {
+        "source": "raw_signal",
+        "dest": "amplified",
+        "fn": "multiply",
+        "param": 3
+      },
+      "state_before": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "amplified": 600
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 3,
+      "opcode_id": "transform.derive",
+      "verb": "Transform",
+      "args": {
+        "source": "noise_floor",
+        "dest": "noise_scaled",
+        "fn": "multiply",
+        "param": 2
+      },
+      "state_before": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "amplified": 600
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "amplified": 600,
+          "noise_scaled": 100
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 4,
+      "opcode_id": "transform.compose",
+      "verb": "Transform",
+      "args": {
+        "a": "amplified",
+        "b": "noise_scaled",
+        "into": "composite"
+      },
+      "state_before": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "amplified": 600,
+          "noise_scaled": 100
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "composite": 700
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 5,
+      "opcode_id": "contain.commit_to_stack",
+      "verb": "Contain",
+      "args": {
+        "bag": "composite"
+      },
+      "state_before": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "composite": 700
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "composite": 0
+        },
+        "stack": [
+          700
+        ],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 6,
+      "opcode_id": "release.finalize",
+      "verb": "Release",
+      "args": {
+        "bag": "final_metric"
+      },
+      "state_before": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "composite": 0
+        },
+        "stack": [
+          700
+        ],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "composite": 0,
+          "final_metric": 700
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      }
+    },
+    {
+      "step": 7,
+      "opcode_id": "release.export",
+      "verb": "Release",
+      "args": {
+        "bag": "final_metric"
+      },
+      "state_before": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "composite": 0,
+          "final_metric": 700
+        },
+        "stack": [],
+        "flags": {},
+        "notes": []
+      },
+      "state_after": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "composite": 0,
+          "final_metric": 0
+        },
+        "stack": [],
+        "flags": {},
+        "notes": [
+          "export:final_metric=700"
+        ]
+      }
+    },
+    {
+      "step": 8,
+      "opcode_id": "release.emit",
+      "verb": "Release",
+      "args": {
+        "message": "provenance compilation complete"
+      },
+      "state_before": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "composite": 0,
+          "final_metric": 0
+        },
+        "stack": [],
+        "flags": {},
+        "notes": [
+          "export:final_metric=700"
+        ]
+      },
+      "state_after": {
+        "bags": {
+          "raw_signal": 200,
+          "noise_floor": 50,
+          "composite": 0,
+          "final_metric": 0
+        },
+        "stack": [],
+        "flags": {},
+        "notes": [
+          "export:final_metric=700",
+          "provenance compilation complete"
+        ]
+      }
+    }
+  ],
+  "metrics": {
+    "total_steps": 9,
+    "opcode_frequency": {
+      "attract.add": 2,
+      "contain.commit_to_stack": 1,
+      "release.emit": 1,
+      "release.export": 1,
+      "release.finalize": 1,
+      "transform.compose": 1,
+      "transform.derive": 2
+    },
+    "verb_distribution": {
+      "Attract": 2,
+      "Contain": 1,
+      "Release": 3,
+      "Repel": 0,
+      "Transform": 3
+    },
+    "bag_variance": {
+      "amplified": 62222.222,
+      "composite": 48395.062,
+      "final_metric": 48395.062,
+      "noise_floor": 246.914,
+      "noise_scaled": 987.654,
+      "raw_signal": 0
+    },
+    "final_bag_sum": 250,
+    "halted_early": false
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "phase_transition_report.v1",
+  "program_id": "rng_phase_transition",
+  "grid_size": 10,
+  "hint_count": 4,
+  "transition_count": 4,
+  "halted": 5,
+  "completed": 5,
+  "knob_names": [
+    "run_seed"
+  ],
+  "transition_ids": [
+    "transition_2_3",
+    "transition_2_3",
+    "transition_7_8",
+    "transition_7_8"
+  ],
+  "grid_statuses": [
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false
+  ]
+}

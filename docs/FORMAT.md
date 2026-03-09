@@ -130,7 +130,11 @@ A `file_artifact` card represents a single ingested file:
   "tags": ["file", "docx"],
   "source": { "relative_path": "docs/report.docx", "original_name": "report.docx" },
   "blob": { "hash": "<sha256>", "bytes": 12345, "mime": "application/vnd.openxmlformats..." },
-  "text": { "hash": "<sha256>", "chars": 5000, "extractor": { "name": "mammoth", "version": "1.x" } },
+  "text": {
+    "hash": "<sha256>",
+    "chars": 5000,
+    "extractor": { "name": "mammoth", "version": "1.x" }
+  },
   "hash": "<computed>"
 }
 ```
@@ -149,7 +153,14 @@ A `folder_index` card summarizes a folder ingestion:
   "title": "my-folder",
   "source": { "root_path": "imports/my-folder" },
   "files": [
-    { "relative_path": "report.docx", "blob_hash": "...", "text_hash": "...", "card_hash": "...", "bytes": 12345, "mime": "..." }
+    {
+      "relative_path": "report.docx",
+      "blob_hash": "...",
+      "text_hash": "...",
+      "card_hash": "...",
+      "bytes": 12345,
+      "mime": "..."
+    }
   ],
   "counts": { "files_total": 10, "docx": 3, "pdf": 2, "other": 5, "extracted_text_count": 5 }
 }
@@ -165,6 +176,40 @@ A `folder_index` card summarizes a folder ingestion:
 
 The `extractor` field in text records pins the tool name and version so that
 hash stability can be verified against a known toolchain.
+
+## Bundle Provenance
+
+Exported bundles may include an optional `provenance` object in the manifest:
+
+```json
+{
+  "provenance": {
+    "generator": "rosetta-cards-mcp",
+    "generator_version": "0.1.0",
+    "export_scope": "pack_only",
+    "pack": { "pack_id": "pack_abc", "name": "My Pack", "hash": "..." },
+    "include_blobs": true,
+    "include_text": true,
+    "created_at": "2025-08-01T12:00:00.000Z"
+  }
+}
+```
+
+### Provenance and Integrity Hashing
+
+The `integrity_hash` is computed **exclusively** from `card_id:hash` pairs (see
+Bundle Integrity Hash above). The `provenance` object, `created_at`, and all
+other manifest-level metadata are **not** inputs to the integrity hash.
+
+This means:
+
+- Adding or removing provenance does not change the integrity hash
+- Two bundles with the same cards produce the same integrity hash regardless of
+  provenance or timestamps
+- Import verification works identically with or without provenance
+
+Bundles exported before provenance was introduced (without a `provenance` field)
+are still valid and importable.
 
 ## Implementation
 

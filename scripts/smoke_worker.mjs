@@ -5,6 +5,13 @@ import path from 'node:path';
 const args = process.argv.slice(2);
 const action = args[0];
 const argsPayload = args[1] ? JSON.parse(args[1]) : {};
+const outPath = process.env.SMOKE_OUT_PATH;
+
+async function respond(obj) {
+  const json = JSON.stringify(obj);
+  if (outPath) await fs.writeFile(outPath, json, "utf-8");
+  console.log(json);
+}
 
 async function main() {
   // Import hooks/vault/bundle under the current process (VAULT_ROOT read at import)
@@ -21,43 +28,43 @@ async function main() {
       await fs.mkdir(path.join(vaultRoot, 'data', 'blobs'), { recursive: true });
       await fs.mkdir(path.join(vaultRoot, 'data', 'text'), { recursive: true });
       await fs.mkdir(path.join(vaultRoot, 'data', 'packs'), { recursive: true });
-      console.log(JSON.stringify({ ok: true }));
+      await respond({ ok: true });
       return;
     }
 
     case 'create_pack': {
-      const pack = await vault.createBehaviorPack({ name: argsPayload.name || 'smoke-pack', card_ids: [], policies: argsPayload.policies });
-      console.log(JSON.stringify({ pack }));
+      const pack = await vault.createBehaviorPack({ name: argsPayload.name || 'smoke-pack', card_ids: argsPayload.card_ids || [], policies: argsPayload.policies });
+      await respond({ pack });
       return;
     }
 
     case 'set_active_pack': {
       await vault.setActivePack(argsPayload.pack_id);
-      console.log(JSON.stringify({ ok: true }));
+      await respond({ ok: true });
       return;
     }
 
     case 'ingest_folder': {
       const res = await hooks.ingestFolderHook({ path: argsPayload.path, includeDocxText: false, includePdfText: false, storeBlobs: false, tags: argsPayload.tags || [] });
-      console.log(JSON.stringify({ result: res }));
+      await respond({ result: res });
       return;
     }
 
     case 'drain_context': {
       const res = await hooks.drainContextHook({ title: argsPayload.title, tags: argsPayload.tags || [], chatText: argsPayload.chatText, targetMaxChars: argsPayload.targetMaxChars || 200, chunkChars: argsPayload.chunkChars || 120 });
-      console.log(JSON.stringify({ result: res }));
+      await respond({ result: res });
       return;
     }
 
     case 'export_closure': {
       const res = await hooks.exportPackClosure({ include_png: false, meta: argsPayload.meta });
-      console.log(JSON.stringify({ result: res }));
+      await respond({ result: res });
       return;
     }
 
     case 'import_bundle': {
       const res = await hooks.importBundleHook({ bundle_path: argsPayload.bundle_path });
-      console.log(JSON.stringify({ result: res }));
+      await respond({ result: res });
       return;
     }
 
@@ -75,7 +82,7 @@ async function main() {
           // skip
         }
       }
-      console.log(JSON.stringify({ cards: out }));
+      await respond({ cards: out });
       return;
     }
 
@@ -96,19 +103,19 @@ async function main() {
           // skip corrupt
         }
       }
-      console.log(JSON.stringify({ found: out }));
+      await respond({ found: out });
       return;
     }
 
     case 'get_text': {
       const txt = await vault.getText(argsPayload.hash);
-      console.log(JSON.stringify({ text: txt }));
+      await respond({ text: txt });
       return;
     }
 
     case 'verify_card': {
       const res = await vault.verifyCardHash(argsPayload.card_id);
-      console.log(JSON.stringify({ res }));
+      await respond({ res });
       return;
     }
 

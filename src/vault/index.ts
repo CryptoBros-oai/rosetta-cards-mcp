@@ -3,8 +3,9 @@ export {
   vaultGet,
   vaultSearch,
   isPersonalArtifact,
+  getArtifactCount,
 } from "./store.js";
-export type { PutResult, SearchResult, SearchHit, IndexLine } from "./store.js";
+export type { PutResult, SearchResult, SearchHit, IndexLine, SearchMode } from "./store.js";
 
 export {
   ArtifactEnvelopeSchema,
@@ -28,3 +29,5 @@ export type {
 } from "./schema.js";
 
 export { computeArtifactId, assertVaultPayloadClean } from "./canon.js";
+
+export { getDb, closeDb } from "./db.js";

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "rosetta-cards": {
+      "command": "node",
+      "args": ["--loader", "ts-node/esm", "src/server.ts"],
+      "env": {
+        "ARTIFACT_VAULT_ROOT": ".vault",
+        "EMBEDDING_ENDPOINT": "http://localhost:1234/v1/embeddings"
+      }
+    }
+  }
+}

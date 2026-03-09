@@ -1,0 +1,138 @@
+dentity Policy — Rosetta Cards MCP
+Core Principle
+
+All artifact identity is determined solely by the canonicalized JSON payload passed to canonicalHash().
+
+Identity must be:
+
+deterministic
+
+reproducible
+
+independent of environment
+
+immune to accidental mutation
+
+Derived outputs (index, PNG, embeddings, etc.) must never influence identity.
+
+Artifact Identity Rules
+1. card.v1
+
+created_at is included in the hashed payload.
+
+It must be explicitly provided at construction time.
+
+It must not be auto-generated inside hashing logic.
+
+Cards represent minted artifacts (content + moment-of-mint).
+
+Allowed inside hash:
+
+created_at
+
+structural content fields
+
+Forbidden:
+
+prototype pollution keys (__proto__, prototype, constructor)
+
+2. event.v1
+
+Timestamps must not contaminate identity.
+
+occurred_at, created_at, updated_at, timestamp, time
+are strictly forbidden inside the hashed payload.
+
+Provenance/source fields are also forbidden inside the hashed payload.
+
+These values must live in Meta sidecar artifacts.
+
+Events represent structural occurrences, not clock-bound objects.
+
+3. meta.v1
+
+Meta artifacts never affect identity.
+
+Meta is mutable.
+
+Merge semantics: last-write-wins (LWW) unless otherwise specified.
+
+4. summary.*.v1
+
+Identity is derived from:
+
+normalized inputs
+
+sorted reference hashes
+
+summary content
+
+Reference order must not affect hash.
+
+Universal Prohibitions
+
+All artifacts must reject:
+
+__proto__
+
+prototype
+
+constructor
+
+Prototype pollution must never reach canonicalHash().
+
+Hash Boundary Rule
+
+canonicalHash() must only receive validated, schema-strict, artifact-approved payloads.
+
+Artifact-specific guards must enforce:
+
+event timestamp prohibition
+
+proto pollution rejection
+
+any artifact-specific exclusions
+
+Derived Artifacts
+
+The following must never affect identity:
+
+PNG renders
+
+index snapshots
+
+embeddings
+
+storage reports
+
+cold archives
+
+Derived outputs must be rebuildable from identity + meta.
+
+Testing Requirements
+
+All artifact types must include:
+
+Deterministic double-run hash test
+
+Negative tests for prohibited fields
+
+Proto pollution rejection tests
+
+Rebuildability tests (where applicable)
+
+In Case of Model Hopping
+
+If uncertain:
+
+Do not widen hash scope.
+
+Do not auto-add timestamps to identity.
+
+Do not merge meta into identity.
+
+Run the test suite before pushing.
+
+Why this matters
+
+This file is the anchor.

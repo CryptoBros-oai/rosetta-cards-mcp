@@ -3,9 +3,10 @@ import { createBrowserScreen } from "./screens/browser.js";
 import { createBuildScreen } from "./screens/build.js";
 import { createBundlesScreen } from "./screens/bundles.js";
 import { createPinsetsScreen } from "./screens/pinsets.js";
+import { createCorpusScreen } from "./screens/corpus.js";
 import { headerBox } from "./ui/layout.js";
 
-type ScreenName = "browser" | "build" | "bundles" | "pinsets";
+type ScreenName = "browser" | "build" | "bundles" | "pinsets" | "corpus";
 
 export function startTUI() {
   const screen = blessed.screen({
@@ -37,6 +38,7 @@ export function startTUI() {
   const buildScreen = createBuildScreen(screen);
   const bundlesScreen = createBundlesScreen(screen);
   const pinsetsScreen = createPinsetsScreen(screen);
+  const corpusScreen = createCorpusScreen(screen);
 
   const screens: Record<
     ScreenName,
@@ -46,6 +48,7 @@ export function startTUI() {
     build: buildScreen,
     bundles: bundlesScreen,
     pinsets: pinsetsScreen,
+    corpus: corpusScreen,
   };
 
   let activeScreen: ScreenName = "browser";
@@ -56,6 +59,7 @@ export function startTUI() {
       ["build", "2", "Build Card"],
       ["bundles", "3", "Bundles"],
       ["pinsets", "4", "Pinsets"],
+      ["corpus", "5", "Corpus Import"],
     ];
 
     const rendered = tabs
@@ -84,6 +88,7 @@ export function startTUI() {
   screen.key(["2"], () => switchScreen("build"));
   screen.key(["3"], () => switchScreen("bundles"));
   screen.key(["4"], () => switchScreen("pinsets"));
+  screen.key(["5", "i"], () => switchScreen("corpus"));
   screen.key(["q", "C-c"], () => {
     screen.destroy();
     process.exit(0);

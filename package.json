@@ -13,16 +13,26 @@
     "test": "node --loader ts-node/esm --test tests/*.test.ts",
     "seed": "node --loader ts-node/esm scripts/seed.ts",
     "demo": "bash examples/run_demo.sh",
-    "ingest:demo": "node --loader ts-node/esm scripts/ingest_demo.ts"
-    ,
+    "ingest:demo": "node --loader ts-node/esm scripts/ingest_demo.ts",
+    "corpus": "node --loader ts-node/esm src/cli/corpus.ts",
+    "corpus:local": "node --loader ts-node/esm src/cli/corpus.ts local",
+    "corpus:github": "node --loader ts-node/esm src/cli/corpus.ts github",
+    "corpus:arxiv": "node --loader ts-node/esm src/cli/corpus.ts arxiv",
+    "corpus:synthetic": "node --loader ts-node/esm src/cli/corpus.ts synthetic",
     "visualize": "node --loader ts-node/esm scripts/visualize_chunking.ts",
     "visualize:render": "node --loader ts-node/esm scripts/render_visualization.ts",
     "smoke": "node scripts/smoke.mjs",
     "smoke:render": "SMOKE_RENDER=1 node scripts/smoke.mjs",
-    "genesis": "node --loader ts-node/esm scripts/genesis_prove.ts"
+    "genesis": "node --loader ts-node/esm scripts/genesis_prove.ts",
+    "report": "npx tsx scripts/make_phase_transition_report.mjs",
+    "battery": "npx tsx scripts/corpus_battery.mjs --standard",
+    "battery:tiny": "npx tsx scripts/corpus_battery.mjs --tiny"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1000.0",
+    "@aws-sdk/lib-storage": "^3.1000.0",
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "better-sqlite3": "^12.6.2",
     "mammoth": "^1.11.0",
     "neo-blessed": "^0.2.0",
     "pdf-parse": "^2.4.5",
@@ -31,9 +41,11 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.0.0",
+    "prettier": "^2.8.8",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4",
-    "prettier": "^2.8.8"
+    "tsx": "^4.7.0",
+    "typescript": "^5.5.4"
   }
 }

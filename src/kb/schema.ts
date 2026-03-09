@@ -698,6 +698,103 @@ export const ExportActivePackInputSchema = z.object({
   meta: BundleMetaInputSchema.optional(),
 }).strict();
 
+// --- Corpus import schemas ---
+
+export const LocalCorpusImportSchema = z.object({
+  root_path: z.string(),
+  include_extensions: z.array(z.string()).default([".md", ".txt"]),
+  recursive: z.boolean().default(true),
+  tags: z.array(z.string()).default([]),
+  source_label: z.string().optional(),
+}).strict();
+
+export const GithubCorpusImportSchema = z.object({
+  repo_url: z.string().url(),
+  branch: z.string().optional(),
+  path_filter: z.array(z.string()).default([]),
+  include_extensions: z.array(z.string()).default([".md", ".txt"]),
+  max_files: z.number().int().positive().default(100),
+  tags: z.array(z.string()).default([]),
+  source_label: z.string().optional(),
+}).strict();
+
+export const ArxivCorpusImportSchema = z.object({
+  query: z.string(),
+  max_results: z.number().int().positive().default(25),
+  include_abstract_only: z.boolean().default(true),
+  tags: z.array(z.string()).default([]),
+  source_label: z.string().optional(),
+}).strict();
+
+export const SyntheticCorpusImportSchema = z.object({
+  theme: z.string().default("artifact vault workflows"),
+  doc_count: z.number().int().positive().default(12),
+  pipeline_count: z.number().int().positive().default(3),
+  tags: z.array(z.string()).default([]),
+}).strict();
+
+export const CorpusImportFollowupSchema = z.object({
+  build_cards: z.boolean().default(false),
+  export_graph: z.boolean().default(false),
+}).strict();
+
+export const CorpusPromotionFollowupSchema = z.object({
+  promote_facts: z.boolean().default(false),
+  promote_skills: z.boolean().default(false),
+  promote_summary: z.boolean().default(false),
+}).strict();
+
+export const RunLocalCorpusImportInputSchema = LocalCorpusImportSchema
+  .merge(CorpusImportFollowupSchema)
+  .merge(CorpusPromotionFollowupSchema)
+  .strict();
+
+export const RunGithubCorpusImportInputSchema = GithubCorpusImportSchema
+  .merge(CorpusImportFollowupSchema)
+  .merge(CorpusPromotionFollowupSchema)
+  .strict();
+
+export const RunArxivCorpusImportInputSchema = ArxivCorpusImportSchema
+  .merge(CorpusImportFollowupSchema)
+  .merge(CorpusPromotionFollowupSchema)
+  .strict();
+
+export const RunSyntheticCorpusImportInputSchema = SyntheticCorpusImportSchema
+  .merge(CorpusImportFollowupSchema)
+  .merge(CorpusPromotionFollowupSchema)
+  .strict();
+
+export const PromotionPromoteFactsInputSchema = z.object({
+  doc_ids: z.array(z.string()),
+  tags: z.array(z.string()).optional(),
+  source_label: z.string().optional(),
+}).strict();
+
+export const PromotionPromoteSkillsInputSchema = z.object({
+  execution_ids: z.array(z.string()).optional(),
+  pipeline_id: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+}).strict();
+
+export const PromotionPromoteSummaryInputSchema = z.object({
+  doc_ids: z.array(z.string()).optional(),
+  execution_ids: z.array(z.string()).optional(),
+  fact_ids: z.array(z.string()).optional(),
+  skill_ids: z.array(z.string()).optional(),
+  label: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+}).strict();
+
+export const PromotionBuildBundleInputSchema = z.object({
+  doc_ids: z.array(z.string()).optional(),
+  execution_ids: z.array(z.string()).optional(),
+  include_facts: z.boolean().default(true),
+  include_skills: z.boolean().default(true),
+  include_summary: z.boolean().default(true),
+  label: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+}).strict();
+
 // Storage hook input schemas
 export const StoragePlanInputSchema = z.object({}).strict();
 
@@ -901,6 +998,142 @@ export const WeeklySummarySchema = z.object({
 }).strict();
 
 export type WeeklySummary = z.infer<typeof WeeklySummarySchema>;
+
+// --- Artifact Lifecycle & Blessing ---
+
+export type ArtifactLifecycleStatus = "candidate" | "blessed" | "deprecated";
+
+export type BlessingTransition = "bless" | "deprecate" | "supersede";
+
+export type EvidenceRef = {
+  ref_type: "execution_hash" | "artifact_hash" | "pipeline_id" | "external_id" | "url";
+  value: string;
+  label?: string;
+};
+
+export type IntegritySummary = {
+  total_cards: number;
+  issue_count: number;
+  clean: boolean;
+  issues: Array<{ kind: string; hash: string; detail: string }>;
+};
+
+export type BlessingRecord = {
+  schema_version: "blessing.v1";
+  transition: BlessingTransition;
+  target_hash: string;
+  new_status: ArtifactLifecycleStatus;
+  evidence_refs: EvidenceRef[];
+  superseded_by?: string;
+  supersedes?: string;
+  reason: string;
+  integrity_summary?: IntegritySummary;
+  override_integrity: boolean;
+  tags: string[];
+  hash: string;
+};
+
+const EvidenceRefSchema = z.object({
+  ref_type: z.enum(["execution_hash", "artifact_hash", "pipeline_id", "external_id", "url"]),
+  value: z.string(),
+  label: z.string().optional(),
+}).strict();
+
+export { EvidenceRefSchema };
+
+const IntegritySummarySchema = z.object({
+  total_cards: z.number().int().nonnegative(),
+  issue_count: z.number().int().nonnegative(),
+  clean: z.boolean(),
+  issues: z.array(z.object({
+    kind: z.string(),
+    hash: z.string(),
+    detail: z.string(),
+  }).strict()),
+}).strict();
+
+export { IntegritySummarySchema };
+
+export const BlessingRecordSchema = z.object({
+  schema_version: z.literal("blessing.v1"),
+  transition: z.enum(["bless", "deprecate", "supersede"]),
+  target_hash: z.string(),
+  new_status: z.enum(["candidate", "blessed", "deprecated"]),
+  evidence_refs: z.array(EvidenceRefSchema),
+  superseded_by: z.string().optional(),
+  supersedes: z.string().optional(),
+  reason: z.string().min(1),
+  integrity_summary: IntegritySummarySchema.optional(),
+  override_integrity: z.boolean(),
+  tags: z.array(z.string()),
+  hash: z.string(),
+}).strict();
+
+export type BlessingHashPayload = Omit<BlessingRecord, "hash">;
+
+export function buildBlessingHashPayload(parsed: {
+  transition: BlessingTransition;
+  target_hash: string;
+  new_status: ArtifactLifecycleStatus;
+  evidence_refs: EvidenceRef[];
+  superseded_by?: string;
+  supersedes?: string;
+  reason: string;
+  integrity_summary?: IntegritySummary;
+  override_integrity: boolean;
+  tags: string[];
+}): BlessingHashPayload {
+  const payload: BlessingHashPayload = {
+    schema_version: "blessing.v1",
+    transition: parsed.transition,
+    target_hash: parsed.target_hash,
+    new_status: parsed.new_status,
+    evidence_refs: parsed.evidence_refs,
+    reason: parsed.reason,
+    override_integrity: parsed.override_integrity,
+    tags: parsed.tags,
+  };
+  if (parsed.superseded_by !== undefined) payload.superseded_by = parsed.superseded_by;
+  if (parsed.supersedes !== undefined) payload.supersedes = parsed.supersedes;
+  if (parsed.integrity_summary !== undefined) payload.integrity_summary = parsed.integrity_summary;
+  return payload;
+}
+
+// Input schemas for blessing MCP tools
+
+export const BlessArtifactInputSchema = z.object({
+  target_hash: z.string(),
+  evidence_refs: z.array(EvidenceRefSchema),
+  reason: z.string().min(1),
+  integrity_summary: IntegritySummarySchema.optional(),
+  override_integrity: z.boolean().optional(),
+  tags: z.array(z.string()).optional(),
+}).strict();
+
+export const DeprecateArtifactInputSchema = z.object({
+  target_hash: z.string(),
+  reason: z.string().min(1),
+  evidence_refs: z.array(EvidenceRefSchema).optional(),
+  tags: z.array(z.string()).optional(),
+}).strict();
+
+export const SupersedeArtifactInputSchema = z.object({
+  old_hash: z.string(),
+  new_hash: z.string(),
+  reason: z.string().min(1),
+  evidence_refs: z.array(EvidenceRefSchema).optional(),
+  tags: z.array(z.string()).optional(),
+}).strict();
+
+export const CollectEvidenceInputSchema = z.object({
+  pipeline_id: z.string().optional(),
+  artifact_hashes: z.array(z.string()).optional(),
+  execution_hashes: z.array(z.string()).optional(),
+}).strict();
+
+export const BuildEvidenceBundleInputSchema = z.object({
+  pipeline_id: z.string(),
+}).strict();
 
 // --- Vault Context ---
 
