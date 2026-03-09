@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rosetta Cards MCP &mdash; User Guide</title>
+<style>
+  :root {
+    --bg: #111;
+    --bg-alt: #1a1a2e;
+    --text: #e0e0e0;
+    --text-muted: #999;
+    --accent: #00bcd4;
+    --accent-dim: #0097a7;
+    --green: #4caf50;
+    --yellow: #ffc107;
+    --red: #f44336;
+    --border: #333;
+    --code-bg: #0d1117;
+    --table-stripe: #1c1c30;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0;
+  }
+  .wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+  }
+  h1 {
+    font-size: 2.2rem;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent-dim);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  h1 small { font-size: 1rem; color: var(--text-muted); font-weight: normal; }
+  h2 {
+    font-size: 1.6rem;
+    color: var(--accent);
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.3rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+    color: #e0e0e0;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+  }
+  h4 {
+    font-size: 1.05rem;
+    color: var(--accent-dim);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  p { margin-bottom: 1rem; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { margin: 0 0 1rem 1.5rem; }
+  li { margin-bottom: 0.3rem; }
+  code {
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    background: var(--code-bg);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1.2rem;
+    font-size: 0.88em;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.92em;
+  }
+  th {
+    background: var(--bg-alt);
+    color: var(--accent);
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 2px solid var(--accent-dim);
+  }
+  td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:nth-child(even) td { background: var(--table-stripe); }
+  .toc { margin: 1.5rem 0 2rem; }
+  .toc ol { counter-reset: toc; list-style: none; margin-left: 0; }
+  .toc li { counter-increment: toc; margin-bottom: 0.25rem; }
+  .toc li::before {
+    content: counters(toc, ".") ". ";
+    color: var(--accent-dim);
+    font-weight: bold;
+    margin-right: 0.3rem;
+  }
+  .toc ol ol { margin-left: 1.5rem; margin-top: 0.2rem; }
+  .ascii-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85em;
+    line-height: 1.4;
+    overflow-x: auto;
+    margin-bottom: 1.2rem;
+    white-space: pre;
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+    font-size: 0.82em;
+    font-weight: 600;
+  }
+  .badge-bronze { background: #8d6e63; color: #fff; }
+  .badge-silver { background: #78909c; color: #fff; }
+  .badge-gold { background: #ffa000; color: #1a1a1a; }
+  .badge-green { background: var(--green); color: #fff; }
+  .badge-red { background: var(--red); color: #fff; }
+  .note {
+    border-left: 4px solid var(--accent);
+    background: var(--bg-alt);
+    padding: 0.8rem 1rem;
+    margin-bottom: 1.2rem;
+    border-radius: 0 6px 6px 0;
+  }
+  .note strong { color: var(--accent); }
+  .warn {
+    border-left: 4px solid var(--yellow);
+    background: #2a2a1a;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1.2rem;
+    border-radius: 0 6px 6px 0;
+  }
+  .warn strong { color: var(--yellow); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .key {
+    display: inline-block;
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 0.1em 0.45em;
+    font-family: monospace;
+    font-size: 0.88em;
+    box-shadow: 0 2px 0 #222;
+    margin: 0 2px;
+  }
+  @media (max-width: 700px) {
+    .wrapper { padding: 1rem; }
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.3rem; }
+    table { font-size: 0.82em; }
+    pre { font-size: 0.8em; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<h1>Rosetta Cards MCP <small>User Guide &mdash; v0.1.0</small></h1>
+<p>This guide covers every feature, tool, terminal interface screen, and use case in the Rosetta Cards MCP system. Written for humans who want to understand what the software does and how to use it, from first launch to advanced operations.</p>
+
+<hr>
+
+<!-- ─── TABLE OF CONTENTS ─────────────────────────────────────────────── -->
+
+<nav class="toc">
+<h2 id="toc">Table of Contents</h2>
+<ol>
+  <li><a href="#what-is">What Is Rosetta Cards MCP?</a></li>
+  <li><a href="#install">Installation and First Run</a></li>
+  <li><a href="#concepts">Core Concepts</a>
+    <ol>
+      <li><a href="#artifacts">Artifacts</a></li>
+      <li><a href="#content-addr">Content Addressing</a></li>
+      <li><a href="#vault">The Vault</a></li>
+      <li><a href="#cards">Knowledge Cards</a></li>
+      <li><a href="#tiers">NFT Tiers</a></li>
+    </ol>
+  </li>
+  <li><a href="#tui">The Terminal Interface (TUI)</a>
+    <ol>
+      <li><a href="#tui-nav">Global Navigation</a></li>
+      <li><a href="#tui-browse">Screen 1 &mdash; Browse</a></li>
+      <li><a href="#tui-build">Screen 2 &mdash; Build Card</a></li>
+      <li><a href="#tui-bundles">Screen 3 &mdash; Bundles</a></li>
+      <li><a href="#tui-pinsets">Screen 4 &mdash; Pinsets &amp; Behavior Packs</a></li>
+      <li><a href="#tui-corpus">Screen 5 &mdash; Corpus Import</a></li>
+    </ol>
+  </li>
+  <li><a href="#tools">MCP Tools Reference</a>
+    <ol>
+      <li><a href="#tools-vault">vault.*</a></li>
+      <li><a href="#tools-kb">kb.*</a></li>
+      <li><a href="#tools-memory">memory.*</a></li>
+      <li><a href="#tools-vm">vm.*</a></li>
+      <li><a href="#tools-exec">execution.*</a></li>
+      <li><a href="#tools-artifact">artifact.*</a></li>
+      <li><a href="#tools-corpus">corpus.*</a></li>
+      <li><a href="#tools-promotion">promotion.*</a></li>
+    </ol>
+  </li>
+  <li><a href="#search">Search: Lexical, Semantic, and Hybrid</a></li>
+  <li><a href="#embeddings">Embedding Setup</a></li>
+  <li><a href="#memory">Progressive Memory</a></li>
+  <li><a href="#vm">The Deterministic VM</a></li>
+  <li><a href="#corpus-workflows">Corpus Import Workflows</a></li>
+  <li><a href="#blessing">Artifact Blessing and Promotion</a></li>
+  <li><a href="#bundles-detail">Bundles, Pinsets, and Behavior Packs</a></li>
+  <li><a href="#storage">Storage Management</a></li>
+  <li><a href="#claude">Claude Code Integration</a></li>
+  <li><a href="#env">Environment Variables</a></li>
+  <li><a href="#trouble">Troubleshooting</a></li>
+</ol>
+</nav>
+
+<hr>
+
+<!-- ─── 1. WHAT IS ─────────────────────────────────────────────────────── -->
+
+<h2 id="what-is">1. What Is Rosetta Cards MCP?</h2>
+
+<p>Rosetta Cards MCP is a knowledge management system built as a <strong>Model Context Protocol (MCP)</strong> server. It turns text, documents, and operational data into structured, versioned, content-addressed <strong>artifacts</strong> that can be searched, bundled, and shared.</p>
+
+<p>It works in two ways:</p>
+<ul>
+  <li><strong>As an MCP server</strong> &mdash; an AI assistant (Claude, or any MCP-compatible client) calls its tools to store, search, and manage knowledge.</li>
+  <li><strong>As a terminal application (TUI)</strong> &mdash; a human opens the interactive interface to browse cards, import documents, create bundles, and manage behavior packs.</li>
+</ul>
+
+<p>Every artifact is assigned a <strong>SHA-256 identity hash</strong> computed from its content. If two artifacts have identical content, they get the same hash &mdash; there are never duplicates. Timestamps and provenance metadata are excluded from the hash, so the same knowledge always produces the same ID regardless of when or where it was created.</p>
+
+<hr>
+
+<!-- ─── 2. INSTALL ─────────────────────────────────────────────────────── -->
+
+<h2 id="install">2. Installation and First Run</h2>
+
+<h3>Requirements</h3>
+<ul>
+  <li><strong>Node.js 20</strong> or newer (ESM modules and modern APIs)</li>
+  <li><strong>npm</strong> (ships with Node.js)</li>
+</ul>
+
+<h3>Install</h3>
+<pre><code>git clone &lt;repository-url&gt; rosetta-cards-mcp
+cd rosetta-cards-mcp
+npm ci</code></pre>
+
+<h3>Verify everything works</h3>
+<pre><code>npm test          # run the test suite
+npm run build     # compile TypeScript
+npm run smoke     # deterministic hash validation</code></pre>
+
+<h3>Start the TUI</h3>
+<pre><code>npm run tui</code></pre>
+
+<h3>Start the MCP server</h3>
+<pre><code>npm run dev       # development mode (ts-node, no build step)
+npm run start     # production mode (requires npm run build first)</code></pre>
+
+<p>The MCP server communicates over stdio. Connect your MCP client to it.</p>
+
+<hr>
+
+<!-- ─── 3. CORE CONCEPTS ──────────────────────────────────────────────── -->
+
+<h2 id="concepts">3. Core Concepts</h2>
+
+<h3 id="artifacts">3.1 Artifacts</h3>
+
+<p>An <strong>artifact</strong> is any piece of knowledge the system stores. Every artifact has:</p>
+
+<table>
+  <tr><th>Field</th><th>Description</th></tr>
+  <tr><td><code>id</code></td><td>SHA-256 hash of the artifact's structural content</td></tr>
+  <tr><td><code>version</code></td><td>Schema version (currently <code>artifact_v1</code>)</td></tr>
+  <tr><td><code>kind</code></td><td>One of: fact, event, decision, skill, profile, tool_obs, summary, project</td></tr>
+  <tr><td><code>payload</code></td><td>The actual content (arbitrary JSON object)</td></tr>
+  <tr><td><code>tags</code></td><td>Labels that are part of the artifact's identity</td></tr>
+  <tr><td><code>refs</code></td><td>References to other artifacts (<code>[{kind, id}]</code>)</td></tr>
+  <tr><td><code>created_at</code></td><td>When the artifact was first stored (not part of the hash)</td></tr>
+  <tr><td><code>source</code></td><td>Provenance info: agent, tool, repo (not part of the hash)</td></tr>
+</table>
+
+<h4>Artifact kinds explained</h4>
+<ul>
+  <li><strong>fact</strong> &mdash; A factual claim. Example: &ldquo;The boiling point of water is 100&deg;C.&rdquo;</li>
+  <li><strong>event</strong> &mdash; Something that happened at a point in time. Example: &ldquo;Deployment to production at 3pm.&rdquo;</li>
+  <li><strong>decision</strong> &mdash; A choice that was made. Example: &ldquo;We chose PostgreSQL over MySQL.&rdquo;</li>
+  <li><strong>skill</strong> &mdash; A procedure or capability. Example: &ldquo;How to deploy a Docker container.&rdquo;</li>
+  <li><strong>profile</strong> &mdash; A description of an entity. Example: &ldquo;Alice &mdash; backend engineer, Python specialist.&rdquo;</li>
+  <li><strong>tool_obs</strong> &mdash; An observation from a tool. Example: &ldquo;CPU usage hit 95% at 14:32.&rdquo;</li>
+  <li><strong>summary</strong> &mdash; A condensed view of other artifacts. Example: weekly summary.</li>
+  <li><strong>project</strong> &mdash; Project-level metadata. Example: &ldquo;Project Alpha &mdash; Q3 2026 roadmap.&rdquo;</li>
+</ul>
+
+<h3 id="content-addr">3.2 Content Addressing</h3>
+
+<p>Every artifact gets its identity from a SHA-256 hash of its <strong>structural content</strong>. The hash is computed from these fields only:</p>
+<ul>
+  <li><code>version</code> (always &ldquo;artifact_v1&rdquo;)</li>
+  <li><code>kind</code></li>
+  <li><code>payload</code></li>
+  <li><code>tags</code> (sorted alphabetically)</li>
+  <li><code>refs</code></li>
+</ul>
+
+<p>These fields are <strong>excluded</strong> from the hash:</p>
+<ul>
+  <li><code>created_at</code> and <code>last_seen_at</code> (timestamps)</li>
+  <li><code>source</code> (provenance &mdash; who/what created it)</li>
+</ul>
+
+<div class="note">
+  <strong>Result:</strong> Storing the same content twice returns the same ID (deduplication). You can re-store an artifact from a different machine and get the same hash.
+</div>
+
+<p><strong>Prohibited payload keys:</strong> To prevent accidental non-determinism, the system rejects payloads containing keys like <code>created_at</code>, <code>timestamp</code>, <code>hostname</code>, <code>pid</code>, <code>cwd</code>, <code>env</code>, or prototype pollution vectors (<code>__proto__</code>, <code>constructor</code>).</p>
+
+<h3 id="vault">3.3 The Vault</h3>
+
+<p>The vault is the storage layer. It stores artifacts in two places simultaneously:</p>
+<ol>
+  <li><strong>Blob files on disk</strong> &mdash; each artifact is saved as a JSON file at <code>.vault/blobs/&lt;first-2-chars&gt;/&lt;next-2-chars&gt;/&lt;full-hash&gt;.json</code>. This sharded directory structure keeps any single folder from getting too large.</li>
+  <li><strong>SQLite index</strong> &mdash; a database at <code>.vault/index.sqlite</code> provides full-text search (FTS5) over artifact content. WAL mode for concurrent access.</li>
+  <li><strong>Embeddings database</strong> (optional) &mdash; at <code>.vault/embeddings.sqlite</code>, stores vector embeddings for semantic search. Requires a running embedding endpoint.</li>
+</ol>
+
+<p>The vault root defaults to <code>.vault/</code> in the project directory. Override with the <code>ARTIFACT_VAULT_ROOT</code> environment variable.</p>
+
+<h3 id="cards">3.4 Knowledge Cards</h3>
+
+<p>A knowledge card is a visual representation of a knowledge artifact:</p>
+<ul>
+  <li><code>card.json</code> &mdash; structured data with title, bullet points, tags, diagram, and sources</li>
+  <li><code>card.png</code> &mdash; a 1200&times;675 infographic image, optionally with a QR code</li>
+</ul>
+
+<p>Cards are built from documents. When you add a document, it gets chunked into paragraphs. You can then build a card from any chunk.</p>
+
+<h3 id="tiers">3.5 NFT Tiers</h3>
+
+<p>Three access tiers, designed for ThreadForge&rsquo;s NFT-based access model. Default is <span class="badge badge-gold">Gold</span> (unrestricted).</p>
+
+<table>
+  <tr><th>Tier</th><th>Artifact Cap</th><th>Allowed Kinds</th><th>Tool Access</th></tr>
+  <tr>
+    <td><span class="badge badge-bronze">Bronze</span></td>
+    <td>1,000</td>
+    <td>fact, event, tool_obs</td>
+    <td>Vault, memory, basic KB</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-silver">Silver</span></td>
+    <td>10,000</td>
+    <td>All kinds</td>
+    <td>Bronze + promotion, blessing, corpus, execution, storage</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-gold">Gold</span></td>
+    <td>Unlimited</td>
+    <td>All kinds</td>
+    <td>Everything (no restrictions)</td>
+  </tr>
+</table>
+
+<p>Set via <code>THREADFORGE_TIER</code> environment variable. Case-insensitive. Invalid values fall back to gold.</p>
+
+<hr>
+
+<!-- ─── 4. TUI ─────────────────────────────────────────────────────────── -->
+
+<h2 id="tui">4. The Terminal Interface (TUI)</h2>
+
+<p>The TUI is a full-screen terminal application built with neo-blessed. Launch it with:</p>
+<pre><code>npm run tui</code></pre>
+
+<h3 id="tui-nav">4.1 Global Navigation</h3>
+
+<p>Five screens, switch between them at any time:</p>
+
+<table>
+  <tr><th>Key</th><th>Screen</th><th>Purpose</th></tr>
+  <tr><td><span class="key">1</span></td><td>Browse</td><td>Search and inspect cards</td></tr>
+  <tr><td><span class="key">2</span></td><td>Build Card</td><td>Create new knowledge cards</td></tr>
+  <tr><td><span class="key">3</span></td><td>Bundles</td><td>Export and import card bundles</td></tr>
+  <tr><td><span class="key">4</span></td><td>Pinsets</td><td>Manage card collections and behavior packs</td></tr>
+  <tr><td><span class="key">5</span></td><td>Corpus Import</td><td>Import documents from various sources</td></tr>
+  <tr><td><span class="key">q</span></td><td>Quit</td><td>Exit the application</td></tr>
+</table>
+
+<p>The active tab is highlighted in cyan. <span class="key">Ctrl+C</span> also quits. <span class="key">i</span> is an alias for <span class="key">5</span>.</p>
+
+<p><strong>Common controls across all screens:</strong></p>
+<ul>
+  <li>Arrow keys or <span class="key">j</span>/<span class="key">k</span> (vim-style) to navigate lists</li>
+  <li><span class="key">Enter</span> to select or confirm</li>
+  <li><span class="key">Escape</span> to cancel a dialog</li>
+  <li><span class="key">Space</span> to toggle selection (where applicable)</li>
+</ul>
+
+<!-- ── Screen 1 ── -->
+<h3 id="tui-browse">4.2 Screen 1 &mdash; Browse</h3>
+
+<p><strong>What it does:</strong> Search your knowledge cards, view their details, and verify content hashes.</p>
+
+<div class="ascii-box">+--[ Search: __________________ ]--+
+|                                   |
+|  Results List    |  Card Details  |
+|  (left half)     |  (right half)  |
+|                  |                |
+|  &gt; Card A  0.95  |  card_id: ... |
+|    Card B  0.82  |  hash: ...    |
+|    Card C  0.71  |  bullets: ... |
+|                  |  tags: ...    |
++-----------------------------------+
+| [/] Search  [p] PNG  [h] Hash     |
++-----------------------------------+</div>
+
+<p><strong>How to use it:</strong></p>
+<ol>
+  <li>Press <span class="key">/</span> to focus the search box.</li>
+  <li>Type a query and press <span class="key">Enter</span>. Results appear ranked by relevance.</li>
+  <li>Use arrow keys to highlight a result. The details pane updates automatically.</li>
+  <li>Press <span class="key">Enter</span> on a result to load its full details.</li>
+</ol>
+
+<table>
+  <tr><th>Key</th><th>Action</th></tr>
+  <tr><td><span class="key">/</span></td><td>Focus the search input box</td></tr>
+  <tr><td><span class="key">Enter</span></td><td>Show full details for selected card</td></tr>
+  <tr><td><span class="key">p</span></td><td>Open the PNG image for the selected card</td></tr>
+  <tr><td><span class="key">h</span></td><td>Verify the card's hash integrity</td></tr>
+  <tr><td><span class="key">r</span></td><td>Refresh &mdash; reload all cards</td></tr>
+</table>
+
+<p><strong>Hash verification:</strong> Press <span class="key">h</span> to recompute the card's hash from its content. A <span class="badge badge-green">green checkmark</span> means integrity confirmed. A <span class="badge badge-red">red X</span> means mismatch, with details on possible causes (manual editing, serialization changes, file corruption, or incompatible imports).</p>
+
+<p><strong>Details shown:</strong> Card ID, hash (first 16 chars), creation timestamp, bullet points, tags, source URLs. A green dot (&bull;) indicates pinned cards.</p>
+
+<!-- ── Screen 2 ── -->
+<h3 id="tui-build">4.3 Screen 2 &mdash; Build Card</h3>
+
+<p><strong>What it does:</strong> Create a new knowledge card from scratch by entering a title, tags, and text content. Also supports bulk folder import.</p>
+
+<div class="ascii-box">+--[ Step 1 of 3 ]--+
+|                    |
+| Title: [________]  |
+| Tags:  [________]  |
+| Text:              |
+| [                ] |
+| [                ] |
+|                    |
++--------------------+
+| [Tab] Next  [Ctrl+S] Build  [f] Folder |
++--------------------+</div>
+
+<p><strong>How to use it:</strong></p>
+<ol>
+  <li>Enter a title in the first field.</li>
+  <li>Press <span class="key">Tab</span> to move to tags. Enter comma-separated tags.</li>
+  <li>Press <span class="key">Tab</span> to move to the text area. Type or paste content.</li>
+  <li>Press <span class="key">Ctrl+S</span> to build the card.</li>
+  <li>On success, press <span class="key">p</span> to view the PNG or <span class="key">n</span> for a new card.</li>
+</ol>
+
+<table>
+  <tr><th>Key</th><th>Action</th></tr>
+  <tr><td><span class="key">Tab</span></td><td>Move to the next input field</td></tr>
+  <tr><td><span class="key">Ctrl+S</span></td><td>Build the card from current fields</td></tr>
+  <tr><td><span class="key">f</span></td><td>Open folder import dialog</td></tr>
+  <tr><td><span class="key">p</span></td><td>View PNG of the last built card</td></tr>
+  <tr><td><span class="key">n</span></td><td>Reset form for a new card</td></tr>
+</table>
+
+<p><strong>Folder import:</strong> Press <span class="key">f</span> to import an entire folder. Processes <code>.docx</code> and <code>.pdf</code> files, extracts text, stores blobs, and reports results.</p>
+
+<!-- ── Screen 3 ── -->
+<h3 id="tui-bundles">4.4 Screen 3 &mdash; Bundles</h3>
+
+<p><strong>What it does:</strong> Export your cards into portable bundles and import bundles from other sources.</p>
+
+<div class="ascii-box">+--[ Bundles ]--+
+|                                   |
+|  Bundle List     | Bundle Details |
+|  (left half)     | (right half)   |
+|                  |                |
+|  &gt; abc123...  5  | ID: abc123... |
+|    def456... 12  | Cards: 5      |
+|                  | Hash: e7f...  |
++-----------------------------------+
+| [e] Export  [i] Import  [r] Refresh |
++-----------------------------------+</div>
+
+<table>
+  <tr><th>Key</th><th>Action</th></tr>
+  <tr><td><span class="key">e</span></td><td>Export all cards to a new bundle</td></tr>
+  <tr><td><span class="key">i</span></td><td>Import a bundle from a file path</td></tr>
+  <tr><td><span class="key">r</span></td><td>Refresh the bundle list</td></tr>
+</table>
+
+<p><strong>Details shown:</strong> Bundle ID (first 20 chars), version, card count, creation timestamp, integrity hash, description, license (SPDX), and author.</p>
+
+<p><strong>Integrity verification:</strong> The integrity hash is computed from sorted <code>card_id:hash</code> pairs. Provenance and timestamps do not affect it.</p>
+
+<!-- ── Screen 4 ── -->
+<h3 id="tui-pinsets">4.5 Screen 4 &mdash; Pinsets &amp; Behavior Packs</h3>
+
+<p><strong>What it does:</strong> Organize cards into named collections (pinsets) and promote them to behavior packs with policies that control search ranking and export scope.</p>
+
+<div class="ascii-box">+--[ Pinsets &amp; Packs ]--+
+|                                       |
+|  [PACK] My Analysis Pack  ACTIVE |  Name: My Analysis Pack |
+|  [PIN]  Research Notes           |  Policies:              |
+|  [PIN]  Meeting Cards            |    search_boost: 500    |
+|                                  |  Pins: 5 cards          |
++-----------------------------------------+
+| [c] Create  [a] Activate  [b] Pack  [e] Export  [d] Delete |
++-----------------------------------------+</div>
+
+<p><strong>Pinsets vs. Behavior Packs:</strong></p>
+<ul>
+  <li>A <strong>pinset</strong> is a simple list of card IDs. No policies, no search effect.</li>
+  <li>A <strong>behavior pack</strong> is a promoted pinset with policies: search boost (+500 for pinned cards), tag filtering, export scope, and visual style.</li>
+</ul>
+
+<table>
+  <tr><th>Key</th><th>Action</th></tr>
+  <tr><td><span class="key">c</span></td><td>Create a new pinset (name, then multi-select cards with <span class="key">Space</span>)</td></tr>
+  <tr><td><span class="key">a</span></td><td>Activate/deactivate the selected item</td></tr>
+  <tr><td><span class="key">b</span></td><td>Promote a pinset to a behavior pack</td></tr>
+  <tr><td><span class="key">e</span></td><td>Export the active pack (with preview)</td></tr>
+  <tr><td><span class="key">d</span></td><td>Delete the selected item (with confirmation)</td></tr>
+  <tr><td><span class="key">r</span></td><td>Refresh the list</td></tr>
+</table>
+
+<p><strong>Export preview:</strong> Before exporting, a modal shows scope, card/blob/text count, and estimated size in KB. Press <span class="key">Enter</span> to proceed or <span class="key">Escape</span> to cancel.</p>
+
+<!-- ── Screen 5 ── -->
+<h3 id="tui-corpus">4.6 Screen 5 &mdash; Corpus Import</h3>
+
+<p><strong>What it does:</strong> Import documents from four different sources, build cards, and export knowledge graphs.</p>
+
+<div class="ascii-box">+--[ Corpus Import ]--+
+|                                   |
+|  Mode Selector   | Details       |
+|  (left 35%)      | (right 65%)   |
+|                  |               |
+|  &gt; Local Folder  | Status: idle  |
+|    GitHub Repo   |               |
+|    arXiv Query   |               |
+|    Synthetic     |               |
++-----------------------------------+
+| [Enter/i] Import  [b] Build  [g] Graph  [o] Browse |
++-----------------------------------+</div>
+
+<h4>Import modes</h4>
+
+<table>
+  <tr><th>Mode</th><th>What it does</th><th>Prompts for</th></tr>
+  <tr>
+    <td><strong>Local Folder</strong></td>
+    <td>Import .md/.txt files from disk</td>
+    <td>Path, extensions, recursive, tags, source label</td>
+  </tr>
+  <tr>
+    <td><strong>GitHub Repo</strong></td>
+    <td>Clone and import from GitHub</td>
+    <td>Repo URL, branch, path filters, max files, tags</td>
+  </tr>
+  <tr>
+    <td><strong>arXiv Query</strong></td>
+    <td>Fetch papers from arXiv</td>
+    <td>Query string, max results, abstract only, tags</td>
+  </tr>
+  <tr>
+    <td><strong>Synthetic</strong></td>
+    <td>Generate test documents</td>
+    <td>Theme, doc count, pipeline count, tags</td>
+  </tr>
+</table>
+
+<table>
+  <tr><th>Key</th><th>Action</th></tr>
+  <tr><td><span class="key">Enter</span> / <span class="key">i</span></td><td>Start import for selected mode</td></tr>
+  <tr><td><span class="key">b</span></td><td>Build cards from last imported documents</td></tr>
+  <tr><td><span class="key">g</span></td><td>Export knowledge graph from the import</td></tr>
+  <tr><td><span class="key">o</span></td><td>Browse imported documents</td></tr>
+  <tr><td><span class="key">1</span>&ndash;<span class="key">4</span></td><td>Quick-select corpus mode</td></tr>
+  <tr><td><span class="key">Escape</span></td><td>Cancel current prompt</td></tr>
+</table>
+
+<hr>
+
+<!-- ─── 5. MCP TOOLS ──────────────────────────────────────────────────── -->
+
+<h2 id="tools">5. MCP Tools Reference</h2>
+
+<p>These tools are available when the system runs as an MCP server. An AI assistant or MCP client calls them by name with JSON arguments.</p>
+
+<!-- vault.* -->
+<h3 id="tools-vault">5.1 vault.* &mdash; Artifact Vault</h3>
+
+<h4>vault.put</h4>
+<p>Store a content-addressed artifact.</p>
+<pre><code>Arguments:
+  kind     (required)  "fact" | "event" | "decision" | "skill" | "profile" |
+                       "tool_obs" | "summary" | "project"
+  payload  (required)  JSON object &mdash; the artifact's content
+  tags     (optional)  string array &mdash; structural labels (affect the hash)
+  refs     (optional)  array of {kind, id} &mdash; references to other artifacts
+  source   (optional)  {agent?, tool?, repo?, run_id?} &mdash; provenance (not hashed)
+
+Returns: {id, created, created_at, last_seen_at}</code></pre>
+
+<h4>vault.get</h4>
+<p>Retrieve an artifact by its SHA-256 ID.</p>
+<pre><code>Arguments:  id (required) &mdash; SHA-256 hex string
+Returns:    Full artifact envelope, or {error: "NOT_FOUND"}</code></pre>
+
+<h4>vault.search</h4>
+<p>Search artifacts with full-text, semantic, or hybrid scoring.</p>
+<pre><code>Arguments:
+  query             (optional)  search text
+  kind              (optional)  filter by artifact kind
+  tags              (optional)  string array &mdash; AND logic
+  exclude_personal  (optional)  filter out "personal:*" artifacts
+  limit             (optional)  default 10
+  offset            (optional)  default 0
+  search_mode       (optional)  "hybrid" | "semantic" | "lexical" (default: "hybrid")
+
+Returns: {total, offset, limit, search_mode, results: [{id, kind, score, tags, created_at, snippet}]}</code></pre>
+
+<h4>vault.reindex_embeddings</h4>
+<p>Compute embeddings for all artifacts missing them.</p>
+<pre><code>Arguments:  batch_size (optional, default 32)
+Returns:    {embedded, total, model, dim} or {error: "ENDPOINT_UNAVAILABLE"}</code></pre>
+
+<!-- kb.* -->
+<h3 id="tools-kb">5.2 kb.* &mdash; Knowledge Base</h3>
+
+<h4>kb.add_document</h4>
+<p>Add a text document to the KB, chunked by paragraphs.</p>
+<pre><code>Arguments: title (req), text (req), tags (opt), source_url (opt)</code></pre>
+
+<h4>kb.build_card</h4>
+<p>Generate a visual card (JSON + PNG) from a document or chunk.</p>
+<pre><code>Arguments: doc_id (req), chunk_id (opt), style (opt), include_qr (opt)</code></pre>
+
+<h4>kb.search</h4>
+<p>Search cards by lexical cosine similarity.</p>
+<pre><code>Arguments: query (req), top_k (opt)</code></pre>
+
+<h4>kb.get_card</h4>
+<p>Fetch a card by its ID.</p>
+<pre><code>Arguments: card_id (req)</code></pre>
+
+<h4>kb.create_event</h4>
+<p>Create a deterministic event card (temporal memory atom).</p>
+<pre><code>Arguments: title, summary, event object (kind, status, severity,
+  confidence, participants, refs), tags, rosetta metadata
+Event kinds: deployment, incident, decision, meeting, build,
+  research, ops, personal, other</code></pre>
+
+<h4>kb.create_execution</h4>
+<p>Create a deterministic execution artifact (operational evidence).</p>
+<pre><code>Arguments: title, summary, execution object (kind, status, actor,
+  target, inputs, outputs, validation, chain fields)
+Execution kinds: job, tool_call, model_call, pipeline,
+  validation, import, export, other</code></pre>
+
+<h4>kb.get_meta / kb.merge_meta</h4>
+<p>Read or update sidecar metadata for an artifact.</p>
+
+<h4>kb.create_weekly_summary</h4>
+<p>Create a deterministic weekly summary referencing events and cards.</p>
+
+<h4>kb.rebuild_index / kb.index_status</h4>
+<p>Rebuild or check status of the artifact index.</p>
+
+<h4>kb.render_card_png / kb.render_weekly_summary_png</h4>
+<p>Render PNG images for cards or weekly summaries.</p>
+
+<h4>kb.storage_report / kb.storage_plan / kb.storage_apply / kb.storage_restore</h4>
+<p>Manage vault disk usage with tiered storage policies.</p>
+
+<!-- memory.* -->
+<h3 id="tools-memory">5.3 memory.* &mdash; Session Memory</h3>
+
+<h4>memory.session_start</h4>
+<p>Start a new memory session. Ends any existing active session.</p>
+<pre><code>Returns: {session_id, active: true, turn_count: 0, created_at}</code></pre>
+
+<h4>memory.session_end</h4>
+<p>End the current memory session.</p>
+
+<h4>memory.ingest_turn</h4>
+<p>Store a conversation turn as a vault artifact.</p>
+<pre><code>Arguments: role (req), content (req), turn_number (req)
+Returns:   {id, session_id, turn_number}</code></pre>
+
+<h4>memory.compact</h4>
+<p>Trigger progressive compaction: verbatim &rarr; summaries &rarr; facts.</p>
+<pre><code>Returns: {session_id, turn_count, band0_compact, band1_compact}</code></pre>
+
+<h4>memory.get_context</h4>
+<p>Reconstruct a context string from memory artifacts within a token budget.</p>
+<pre><code>Arguments: token_budget (opt, default 2000)
+Returns:   {session_id, context, approx_tokens}</code></pre>
+
+<!-- vm.* -->
+<h3 id="tools-vm">5.4 vm.* &mdash; Virtual Machine</h3>
+
+<h4>vm.execute</h4>
+<p>Run a deterministic opcode program against structured state.</p>
+<pre><code>Arguments:
+  program  (req)  {program_id, version, opcodes: [{opcode_id, verb, args}]}
+  state    (req)  {bags, stack, flags, notes}
+  env      (req)  {run_seed, world_seed, max_steps}
+  options  (opt)  {fullTrace, expectedBagTotal, maxStackDepth, softHalt, persist, tags}
+
+Returns: {state, trace, metrics}</code></pre>
+
+<h4>vm.list_opcodes</h4>
+<p>List all registered opcodes, optionally filtered by verb family.</p>
+
+<h4>vm.validate_program</h4>
+<p>Check a program for correctness without running it.</p>
+
+<h4>vm.compare</h4>
+<p>Compare two VM results with configurable alignment (step, opcode_signature, milestone).</p>
+
+<h4>vm.phase_scan</h4>
+<p>Run a parameter sweep and detect phase transitions.</p>
+<pre><code>Scan modes: "grid" | "adaptive" | "hunt_boundaries"</code></pre>
+
+<h4>vm.list_runs / vm.search_runs</h4>
+<p>Browse and search persisted VM runs with filters.</p>
+
+<h4>vm.search_scans / vm.get_scan / vm.top_scans / vm.top_transitions / vm.top_novel_scans</h4>
+<p>Browse, rank, and analyze phase scans by interestingness or novelty.</p>
+
+<!-- execution.* -->
+<h3 id="tools-exec">5.5 execution.* &mdash; Pipeline Traversal</h3>
+
+<h4>execution.get_pipeline</h4>
+<p>Get all execution artifacts in a pipeline, ordered by step index.</p>
+
+<h4>execution.walk_parents</h4>
+<p>Walk the parent chain from an execution back to the root.</p>
+
+<h4>execution.get_children / execution.get_siblings</h4>
+<p>Get child or sibling execution artifacts.</p>
+
+<h4>execution.check_integrity</h4>
+<p>Check chain integrity. Detects missing parents, cycles, duplicate step indices, pipeline contamination.</p>
+<pre><code>Returns: {valid, issues: [], summary}</code></pre>
+
+<h4>execution.get_pipeline_view / execution.list_pipelines</h4>
+<p>Get complete pipeline view or list all pipeline IDs.</p>
+
+<h4>execution.build_evidence_bundle</h4>
+<p>Build a structured evidence bundle from a pipeline&rsquo;s execution graph.</p>
+
+<!-- artifact.* -->
+<h3 id="tools-artifact">5.6 artifact.* &mdash; Lifecycle Management</h3>
+
+<h4>artifact.bless</h4>
+<p>Promote an artifact to &ldquo;blessed&rdquo; status with supporting evidence.</p>
+<pre><code>Arguments:
+  target_hash    (req)  the artifact to bless
+  evidence_refs  (req)  at least one [{ref_type, value, label?}]
+  reason         (req)  why this artifact is being blessed
+Evidence ref_types: execution_hash, artifact_hash, pipeline_id, external_id, url</code></pre>
+
+<h4>artifact.deprecate</h4>
+<p>Mark an artifact as deprecated with a reason.</p>
+
+<h4>artifact.supersede</h4>
+<p>Replace one artifact with another, creating an explicit old&rarr;new link.</p>
+
+<h4>artifact.collect_evidence</h4>
+<p>Gather evidence refs from pipelines and artifacts for use in blessing.</p>
+
+<!-- corpus.* -->
+<h3 id="tools-corpus">5.7 corpus.* &mdash; Corpus Import</h3>
+
+<h4>corpus.import_local</h4>
+<p>Import a local folder of documents.</p>
+<pre><code>Arguments: root_path (req), include_extensions (opt), recursive (opt),
+  tags, source_label, build_cards, export_graph, promote_facts/skills/summary</code></pre>
+
+<h4>corpus.import_github</h4>
+<p>Import from a public GitHub repository.</p>
+<pre><code>Arguments: repo_url (req), branch (opt), path_filter (opt),
+  include_extensions, max_files, tags, source_label, plus optional pipeline flags</code></pre>
+
+<h4>corpus.import_arxiv</h4>
+<p>Import paper titles and abstracts from arXiv.</p>
+<pre><code>Arguments: query (req), max_results (opt), include_abstract_only (opt),
+  tags, source_label, plus optional pipeline flags</code></pre>
+
+<h4>corpus.import_synthetic</h4>
+<p>Generate a synthetic test corpus.</p>
+<pre><code>Arguments: theme (opt), doc_count (opt), pipeline_count (opt),
+  tags, plus optional pipeline flags</code></pre>
+
+<!-- promotion.* -->
+<h3 id="tools-promotion">5.8 promotion.* &mdash; Knowledge Promotion</h3>
+
+<h4>promotion.promote_facts</h4>
+<p>Extract and promote factual claims from imported documents.</p>
+<pre><code>Arguments: doc_ids (req), tags (opt), source_label (opt)</code></pre>
+
+<h4>promotion.promote_skills</h4>
+<p>Extract skill descriptions from execution evidence.</p>
+<pre><code>Arguments: execution_ids (opt), pipeline_id (opt), tags (opt)</code></pre>
+
+<h4>promotion.promote_summary</h4>
+<p>Create a summary spanning documents, executions, facts, and skills.</p>
+<pre><code>Arguments: doc_ids, execution_ids, fact_ids, skill_ids (at least one), label, tags</code></pre>
+
+<h4>promotion.build_bundle</h4>
+<p>Build a promotion bundle from corpus references and generated promotions.</p>
+<pre><code>Arguments: doc_ids, execution_ids, include_facts/skills/summary, label, tags</code></pre>
+
+<hr>
+
+<!-- ─── 6. SEARCH ──────────────────────────────────────────────────────── -->
+
+<h2 id="search">6. Search: Lexical, Semantic, and Hybrid</h2>
+
+<p>The vault supports three search modes via the <code>search_mode</code> parameter in <code>vault.search</code>.</p>
+
+<h3>Lexical (FTS5)</h3>
+<p>The default fallback. Uses SQLite&rsquo;s FTS5 full-text search engine. Tokenizes your query, matches against payloads, tags, and kinds. Works without any external services.</p>
+<p><strong>Best for:</strong> exact keyword lookups, known terms.</p>
+
+<h3>Semantic (Embeddings)</h3>
+<p>Uses vector embeddings to find artifacts by meaning rather than exact words. Your query is embedded into a vector, and all candidates are compared by cosine similarity. Requires a running embedding endpoint.</p>
+<p><strong>Best for:</strong> fuzzy queries, concept-based search, questions.</p>
+
+<h3>Hybrid (FTS + Embeddings)</h3>
+<p>The default mode. Combines both approaches:</p>
+<ol>
+  <li>A pool of FTS candidates is retrieved (5&times; the limit or at least 50).</li>
+  <li>Each candidate is scored by cosine similarity against the query embedding.</li>
+  <li>Final score = <strong>60% FTS</strong> (normalized) + <strong>40% cosine similarity</strong>.</li>
+  <li>Results are ranked by the combined score.</li>
+</ol>
+<p><strong>Best for:</strong> general-purpose search balancing keyword precision with semantic understanding.</p>
+
+<div class="note">
+  <strong>Fallback behavior:</strong> If the embedding endpoint is unavailable, hybrid and semantic modes automatically fall back to lexical search. You never get an error &mdash; you just get keyword-only results.
+</div>
+
+<hr>
+
+<!-- ─── 7. EMBEDDINGS ──────────────────────────────────────────────────── -->
+
+<h2 id="embeddings">7. Embedding Setup</h2>
+
+<p>Embedding search requires a local server implementing the OpenAI <code>/v1/embeddings</code> API.</p>
+
+<h3>LM Studio</h3>
+<ol>
+  <li>Download <a href="https://lmstudio.ai">LM Studio</a>.</li>
+  <li>Load an embedding model (e.g., <code>nomic-embed-text-v1.5</code>).</li>
+  <li>Start the local server (default port: 1234).</li>
+  <li>The system connects to <code>http://localhost:1234/v1/embeddings</code> by default.</li>
+</ol>
+
+<h3>Ollama</h3>
+<ol>
+  <li>Install Ollama and pull a model: <code>ollama pull nomic-embed-text</code></li>
+  <li>Run <code>ollama serve</code>.</li>
+  <li>Set <code>EMBEDDING_ENDPOINT=http://localhost:11434/v1/embeddings</code>.</li>
+</ol>
+
+<h3>text-embeddings-inference (HuggingFace)</h3>
+<ol>
+  <li>Run the container with your model.</li>
+  <li>Set <code>EMBEDDING_ENDPOINT</code> to the container&rsquo;s URL.</li>
+</ol>
+
+<h3>Backfilling embeddings</h3>
+<p>After starting your embedding server, backfill existing artifacts:</p>
+<pre><code>vault.reindex_embeddings</code></pre>
+<p>New artifacts are embedded automatically on <code>vault.put</code>. Embedding is fire-and-forget &mdash; it never blocks or fails the put operation.</p>
+
+<hr>
+
+<!-- ─── 8. PROGRESSIVE MEMORY ──────────────────────────────────────────── -->
+
+<h2 id="memory">8. Progressive Memory</h2>
+
+<p>The memory system provides session-based conversation memory with progressive summarization. It keeps recent turns verbatim, compresses older turns into summaries, and distills the oldest summaries into extracted facts.</p>
+
+<h3>The three bands</h3>
+
+<table>
+  <tr><th>Band</th><th>Age</th><th>Content</th><th>How it is created</th></tr>
+  <tr><td><strong>0</strong></td><td>Last 5 turns</td><td>Verbatim</td><td>Stored by <code>memory.ingest_turn</code></td></tr>
+  <tr><td><strong>1</strong></td><td>Turns 6&ndash;20</td><td>Summaries</td><td>Created by <code>memory.compact</code> from Band 0</td></tr>
+  <tr><td><strong>2</strong></td><td>Turns 20+</td><td>Facts</td><td>Created by <code>memory.compact</code> from Band 1</td></tr>
+</table>
+
+<h3>Typical session workflow</h3>
+<ol>
+  <li><strong>Start a session:</strong> Call <code>memory.session_start</code>.</li>
+  <li><strong>Ingest turns:</strong> After each conversation turn, call <code>memory.ingest_turn</code>.</li>
+  <li><strong>Compact periodically:</strong> Call <code>memory.compact</code> to age older turns into summaries and facts.</li>
+  <li><strong>Get context:</strong> Call <code>memory.get_context</code> with a token budget. Returns a context string with recent turns first, then summaries, then facts.</li>
+  <li><strong>End the session:</strong> Call <code>memory.session_end</code>. All artifacts remain in the vault.</li>
+</ol>
+
+<h3>Context format</h3>
+<pre><code>[Turn 3] user: What is the weather today?
+[Turn 4] assistant: The weather is sunny and 72F.
+
+[Summary turns 0-2]: User discussed project setup and asked about dependencies...
+
+[Extracted facts]:
+- Project uses TypeScript with ESM modules
+- Database is SQLite with FTS5</code></pre>
+
+<hr>
+
+<!-- ─── 9. DETERMINISTIC VM ────────────────────────────────────────────── -->
+
+<h2 id="vm">9. The Deterministic VM</h2>
+
+<p>The VM executes structured programs against a state machine with deterministic results. Same program + same state + same env = same output, always.</p>
+
+<h3>State structure</h3>
+<pre><code>{
+  bags:  { "energy": 100, "momentum": 50 }     // named numeric containers
+  stack: []                                      // execution stack
+  flags: { "threshold_met": true }               // boolean flags
+  notes: ["Step completed"]                      // annotation strings
+}</code></pre>
+
+<h3>Environment</h3>
+<pre><code>{
+  run_seed:    42,       // seed for deterministic randomness
+  world_seed:  7,        // world configuration seed
+  max_steps:   10000,    // step limit before halt
+  params:      {}        // additional parameters
+}</code></pre>
+
+<h3>Opcode families</h3>
+
+<table>
+  <tr><th>Family</th><th>Opcodes</th><th>Purpose</th></tr>
+  <tr>
+    <td><strong>Attract</strong></td>
+    <td>add, collect, select, increment</td>
+    <td>Gather, collect, add values</td>
+  </tr>
+  <tr>
+    <td><strong>Contain</strong></td>
+    <td>threshold, clamp, normalize, commit_to_stack, pop_from_stack</td>
+    <td>Constrain, limit, validate</td>
+  </tr>
+  <tr>
+    <td><strong>Release</strong></td>
+    <td>split, finalize, merge, conditional</td>
+    <td>Split, output, finalize</td>
+  </tr>
+  <tr>
+    <td><strong>Repel</strong></td>
+    <td>guard, negate, scatter, suppress</td>
+    <td>Guard, reject, prevent</td>
+  </tr>
+  <tr>
+    <td><strong>Transform</strong></td>
+    <td>map, smooth, exchange</td>
+    <td>Modify, convert, exchange</td>
+  </tr>
+</table>
+
+<h3>Phase scanning</h3>
+<p>A phase scan sweeps over parameter ranges (knobs) and runs the program at every combination. It detects <strong>phase transitions</strong>:</p>
+<ul>
+  <li><strong>Zero crossing</strong> &mdash; a metric crosses zero</li>
+  <li><strong>Sign change</strong> &mdash; a metric changes sign</li>
+  <li><strong>Threshold crossing</strong> &mdash; a metric crosses a threshold</li>
+  <li><strong>Regime transition</strong> &mdash; halt behavior changes</li>
+</ul>
+
+<p>Three scan modes:</p>
+<ul>
+  <li><strong>grid</strong> &mdash; execute every point in the Cartesian product</li>
+  <li><strong>adaptive</strong> &mdash; grid, then refine around transitions</li>
+  <li><strong>hunt_boundaries</strong> &mdash; expand outward from boundaries, then bisect</li>
+</ul>
+
+<h3>Example program</h3>
+<pre><code>{
+  "program": {
+    "program_id": "energy-distribution",
+    "version": "program.v1",
+    "opcodes": [
+      {"opcode_id": "attract.add", "verb": "Attract",
+       "args": {"bag": "pool", "amount": 100}},
+      {"opcode_id": "release.split", "verb": "Release",
+       "args": {"source": "pool", "targets": "a,b,c", "n": 3}},
+      {"opcode_id": "contain.threshold", "verb": "Contain",
+       "args": {"bag": "a", "threshold": 30, "flag": "a_ready"}}
+    ]
+  },
+  "state": {"bags": {}, "stack": [], "flags": {}, "notes": []},
+  "env": {"run_seed": 42, "world_seed": 1, "max_steps": 100}
+}</code></pre>
+
+<hr>
+
+<!-- ─── 10. CORPUS IMPORT WORKFLOWS ────────────────────────────────────── -->
+
+<h2 id="corpus-workflows">10. Corpus Import Workflows</h2>
+
+<h3>Basic import: local folder</h3>
+<pre><code>corpus.import_local({
+  root_path: "/path/to/docs",
+  include_extensions: [".md", ".txt"],
+  recursive: true,
+  tags: ["project-alpha"],
+  source_label: "internal docs"
+})</code></pre>
+<p>Result: documents are stored as vault artifacts. You get back <code>doc_ids</code>.</p>
+
+<h3>Full pipeline: import + cards + promotion</h3>
+<pre><code>corpus.import_local({
+  root_path: "/path/to/docs",
+  tags: ["project-alpha"],
+  build_cards: true,
+  export_graph: true,
+  promote_facts: true,
+  promote_skills: true,
+  promote_summary: true
+})</code></pre>
+<p>This runs the full pipeline: import &rarr; build cards &rarr; export knowledge graph &rarr; extract facts &rarr; extract skills &rarr; create summary.</p>
+
+<h3>CLI shortcuts</h3>
+<pre><code>npm run corpus:local       # interactive local folder import
+npm run corpus:github      # interactive GitHub import
+npm run corpus:arxiv       # interactive arXiv import
+npm run corpus:synthetic   # generate synthetic test data</code></pre>
+
+<hr>
+
+<!-- ─── 11. BLESSING AND PROMOTION ─────────────────────────────────────── -->
+
+<h2 id="blessing">11. Artifact Blessing and Promotion</h2>
+
+<h3>What is blessing?</h3>
+<p>Blessing marks an artifact as verified and trustworthy with supporting evidence.</p>
+
+<h3>Blessing workflow</h3>
+<ol>
+  <li><strong>Collect evidence:</strong> Use <code>artifact.collect_evidence</code> to gather refs from pipelines, executions, and artifacts.</li>
+  <li><strong>Bless the artifact:</strong> Use <code>artifact.bless</code> with the target hash, evidence refs, and a reason.</li>
+  <li><strong>Lifecycle transitions:</strong>
+    <ul>
+      <li><code>artifact.deprecate</code> &mdash; mark as outdated</li>
+      <li><code>artifact.supersede</code> &mdash; replace with a newer artifact</li>
+    </ul>
+  </li>
+</ol>
+
+<h3>What is promotion?</h3>
+<p>Promotion extracts higher-order knowledge from raw imports:</p>
+<ul>
+  <li><code>promote_facts</code> &mdash; extract factual claims from document snippets</li>
+  <li><code>promote_skills</code> &mdash; extract procedural knowledge from execution evidence</li>
+  <li><code>promote_summary</code> &mdash; create a summary spanning multiple sources</li>
+  <li><code>build_bundle</code> &mdash; package all promoted artifacts into a single bundle</li>
+</ul>
+
+<hr>
+
+<!-- ─── 12. BUNDLES DETAIL ─────────────────────────────────────────────── -->
+
+<h2 id="bundles-detail">12. Bundles, Pinsets, and Behavior Packs</h2>
+
+<h3>Bundles</h3>
+<p>A portable package of cards. Export to share knowledge, back up, or transfer between machines. Import verifies integrity hash and skips duplicates.</p>
+
+<h3>Pinsets</h3>
+<p>Named list of card IDs &mdash; like a bookmark folder. No policies, no search effect.</p>
+
+<h3>Behavior Packs</h3>
+<p>A pinset promoted with policies that actively change system behavior:</p>
+<ul>
+  <li><strong>Search boost:</strong> Pinned cards get +500 points in search rankings.</li>
+  <li><strong>Tag filtering:</strong> <code>allowed_tags</code> and <code>blocked_tags</code> control card visibility.</li>
+  <li><strong>Export scope:</strong> <code>pack_only</code> exports just pinned cards; <code>all</code> exports everything.</li>
+  <li><strong>Style:</strong> Visual style for rendered PNGs.</li>
+</ul>
+<p>Only one pack active at a time.</p>
+
+<hr>
+
+<!-- ─── 13. STORAGE ────────────────────────────────────────────────────── -->
+
+<h2 id="storage">13. Storage Management</h2>
+
+<h3>Storage tiers</h3>
+
+<table>
+  <tr><th>Tier</th><th>Policy</th><th>Description</th></tr>
+  <tr><td>identity</td><td>always_local</td><td>Hashed artifacts &mdash; never pruned</td></tr>
+  <tr><td>meta</td><td>always_local</td><td>Sidecar metadata &mdash; never pruned</td></tr>
+  <tr><td>derived</td><td>local_cache</td><td>PNGs, renders &mdash; prunable via LRU</td></tr>
+  <tr><td>docs</td><td>local_warm</td><td>Document records &mdash; archivable</td></tr>
+  <tr><td>blobs</td><td>local_warm</td><td>Binary files &mdash; archivable</td></tr>
+  <tr><td>text</td><td>local_warm</td><td>Canonical text &mdash; archivable</td></tr>
+  <tr><td>bundles</td><td>local_cache</td><td>Exported bundles &mdash; prunable</td></tr>
+  <tr><td>embeddings</td><td>local_warm</td><td>Vector store &mdash; vacuumable</td></tr>
+</table>
+
+<h3>Storage workflow</h3>
+<ol>
+  <li><code>kb.storage_report</code> &mdash; check disk usage by tier</li>
+  <li><code>kb.storage_plan</code> &mdash; dry-run compute cleanup actions</li>
+  <li><code>kb.storage_apply</code> &mdash; execute the plan (never touches identity/meta)</li>
+  <li><code>kb.storage_restore</code> &mdash; restore cold-archived artifacts</li>
+</ol>
+
+<p><strong>Cold storage backends:</strong> local directory or S3 bucket. Configure via <code>data/storage_policy.json</code>.</p>
+
+<hr>
+
+<!-- ─── 14. CLAUDE CODE ────────────────────────────────────────────────── -->
+
+<h2 id="claude">14. Claude Code Integration</h2>
+
+<p>The project includes a <code>.mcp.json</code> file that Claude Code auto-discovers.</p>
+
+<h3>Setup</h3>
+<pre><code>npm ci   # install dependencies
+# Claude Code auto-discovers .mcp.json on next launch</code></pre>
+
+<p>For compiled mode:</p>
+<pre><code>npm run build
+bash scripts/mcp-start.sh</code></pre>
+
+<h3>Using tools in Claude Code</h3>
+<pre><code>&gt; Store a fact that "TypeScript supports structural typing" with tags ["typescript", "types"]
+&gt; Search the vault for "type system"
+&gt; Create an event card for today's deployment
+&gt; Start a memory session and ingest this conversation</code></pre>
+
+<hr>
+
+<!-- ─── 15. ENVIRONMENT VARIABLES ──────────────────────────────────────── -->
+
+<h2 id="env">15. Environment Variables</h2>
+
+<table>
+  <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+  <tr><td><code>ARTIFACT_VAULT_ROOT</code></td><td><code>.vault</code></td><td>Root directory for vault storage</td></tr>
+  <tr><td><code>EMBEDDING_ENDPOINT</code></td><td><code>http://localhost:1234/v1/embeddings</code></td><td>URL of the embedding API endpoint</td></tr>
+  <tr><td><code>EMBEDDING_MODEL</code></td><td><code>default</code></td><td>Model name sent to the endpoint</td></tr>
+  <tr><td><code>THREADFORGE_TIER</code></td><td><code>gold</code></td><td>NFT tier: bronze, silver, or gold</td></tr>
+</table>
+
+<h3>Tier override</h3>
+<pre><code>THREADFORGE_TIER=bronze npm run dev    # limited to basic vault + memory
+THREADFORGE_TIER=silver npm run dev    # adds promotion, blessing, corpus</code></pre>
+
+<hr>
+
+<!-- ─── 16. TROUBLESHOOTING ────────────────────────────────────────────── -->
+
+<h2 id="trouble">16. Troubleshooting</h2>
+
+<h3>&ldquo;ENDPOINT_UNAVAILABLE&rdquo; when using vault.search with semantic mode</h3>
+<p>The embedding endpoint is not running. Start your embedding server or use lexical mode. Hybrid mode falls back to lexical automatically.</p>
+
+<h3>&ldquo;TierAccessError&rdquo;</h3>
+<p>Your <code>THREADFORGE_TIER</code> does not have access to this tool. Set <code>THREADFORGE_TIER=gold</code> or use a tool available at your tier level.</p>
+
+<h3>&ldquo;TierCapError: Artifact cap reached&rdquo;</h3>
+<p>Your tier&rsquo;s artifact limit is reached (Bronze: 1,000 / Silver: 10,000). Upgrade your tier. Re-putting existing artifacts (deduplication) does not count against the cap.</p>
+
+<h3>&ldquo;Determinism violation&rdquo; on vault.put</h3>
+<p>Your payload contains a prohibited key (<code>timestamp</code>, <code>hostname</code>, <code>pid</code>, <code>cwd</code>, <code>__proto__</code>, etc.). Remove these keys &mdash; they would make the hash non-deterministic.</p>
+
+<h3>Hash mismatch in Browse screen</h3>
+<p>The card&rsquo;s content on disk does not match its hash. Possible causes: manual editing, different serialization, file corruption, or incompatible import.</p>
+
+<h3>TUI shows blank screen or crashes</h3>
+<p>Ensure Node.js 20+ and a standard terminal emulator. Try outside VS Code&rsquo;s integrated terminal if it causes issues.</p>
+
+<h3>npm test fails with SyntaxError</h3>
+<p>Node.js 20+ required. Check with <code>node --version</code>.</p>
+
+<h3>Smoke test hash drift</h3>
+<p>Expected after intentional schema changes. Refresh the golden reference:</p>
+<pre><code>npm run smoke -- --refresh-golden</code></pre>
+
+<hr>
+
+<p style="text-align: center; color: var(--text-muted); margin-top: 3rem;">
+  <em>End of User Guide &mdash; Rosetta Cards MCP v0.1.0</em>
+</p>
+
+</div>
+</body>
+</html>
