@@ -1,0 +1,67 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "b7acb95fc8bb96b79c85fc67eca43f1c499eb4fed12b9b1e6ff82e4c0566a8c2",
+  "created_at": "2026-03-19T23:13:30.623Z",
+  "last_seen_at": "2026-03-19T23:13:30.623Z",
+  "source": {
+    "agent": "backfill-wave2",
+    "tool": "backfill_wave2.ts",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:llama",
+    "fit:professional-communication",
+    "fit:reasoning",
+    "method:none",
+    "model:llama-70b",
+    "profile:altruist",
+    "quant:fp16",
+    "schema:model_fingerprint.v1",
+    "tier:gold-eligible",
+    "verdict:untested"
+  ],
+  "payload": {
+    "schema": "model_fingerprint.v1",
+    "model_family": "llama",
+    "model_name": "meta-llama-3.1-70b-instruct",
+    "model_size_b": 70,
+    "architecture": "transformer",
+    "quant_method": "none",
+    "quant_level": "fp16",
+    "behavioral_vector": {
+      "contain": 0.16,
+      "attract": 0.23,
+      "release": 0.44,
+      "repel": 0.03,
+      "transform": 0.14
+    },
+    "behavioral_profile": "altruist",
+    "quant_verdict": "untested",
+    "quant_delta": 0,
+    "ap_metrics": {
+      "vocabulary_richness": 0.666,
+      "creative_output": 0.7,
+      "snapback_score": 0.013
+    },
+    "throughput": {
+      "tok_per_sec": 14.8,
+      "gpu_tested": "RTX-PRO-6000-96GB",
+      "vram_consumed_gb": 140,
+      "max_context_tested": 4096,
+      "tensor_parallel": 2
+    },
+    "routing_fitness": [
+      "reasoning",
+      "professional-communication"
+    ],
+    "routing_exclusions": [],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-15",
+      "scenarios_tested": 10
+    }
+  },
+  "refs": []
+}

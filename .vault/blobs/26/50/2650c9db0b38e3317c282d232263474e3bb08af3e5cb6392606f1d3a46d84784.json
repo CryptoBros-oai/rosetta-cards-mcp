@@ -1,0 +1,66 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "2650c9db0b38e3317c282d232263474e3bb08af3e5cb6392606f1d3a46d84784",
+  "created_at": "2026-03-19T20:44:19.082Z",
+  "last_seen_at": "2026-03-19T20:44:19.082Z",
+  "source": {
+    "agent": "backfill-script",
+    "tool": "sweep_to_vault.py",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:deepseek",
+    "fit:professional-communication",
+    "fit:reasoning",
+    "method:gptq",
+    "model:deepseek-32b",
+    "profile:diplomat",
+    "quant:int8",
+    "schema:model_fingerprint.v1",
+    "tier:gold-eligible",
+    "verdict:degraded"
+  ],
+  "payload": {
+    "model_family": "deepseek",
+    "model_name": "deepseek-r1-distill-qwen-32b",
+    "model_size_b": 32,
+    "architecture": "transformer",
+    "quant_method": "gptq",
+    "quant_level": "int8",
+    "behavioral_vector": {
+      "contain": 0.18,
+      "attract": 0.35,
+      "release": 0.22,
+      "repel": 0.13,
+      "transform": 0.12
+    },
+    "behavioral_profile": "diplomat",
+    "quant_verdict": "degraded",
+    "quant_delta": 0.123,
+    "ap_metrics": {
+      "vocabulary_richness": 0.71,
+      "creative_output": 0.68,
+      "snapback_score": 0.82
+    },
+    "throughput": {
+      "tok_per_sec": 38,
+      "gpu_tested": "RTX-PRO-6000-96GB",
+      "vram_consumed_gb": 34,
+      "max_context_tested": 4096
+    },
+    "routing_fitness": [
+      "reasoning",
+      "professional-communication"
+    ],
+    "routing_exclusions": [],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-15",
+      "scenarios_tested": 10
+    },
+    "schema": "model_fingerprint.v1"
+  },
+  "refs": []
+}

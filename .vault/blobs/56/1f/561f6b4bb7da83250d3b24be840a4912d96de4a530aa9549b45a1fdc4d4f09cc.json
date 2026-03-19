@@ -1,0 +1,62 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "561f6b4bb7da83250d3b24be840a4912d96de4a530aa9549b45a1fdc4d4f09cc",
+  "created_at": "2026-03-19T20:44:19.064Z",
+  "last_seen_at": "2026-03-19T20:44:19.064Z",
+  "source": {
+    "agent": "backfill-script",
+    "tool": "sweep_to_vault.py",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:gemma",
+    "method:awq",
+    "model:gemma-9b",
+    "profile:healer",
+    "quant:int4",
+    "schema:model_fingerprint.v1",
+    "verdict:broken"
+  ],
+  "payload": {
+    "model_family": "gemma",
+    "model_name": "gemma-2-9b-it",
+    "model_size_b": 9,
+    "architecture": "transformer",
+    "quant_method": "awq",
+    "quant_level": "int4",
+    "behavioral_vector": {
+      "contain": 0.2,
+      "attract": 0.3,
+      "release": 0.2,
+      "repel": 0.15,
+      "transform": 0.15
+    },
+    "behavioral_profile": "healer",
+    "quant_verdict": "broken",
+    "quant_delta": 0.221,
+    "ap_metrics": {
+      "vocabulary_richness": 0.68,
+      "creative_output": 0.6,
+      "snapback_score": 0.75
+    },
+    "throughput": {
+      "tok_per_sec": 95,
+      "gpu_tested": "A40-48GB",
+      "vram_consumed_gb": 6,
+      "max_context_tested": 4096
+    },
+    "routing_fitness": [],
+    "routing_exclusions": [
+      "all"
+    ],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-15",
+      "scenarios_tested": 10
+    },
+    "schema": "model_fingerprint.v1"
+  },
+  "refs": []
+}

@@ -1,0 +1,61 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "6a9a829605ce79558a0dbb9d9f839ee2ef8ac9cd8f5a538f73edf24fd063a5cb",
+  "created_at": "2026-03-19T20:13:01.736Z",
+  "last_seen_at": "2026-03-19T20:13:01.736Z",
+  "tags": [
+    "arch:transformer",
+    "family:test",
+    "fit:test",
+    "method:none",
+    "model:test-1b",
+    "profile:balanced",
+    "quant:fp16",
+    "schema:model_fingerprint.v1",
+    "tier:bronze-eligible",
+    "tier:gold-eligible",
+    "tier:silver-eligible",
+    "verdict:untested"
+  ],
+  "payload": {
+    "model_family": "test",
+    "model_name": "test-model-1b",
+    "model_size_b": 1,
+    "architecture": "transformer",
+    "quant_method": "none",
+    "quant_level": "fp16",
+    "behavioral_vector": {
+      "contain": 0.2,
+      "attract": 0.2,
+      "release": 0.2,
+      "repel": 0.2,
+      "transform": 0.2
+    },
+    "behavioral_profile": "balanced",
+    "quant_verdict": "untested",
+    "quant_delta": 0,
+    "ap_metrics": {
+      "vocabulary_richness": 0.5,
+      "creative_output": 0.5,
+      "snapback_score": 0.5
+    },
+    "throughput": {
+      "tok_per_sec": 100,
+      "gpu_tested": "test",
+      "vram_consumed_gb": 2,
+      "max_context_tested": 2048
+    },
+    "routing_fitness": [
+      "test"
+    ],
+    "routing_exclusions": [],
+    "sweep_source": {
+      "lem_issue": "LEM-TEST",
+      "sweep_date": "2026-03-19",
+      "scenarios_tested": 1
+    },
+    "schema": "model_fingerprint.v1"
+  },
+  "refs": []
+}

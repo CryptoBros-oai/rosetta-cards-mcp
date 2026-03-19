@@ -1,0 +1,70 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "97af2ae9101d064beac19fdc04ea2f85abcb32964c3559853577097b15bfd6b5",
+  "created_at": "2026-03-19T23:13:30.650Z",
+  "last_seen_at": "2026-03-19T23:13:30.650Z",
+  "source": {
+    "agent": "backfill-wave2",
+    "tool": "backfill_wave2.ts",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:granite",
+    "fit:coordination",
+    "fit:structured-extraction",
+    "fit:tool-use",
+    "method:none",
+    "model:granite-3b",
+    "profile:balanced",
+    "quant:fp16",
+    "schema:model_fingerprint.v1",
+    "tier:gold-eligible",
+    "verdict:untested"
+  ],
+  "payload": {
+    "schema": "model_fingerprint.v1",
+    "model_family": "granite",
+    "model_name": "granite-4.0-micro",
+    "model_size_b": 3,
+    "architecture": "transformer",
+    "quant_method": "none",
+    "quant_level": "fp16",
+    "behavioral_vector": {
+      "contain": 0.24,
+      "attract": 0.2,
+      "release": 0.2,
+      "repel": 0.18,
+      "transform": 0.18
+    },
+    "behavioral_profile": "balanced",
+    "quant_verdict": "untested",
+    "quant_delta": 0,
+    "ap_metrics": {
+      "vocabulary_richness": 0.651,
+      "creative_output": 0.58,
+      "snapback_score": 0.029
+    },
+    "throughput": {
+      "tok_per_sec": 29.7,
+      "gpu_tested": "RTX-PRO-6000-96GB",
+      "vram_consumed_gb": 6,
+      "max_context_tested": 4096
+    },
+    "routing_fitness": [
+      "tool-use",
+      "structured-extraction",
+      "coordination"
+    ],
+    "routing_exclusions": [
+      "creative-writing"
+    ],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-14",
+      "scenarios_tested": 10
+    }
+  },
+  "refs": []
+}

@@ -1,0 +1,70 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "80d4922f267d3c77f80a0f73c6fdb0f6ca652772686157f7b8e7d7f94d51b5bf",
+  "created_at": "2026-03-19T20:44:19.088Z",
+  "last_seen_at": "2026-03-19T20:44:19.088Z",
+  "source": {
+    "agent": "backfill-script",
+    "tool": "sweep_to_vault.py",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:mistral",
+    "fit:ambient-poetic",
+    "fit:content-generation",
+    "fit:creative-writing",
+    "method:none",
+    "model:mistral-3b",
+    "profile:guardian",
+    "quant:fp16",
+    "schema:model_fingerprint.v1",
+    "tier:bronze-eligible",
+    "tier:gold-eligible",
+    "tier:silver-eligible",
+    "verdict:untested"
+  ],
+  "payload": {
+    "model_family": "mistral",
+    "model_name": "ministral-3-3b",
+    "model_size_b": 3,
+    "architecture": "transformer",
+    "quant_method": "none",
+    "quant_level": "fp16",
+    "behavioral_vector": {
+      "contain": 0.42,
+      "attract": 0.18,
+      "release": 0.15,
+      "repel": 0.13,
+      "transform": 0.12
+    },
+    "behavioral_profile": "guardian",
+    "quant_verdict": "untested",
+    "quant_delta": 0,
+    "ap_metrics": {
+      "vocabulary_richness": 0.698,
+      "creative_output": 0.72,
+      "snapback_score": 0.8
+    },
+    "throughput": {
+      "tok_per_sec": 129,
+      "gpu_tested": "V100-32GB-SXM2",
+      "vram_consumed_gb": 6,
+      "max_context_tested": 8192
+    },
+    "routing_fitness": [
+      "creative-writing",
+      "content-generation",
+      "ambient-poetic"
+    ],
+    "routing_exclusions": [],
+    "sweep_source": {
+      "lem_issue": "LEM-33",
+      "sweep_date": "2026-03-09",
+      "scenarios_tested": 10
+    },
+    "schema": "model_fingerprint.v1"
+  },
+  "refs": []
+}

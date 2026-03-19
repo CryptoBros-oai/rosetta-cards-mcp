@@ -1,0 +1,70 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "866256fbd1388dc239826b042aa41c9595344136b7da320c1dfc401aed52b031",
+  "created_at": "2026-03-19T20:44:19.075Z",
+  "last_seen_at": "2026-03-19T20:44:19.075Z",
+  "source": {
+    "agent": "backfill-script",
+    "tool": "sweep_to_vault.py",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:llama",
+    "fit:general-purpose",
+    "fit:security-moderation",
+    "method:awq",
+    "model:llama-8b",
+    "profile:guardian",
+    "quant:int4",
+    "schema:model_fingerprint.v1",
+    "tier:bronze-eligible",
+    "tier:gold-eligible",
+    "tier:silver-eligible",
+    "verdict:degraded"
+  ],
+  "payload": {
+    "model_family": "llama",
+    "model_name": "meta-llama-3.1-8b-instruct",
+    "model_size_b": 8,
+    "architecture": "transformer",
+    "quant_method": "awq",
+    "quant_level": "int4",
+    "behavioral_vector": {
+      "contain": 0.28,
+      "attract": 0.26,
+      "release": 0.19,
+      "repel": 0.14,
+      "transform": 0.13
+    },
+    "behavioral_profile": "guardian",
+    "quant_verdict": "degraded",
+    "quant_delta": 0.112,
+    "ap_metrics": {
+      "vocabulary_richness": 0.66,
+      "creative_output": 0.58,
+      "snapback_score": 0.78
+    },
+    "throughput": {
+      "tok_per_sec": 120,
+      "gpu_tested": "A40-48GB",
+      "vram_consumed_gb": 5,
+      "max_context_tested": 4096
+    },
+    "routing_fitness": [
+      "general-purpose",
+      "security-moderation"
+    ],
+    "routing_exclusions": [
+      "creative-writing"
+    ],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-15",
+      "scenarios_tested": 10
+    },
+    "schema": "model_fingerprint.v1"
+  },
+  "refs": []
+}

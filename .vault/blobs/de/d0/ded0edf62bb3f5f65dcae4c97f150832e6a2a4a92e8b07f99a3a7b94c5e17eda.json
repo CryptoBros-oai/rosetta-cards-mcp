@@ -1,0 +1,69 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "ded0edf62bb3f5f65dcae4c97f150832e6a2a4a92e8b07f99a3a7b94c5e17eda",
+  "created_at": "2026-03-19T23:13:30.654Z",
+  "last_seen_at": "2026-03-19T23:13:30.654Z",
+  "source": {
+    "agent": "backfill-wave2",
+    "tool": "backfill_wave2.ts",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:gemma",
+    "fit:customer-engagement",
+    "fit:general-purpose",
+    "method:gptq",
+    "model:gemma-27b",
+    "profile:healer",
+    "quant:int4",
+    "schema:model_fingerprint.v1",
+    "tier:gold-eligible",
+    "tier:silver-eligible",
+    "verdict:safe"
+  ],
+  "payload": {
+    "schema": "model_fingerprint.v1",
+    "model_family": "gemma",
+    "model_name": "gemma-3-27b-it",
+    "model_size_b": 27,
+    "architecture": "transformer",
+    "quant_method": "gptq",
+    "quant_level": "int4",
+    "behavioral_vector": {
+      "contain": 0.22,
+      "attract": 0.34,
+      "release": 0.18,
+      "repel": 0.12,
+      "transform": 0.14
+    },
+    "behavioral_profile": "healer",
+    "quant_verdict": "safe",
+    "quant_delta": 0.001,
+    "ap_metrics": {
+      "vocabulary_richness": 0.703,
+      "creative_output": 0.65,
+      "snapback_score": 0.018
+    },
+    "throughput": {
+      "tok_per_sec": 68.9,
+      "gpu_tested": "RTX-PRO-6000-96GB",
+      "vram_consumed_gb": 16,
+      "max_context_tested": 4096
+    },
+    "routing_fitness": [
+      "general-purpose",
+      "customer-engagement"
+    ],
+    "routing_exclusions": [
+      "security-moderation"
+    ],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-15",
+      "scenarios_tested": 10
+    }
+  },
+  "refs": []
+}

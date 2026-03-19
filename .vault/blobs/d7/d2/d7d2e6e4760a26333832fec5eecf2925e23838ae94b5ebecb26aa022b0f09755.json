@@ -1,0 +1,71 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "d7d2e6e4760a26333832fec5eecf2925e23838ae94b5ebecb26aa022b0f09755",
+  "created_at": "2026-03-19T20:44:19.080Z",
+  "last_seen_at": "2026-03-19T20:44:19.080Z",
+  "source": {
+    "agent": "backfill-script",
+    "tool": "sweep_to_vault.py",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:falcon3",
+    "fit:customer-engagement",
+    "fit:diplomacy-simulation",
+    "fit:market-npc",
+    "method:none",
+    "model:falcon3-10b",
+    "profile:altruist",
+    "quant:fp16",
+    "schema:model_fingerprint.v1",
+    "tier:gold-eligible",
+    "tier:silver-eligible",
+    "verdict:untested"
+  ],
+  "payload": {
+    "model_family": "falcon3",
+    "model_name": "falcon3-10b-instruct",
+    "model_size_b": 10,
+    "architecture": "transformer",
+    "quant_method": "none",
+    "quant_level": "fp16",
+    "behavioral_vector": {
+      "contain": 0.12,
+      "attract": 0.44,
+      "release": 0.32,
+      "repel": 0.06,
+      "transform": 0.06
+    },
+    "behavioral_profile": "altruist",
+    "quant_verdict": "untested",
+    "quant_delta": 0,
+    "ap_metrics": {
+      "vocabulary_richness": 0.67,
+      "creative_output": 0.62,
+      "snapback_score": 0.74
+    },
+    "throughput": {
+      "tok_per_sec": 72,
+      "gpu_tested": "A40-48GB",
+      "vram_consumed_gb": 20,
+      "max_context_tested": 8192
+    },
+    "routing_fitness": [
+      "market-npc",
+      "diplomacy-simulation",
+      "customer-engagement"
+    ],
+    "routing_exclusions": [
+      "security-moderation"
+    ],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-15",
+      "scenarios_tested": 10
+    },
+    "schema": "model_fingerprint.v1"
+  },
+  "refs": []
+}

@@ -1,0 +1,72 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "86cb0bbd280e0a03b3ce3947e681328e6004bfea7dd39cfd27532aecf373e62c",
+  "created_at": "2026-03-19T23:13:30.638Z",
+  "last_seen_at": "2026-03-19T23:13:30.638Z",
+  "source": {
+    "agent": "backfill-wave2",
+    "tool": "backfill_wave2.ts",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:falcon3",
+    "fit:customer-engagement",
+    "fit:fast-classification",
+    "fit:negotiation",
+    "method:none",
+    "model:falcon3-3b",
+    "profile:diplomat",
+    "quant:fp16",
+    "schema:model_fingerprint.v1",
+    "tier:bronze-eligible",
+    "tier:gold-eligible",
+    "tier:silver-eligible",
+    "verdict:untested"
+  ],
+  "payload": {
+    "schema": "model_fingerprint.v1",
+    "model_family": "falcon3",
+    "model_name": "falcon3-3b-instruct",
+    "model_size_b": 3,
+    "architecture": "transformer",
+    "quant_method": "none",
+    "quant_level": "fp16",
+    "behavioral_vector": {
+      "contain": 0.16,
+      "attract": 0.53,
+      "release": 0.2,
+      "repel": 0,
+      "transform": 0.11
+    },
+    "behavioral_profile": "diplomat",
+    "quant_verdict": "untested",
+    "quant_delta": 0,
+    "ap_metrics": {
+      "vocabulary_richness": 0.707,
+      "creative_output": 0.6,
+      "snapback_score": 0.053
+    },
+    "throughput": {
+      "tok_per_sec": 156.8,
+      "gpu_tested": "RTX-PRO-6000-96GB",
+      "vram_consumed_gb": 6,
+      "max_context_tested": 8192
+    },
+    "routing_fitness": [
+      "customer-engagement",
+      "negotiation",
+      "fast-classification"
+    ],
+    "routing_exclusions": [
+      "security-moderation"
+    ],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-14",
+      "scenarios_tested": 10
+    }
+  },
+  "refs": []
+}

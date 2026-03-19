@@ -1,0 +1,63 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "d430f367677ff5ec46164fafa41b339d95ffa95164b4f1e37e57231abe3ff6fb",
+  "created_at": "2026-03-19T20:44:19.072Z",
+  "last_seen_at": "2026-03-19T20:44:19.072Z",
+  "source": {
+    "agent": "backfill-script",
+    "tool": "sweep_to_vault.py",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:llama",
+    "method:gptq",
+    "model:llama-70b",
+    "profile:altruist",
+    "quant:int8",
+    "schema:model_fingerprint.v1",
+    "verdict:broken"
+  ],
+  "payload": {
+    "model_family": "llama",
+    "model_name": "meta-llama-3.1-70b-instruct-gptq-int8",
+    "model_size_b": 70,
+    "architecture": "transformer",
+    "quant_method": "gptq",
+    "quant_level": "int8",
+    "behavioral_vector": {
+      "contain": 0.12,
+      "attract": 0.38,
+      "release": 0.22,
+      "repel": 0.18,
+      "transform": 0.1
+    },
+    "behavioral_profile": "altruist",
+    "quant_verdict": "broken",
+    "quant_delta": 0.427,
+    "ap_metrics": {
+      "vocabulary_richness": 0.71,
+      "creative_output": 0.68,
+      "snapback_score": 0.8
+    },
+    "throughput": {
+      "tok_per_sec": 28,
+      "gpu_tested": "V100-32GB-SXM2",
+      "vram_consumed_gb": 72,
+      "max_context_tested": 4096,
+      "tensor_parallel": 4
+    },
+    "routing_fitness": [],
+    "routing_exclusions": [
+      "all"
+    ],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-15",
+      "scenarios_tested": 10
+    },
+    "schema": "model_fingerprint.v1"
+  },
+  "refs": []
+}

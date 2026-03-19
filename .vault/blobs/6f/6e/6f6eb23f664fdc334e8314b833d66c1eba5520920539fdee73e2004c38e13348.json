@@ -1,0 +1,62 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "6f6eb23f664fdc334e8314b833d66c1eba5520920539fdee73e2004c38e13348",
+  "created_at": "2026-03-19T23:13:30.636Z",
+  "last_seen_at": "2026-03-19T23:13:30.636Z",
+  "source": {
+    "agent": "backfill-wave2",
+    "tool": "backfill_wave2.ts",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:llama",
+    "method:awq",
+    "model:llama-70b",
+    "profile:altruist",
+    "quant:int4",
+    "schema:model_fingerprint.v1",
+    "verdict:broken"
+  ],
+  "payload": {
+    "schema": "model_fingerprint.v1",
+    "model_family": "llama",
+    "model_name": "meta-llama-3.1-70b-instruct-awq-int4",
+    "model_size_b": 70,
+    "architecture": "transformer",
+    "quant_method": "awq",
+    "quant_level": "int4",
+    "behavioral_vector": {
+      "contain": 0.19,
+      "attract": 0.25,
+      "release": 0.32,
+      "repel": 0.09,
+      "transform": 0.15
+    },
+    "behavioral_profile": "altruist",
+    "quant_verdict": "broken",
+    "quant_delta": 0.236,
+    "ap_metrics": {
+      "vocabulary_richness": 0.65,
+      "creative_output": 0.65,
+      "snapback_score": 0.8
+    },
+    "throughput": {
+      "tok_per_sec": 37.4,
+      "gpu_tested": "RTX-PRO-6000-96GB",
+      "vram_consumed_gb": 35,
+      "max_context_tested": 4096
+    },
+    "routing_fitness": [],
+    "routing_exclusions": [
+      "all"
+    ],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-15",
+      "scenarios_tested": 10
+    }
+  },
+  "refs": []
+}

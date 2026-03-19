@@ -1,0 +1,66 @@
+{
+  "version": "artifact_v1",
+  "kind": "profile",
+  "id": "9a8867fd7be5aa285aaa177dee35fc16d88ae6b7591ed29da2413a56ed0a645c",
+  "created_at": "2026-03-19T23:13:30.641Z",
+  "last_seen_at": "2026-03-19T23:13:30.641Z",
+  "source": {
+    "agent": "backfill-wave2",
+    "tool": "backfill_wave2.ts",
+    "repo": "rosetta-cards-mcp"
+  },
+  "tags": [
+    "arch:transformer",
+    "family:olmo",
+    "fit:general-purpose",
+    "fit:reasoning",
+    "method:none",
+    "model:olmo-32b",
+    "profile:altruist",
+    "quant:bf16",
+    "schema:model_fingerprint.v1",
+    "tier:gold-eligible",
+    "verdict:untested"
+  ],
+  "payload": {
+    "schema": "model_fingerprint.v1",
+    "model_family": "olmo",
+    "model_name": "olmo-2-32b",
+    "model_size_b": 32,
+    "architecture": "transformer",
+    "quant_method": "none",
+    "quant_level": "bf16",
+    "behavioral_vector": {
+      "contain": 0.19,
+      "attract": 0.21,
+      "release": 0.35,
+      "repel": 0.06,
+      "transform": 0.19
+    },
+    "behavioral_profile": "altruist",
+    "quant_verdict": "untested",
+    "quant_delta": 0,
+    "ap_metrics": {
+      "vocabulary_richness": 0.669,
+      "creative_output": 0.6,
+      "snapback_score": 0.032
+    },
+    "throughput": {
+      "tok_per_sec": 23.3,
+      "gpu_tested": "RTX-PRO-6000-96GB",
+      "vram_consumed_gb": 64,
+      "max_context_tested": 4096
+    },
+    "routing_fitness": [
+      "reasoning",
+      "general-purpose"
+    ],
+    "routing_exclusions": [],
+    "sweep_source": {
+      "lem_issue": "LEM-58",
+      "sweep_date": "2026-03-14",
+      "scenarios_tested": 10
+    }
+  },
+  "refs": []
+}
