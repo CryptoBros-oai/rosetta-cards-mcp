@@ -21,8 +21,10 @@ Environment:
 
 from __future__ import annotations
 
+import glob as _glob_mod
 import json
 import os
+import shutil
 import subprocess
 import sys
 import threading
@@ -35,10 +37,57 @@ from typing import Any, Optional
 
 _DEFAULT_EMBEDDING_ENDPOINT = "http://localhost:1234/v1/embeddings"
 _FINGERPRINT_SCHEMA_VERSION = "model_fingerprint.v1"
+_MIN_NODE_MAJOR = 18  # Minimum Node.js version for nullish coalescing, etc.
 
 # Auto-detect: this file lives in clients/python/ inside the repo
 _THIS_DIR = Path(__file__).resolve().parent
 _REPO_ROOT = _THIS_DIR.parent.parent  # clients/python -> clients -> repo root
+
+
+def _find_node() -> str:
+    """Find a Node.js binary >= v18.
+
+    Search order:
+    1. ROSETTA_NODE_PATH env var
+    2. System 'node' (if version >= 18)
+    3. nvm-managed versions in ~/.nvm/versions/node/
+    """
+    # Explicit override
+    explicit = os.environ.get("ROSETTA_NODE_PATH")
+    if explicit:
+        return explicit
+
+    def _node_major(binary: str) -> int | None:
+        try:
+            out = subprocess.check_output(
+                [binary, "--version"], stderr=subprocess.DEVNULL, timeout=5
+            )
+            ver = out.decode().strip().lstrip("v")
+            return int(ver.split(".")[0])
+        except Exception:
+            return None
+
+    # System node
+    system_node = shutil.which("node")
+    if system_node:
+        major = _node_major(system_node)
+        if major and major >= _MIN_NODE_MAJOR:
+            return system_node
+
+    # nvm versions (pick highest available >= 18)
+    nvm_dir = Path.home() / ".nvm" / "versions" / "node"
+    if nvm_dir.is_dir():
+        candidates = []
+        for d in sorted(nvm_dir.iterdir(), reverse=True):
+            binary = d / "bin" / "node"
+            if binary.exists():
+                major = _node_major(str(binary))
+                if major and major >= _MIN_NODE_MAJOR:
+                    return str(binary)
+
+    raise FileNotFoundError(
+        f"Cannot find Node.js >= v{_MIN_NODE_MAJOR}. Install it or set ROSETTA_NODE_PATH."
+    )
 
 
 def _find_repo_root() -> Path:
@@ -155,8 +204,17 @@ class RosettaVault:
             or _DEFAULT_EMBEDDING_ENDPOINT
         )
 
+        node_bin = _find_node()
+
+        # Prefer compiled dist if available; fall back to ts-node
+        dist_entry = self._repo / "dist" / "server.js"
+        if dist_entry.exists():
+            cmd = [node_bin, "--enable-source-maps", str(dist_entry)]
+        else:
+            cmd = [node_bin, "--loader", "ts-node/esm", "src/server.ts"]
+
         self._proc = subprocess.Popen(
-            ["node", "--loader", "ts-node/esm", "src/server.ts"],
+            cmd,
             cwd=str(self._repo),
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -165,46 +223,48 @@ class RosettaVault:
             text=False,
         )
 
+        # Drain stderr in background to prevent pipe deadlock
+        self._stderr_thread = threading.Thread(
+            target=self._drain_stderr, daemon=True
+        )
+        self._stderr_thread.start()
+
         # Send MCP initialize handshake
         self._initialize()
+
+    def _drain_stderr(self) -> None:
+        """Read and discard stderr to prevent pipe buffer deadlock."""
+        assert self._proc.stderr is not None
+        try:
+            while True:
+                data = self._proc.stderr.read(4096)
+                if not data:
+                    break
+        except Exception:
+            pass
 
     def _next_id(self) -> int:
         self._req_id += 1
         return self._req_id
 
     def _send(self, msg: dict) -> None:
-        """Send a JSON-RPC message with Content-Length header (MCP stdio protocol)."""
-        body = json.dumps(msg).encode("utf-8")
-        header = f"Content-Length: {len(body)}\r\n\r\n".encode("ascii")
+        """Send a JSON-RPC message as newline-delimited JSON (MCP stdio protocol)."""
+        line = json.dumps(msg).encode("utf-8") + b"\n"
         assert self._proc.stdin is not None
-        self._proc.stdin.write(header + body)
+        self._proc.stdin.write(line)
         self._proc.stdin.flush()
 
     def _recv(self) -> dict:
-        """Read a JSON-RPC response with Content-Length header."""
+        """Read a newline-delimited JSON-RPC response from stdout."""
         assert self._proc.stdout is not None
 
-        # Read headers until empty line
-        content_length = 0
         while True:
-            line = b""
-            while not line.endswith(b"\r\n"):
-                ch = self._proc.stdout.read(1)
-                if not ch:
-                    raise ConnectionError("MCP server closed stdout")
-                line += ch
-
-            line_str = line.decode("ascii").strip()
-            if not line_str:
-                break
-            if line_str.lower().startswith("content-length:"):
-                content_length = int(line_str.split(":", 1)[1].strip())
-
-        if content_length == 0:
-            raise ConnectionError("No Content-Length in MCP response")
-
-        body = self._proc.stdout.read(content_length)
-        return json.loads(body.decode("utf-8"))
+            line = self._proc.stdout.readline()
+            if not line:
+                raise ConnectionError("MCP server closed stdout")
+            line = line.strip()
+            if line:
+                return json.loads(line.decode("utf-8"))
 
     def _call(self, method: str, params: dict[str, Any]) -> Any:
         """Send a request and wait for the response."""
