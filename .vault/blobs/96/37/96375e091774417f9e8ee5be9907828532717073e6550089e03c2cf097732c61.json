@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "96375e091774417f9e8ee5be9907828532717073e6550089e03c2cf097732c61",
+  "created_at": "2026-03-09T07:04:28.705Z",
+  "last_seen_at": "2026-03-09T07:04:28.705Z",
+  "tags": [
+    "fact",
+    "kb-bridge",
+    "promotion",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Ingestion Behavior",
+    "bullets": [],
+    "source_card_id": "card_pfact_7269c590da73"
+  },
+  "refs": []
+}

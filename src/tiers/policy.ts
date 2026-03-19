@@ -89,6 +89,7 @@ const BRONZE_TOOLS = new Set([
   "kb.get_meta",
   "kb.rebuild_index",
   "kb.index_status",
+  "kb.bridge_to_vault",
 ]);
 
 const SILVER_TOOLS = new Set([

@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "15e62f0d2fe5b0d1c1840bdf0710c9a3ccf13d8770c699dd13411abcc93b88dc",
+  "created_at": "2026-03-09T07:04:28.717Z",
+  "last_seen_at": "2026-03-09T07:04:28.717Z",
+  "tags": [
+    "fact",
+    "kb-bridge",
+    "promotion",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Cortex Architecture",
+    "bullets": [],
+    "source_card_id": "card_pfact_b4eeaf6017ca"
+  },
+  "refs": []
+}

@@ -31,3 +31,27 @@ export type {
 export { computeArtifactId, assertVaultPayloadClean } from "./canon.js";
 
 export { getDb, closeDb } from "./db.js";
+
+// ── Model Fingerprint Schema ────────────────────────────────────────────────
+
+export {
+  ModelFingerprintPayloadSchema,
+  BehavioralVectorSchema,
+  BehavioralProfileSchema,
+  QuantVerdictSchema,
+  APMetricsSchema,
+  ThroughputProfileSchema,
+  SweepSourceSchema,
+  buildFingerprintTags,
+  buildFingerprintPutInput,
+  FINGERPRINT_SCHEMA_VERSION,
+} from "./fingerprint_schema.js";
+export type {
+  ModelFingerprintPayload,
+  BehavioralVector,
+  BehavioralProfile,
+  QuantVerdict,
+  APMetrics,
+  ThroughputProfile,
+  SweepSource,
+} from "./fingerprint_schema.js";

@@ -1,0 +1,16 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "483b7587771e2526c0d08439186b3dca17682dbbdeb09c1db42432312f88363e",
+  "created_at": "2026-03-09T07:04:28.681Z",
+  "last_seen_at": "2026-03-09T07:04:28.681Z",
+  "tags": [
+    "kb-bridge"
+  ],
+  "payload": {
+    "title": "tmp_block_test",
+    "bullets": [],
+    "source_card_id": "card_folder_9ad526e9a222"
+  },
+  "refs": []
+}

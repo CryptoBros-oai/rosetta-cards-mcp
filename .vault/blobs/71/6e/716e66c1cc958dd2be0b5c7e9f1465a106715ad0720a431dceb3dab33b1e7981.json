@@ -1,0 +1,26 @@
+{
+  "version": "artifact_v1",
+  "kind": "skill",
+  "id": "716e66c1cc958dd2be0b5c7e9f1465a106715ad0720a431dceb3dab33b1e7981",
+  "created_at": "2026-03-09T07:04:28.515Z",
+  "last_seen_at": "2026-03-09T07:04:28.515Z",
+  "tags": [
+    "canonical",
+    "hashing",
+    "kb-bridge",
+    "spec"
+  ],
+  "payload": {
+    "title": "Canonical Hashing Specification",
+    "bullets": [
+      "All artifacts are hashed using SHA-256 over canonical JSON",
+      "Keys are sorted recursively, undefined values stripped",
+      "Strings are normalized to Unicode NFC before hashing",
+      "The hash field itself is excluded from the input",
+      "CRLF and bare CR are normalized to LF for text hashes",
+      "This ensures cross-platform deterministic hashes"
+    ],
+    "source_card_id": "card_1db3d71c-ca15-46fb-940c-f722d242f69e"
+  },
+  "refs": []
+}

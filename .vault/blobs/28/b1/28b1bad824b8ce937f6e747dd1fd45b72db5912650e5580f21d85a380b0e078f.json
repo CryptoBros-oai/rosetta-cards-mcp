@@ -1,0 +1,18 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "28b1bad824b8ce937f6e747dd1fd45b72db5912650e5580f21d85a380b0e078f",
+  "created_at": "2026-03-09T07:04:28.477Z",
+  "last_seen_at": "2026-03-09T07:04:28.477Z",
+  "tags": [
+    "approved",
+    "kb-bridge",
+    "secret"
+  ],
+  "payload": {
+    "title": "Override Test",
+    "text": "Some text",
+    "source_doc_id": "doc_f0d0f947-0cea-475a-bfb0-257da32c412d"
+  },
+  "refs": []
+}

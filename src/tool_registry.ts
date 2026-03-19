@@ -3,6 +3,7 @@ import { z } from "zod";
 import { addDocument, buildCard, searchCards, getCard } from "./kb/store.js";
 import { createEventCard, createExecutionArtifact, storagePlanHook, storageApplyHook, storageRestoreHook, executionGetPipelineHook, executionWalkParentsHook, executionGetChildrenHook, executionGetSiblingsHook, executionCheckIntegrityHook, executionGetPipelineViewHook, executionListPipelinesHook, blessArtifactHook, deprecateArtifactHook, supersedeArtifactHook, collectEvidenceHook, buildEvidenceBundleHook } from "./kb/hooks.js";
 import { runArxivCorpusImport, runGithubCorpusImport, runLocalCorpusImport, runSyntheticCorpusImport } from "./kb/corpus_hooks.js";
+import { bridgeDocsToVault, bridgeCardsToVault, bridgeAllToVault } from "./kb/vault_bridge.js";
 import { buildPromotionBundleHook, promoteFactsHook, promoteSkillsHook, promoteSummaryHook } from "./kb/promotion_hooks.js";
 import { loadMeta, mergeMeta } from "./kb/vault.js";
 import {
@@ -1105,6 +1106,7 @@ register({
       execution_ids: out.build.execution_ids,
       graph_path: out.graph.graph_path,
       promotion: out.promotion,
+      vault_bridge: out.vault_bridge,
       errors: out.import.errors,
       source_summary: {
         root_path: parsed.root_path,
@@ -1147,6 +1149,7 @@ register({
       execution_ids: out.build.execution_ids,
       graph_path: out.graph.graph_path,
       promotion: out.promotion,
+      vault_bridge: out.vault_bridge,
       source_summary: out.import.source_summary,
       errors: out.import.errors,
     };
@@ -1183,6 +1186,7 @@ register({
       execution_ids: out.build.execution_ids,
       graph_path: out.graph.graph_path,
       promotion: out.promotion,
+      vault_bridge: out.vault_bridge,
       source_summary: out.import.source_summary,
       errors: out.import.errors,
     };
@@ -1221,6 +1225,7 @@ register({
       execution_ids: out.build.execution_ids,
       graph_path: out.graph.graph_path,
       promotion: out.promotion,
+      vault_bridge: out.vault_bridge,
       source_summary: {
         theme: parsed.theme,
         doc_count: parsed.doc_count,
@@ -1228,6 +1233,44 @@ register({
       },
     };
     return jsonResult(result);
+  }
+});
+
+// ── kb.bridge_to_vault tool ────────────────────────────────────────────────
+
+register({
+  name: "kb.bridge_to_vault",
+  description: "Bridge KB docs and cards into the content-addressed vault. If no IDs are provided, bridges ALL existing docs and cards (backfill).",
+  inputSchema: {
+    type: "object" as const,
+    properties: {
+      doc_ids: { type: "array" as const, items: { type: "string" as const }, description: "Specific doc IDs to bridge (omit to bridge all)" },
+      card_ids: { type: "array" as const, items: { type: "string" as const }, description: "Specific card IDs to bridge (omit to bridge all)" },
+    },
+  },
+  handler: async (args) => {
+    const { doc_ids, card_ids } = args as { doc_ids?: string[]; card_ids?: string[] };
+    if (!doc_ids && !card_ids) {
+      const out = await bridgeAllToVault();
+      return jsonResult({
+        docs_bridged: out.docs.bridged,
+        docs_skipped: out.docs.skipped,
+        docs_errors: out.docs.errors,
+        cards_bridged: out.cards.bridged,
+        cards_skipped: out.cards.skipped,
+        cards_errors: out.cards.errors,
+      });
+    }
+    const docs = doc_ids ? await bridgeDocsToVault(doc_ids) : { bridged: 0, skipped: 0, errors: [] };
+    const cards = card_ids ? await bridgeCardsToVault(card_ids) : { bridged: 0, skipped: 0, errors: [] };
+    return jsonResult({
+      docs_bridged: docs.bridged,
+      docs_skipped: docs.skipped,
+      docs_errors: docs.errors,
+      cards_bridged: cards.bridged,
+      cards_skipped: cards.skipped,
+      cards_errors: cards.errors,
+    });
   }
 });
 

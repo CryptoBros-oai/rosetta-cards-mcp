@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "b8626643a73dba31b0f7b346564e3474e1bdf76514705472bad2fedccffff745",
+  "created_at": "2026-03-09T07:04:28.722Z",
+  "last_seen_at": "2026-03-09T07:04:28.722Z",
+  "tags": [
+    "fact",
+    "kb-bridge",
+    "promotion",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Identity Policy",
+    "bullets": [],
+    "source_card_id": "card_pfact_f1ca12f4000e"
+  },
+  "refs": []
+}

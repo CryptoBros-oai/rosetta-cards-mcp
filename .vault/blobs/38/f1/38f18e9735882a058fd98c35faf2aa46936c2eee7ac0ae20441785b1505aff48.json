@@ -1,0 +1,19 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "38f18e9735882a058fd98c35faf2aa46936c2eee7ac0ae20441785b1505aff48",
+  "created_at": "2026-03-09T07:04:28.347Z",
+  "last_seen_at": "2026-03-09T07:04:28.347Z",
+  "tags": [
+    "kb-bridge",
+    "opcodes",
+    "rks-vm",
+    "rosetta"
+  ],
+  "payload": {
+    "title": "RKS-VM: Opcode Tagging Plan",
+    "text": "Define opcode_tags.json with verb-class taxonomy\nAdd TRACE instrumentation to every dispatch\nBuild verb balance reducer for real-time analysis\nRun deterministic baseline on reference workload\nSweep noise floor and plot opcode frequency histogram\nIdentify hot paths for selective JIT compilation",
+    "source_doc_id": "doc_b6d5facd-a5ab-4f2c-854d-255949dd334a"
+  },
+  "refs": []
+}

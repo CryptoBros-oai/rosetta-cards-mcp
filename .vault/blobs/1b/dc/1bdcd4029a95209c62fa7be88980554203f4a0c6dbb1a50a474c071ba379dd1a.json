@@ -1,0 +1,26 @@
+{
+  "version": "artifact_v1",
+  "kind": "skill",
+  "id": "1bdcd4029a95209c62fa7be88980554203f4a0c6dbb1a50a474c071ba379dd1a",
+  "created_at": "2026-03-09T07:04:28.580Z",
+  "last_seen_at": "2026-03-09T07:04:28.580Z",
+  "tags": [
+    "architecture",
+    "kb-bridge",
+    "packs",
+    "policy"
+  ],
+  "payload": {
+    "title": "Behavior Pack Architecture",
+    "bullets": [
+      "Packs are content-addressed policy bundles",
+      "Each pack pins specific card hashes for reproducibility",
+      "Policies include search_boost, blocked_tags, allowed_tags",
+      "Active pack is stored in data/packs/active.json",
+      "Pack closure export collects all transitive dependencies",
+      "Deterministic scoring uses fixed weight constants"
+    ],
+    "source_card_id": "card_d5b49f02-cb5e-4cad-8549-cd6761c79551"
+  },
+  "refs": []
+}

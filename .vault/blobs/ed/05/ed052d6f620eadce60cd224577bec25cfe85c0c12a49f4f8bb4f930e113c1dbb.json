@@ -1,0 +1,19 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "ed052d6f620eadce60cd224577bec25cfe85c0c12a49f4f8bb4f930e113c1dbb",
+  "created_at": "2026-03-09T07:04:28.181Z",
+  "last_seen_at": "2026-03-09T07:04:28.181Z",
+  "tags": [
+    "identity",
+    "kb-bridge",
+    "policy",
+    "rosetta-docs"
+  ],
+  "payload": {
+    "title": "Identity Policy",
+    "text": "dentity Policy — Rosetta Cards MCP\nCore Principle\n\nAll artifact identity is determined solely by the canonicalized JSON payload passed to canonicalHash().\n\nIdentity must be:\n\ndeterministic\n\nreproducible\n\nindependent of environment\n\nimmune to accidental mutation\n\nDerived outputs (index, PNG, embeddings, etc.) must never influence identity.\n\nArtifact Identity Rules\n1. card.v1\n\ncreated_at is included in the hashed payload.\n\nIt must be explicitly provided at construction time.\n\nIt must not be auto-generated inside hashing logic.\n\nCards represent minted artifacts (content + moment-of-mint).\n\nAllowed inside hash:\n\ncreated_at\n\nstructural content fields\n\nForbidden:\n\nprototype pollution keys (__proto__, prototype, constructor)\n\n2. event.v1\n\nTimestamps must not contaminate identity.\n\noccurred_at, created_at, updated_at, timestamp, time\nare strictly forbidden inside the hashed payload.\n\nProvenance/source fields are also forbidden inside the hashed payload.\n\nThese values must live in Meta sidecar artifacts.\n\nEvents represent structural occurrences, not clock-bound objects.\n\n3. meta.v1\n\nMeta artifacts never affect identity.\n\nMeta is mutable.\n\nMerge semantics: last-write-wins (LWW) unless otherwise specified.\n\n4. summary.*.v1\n\nIdentity is derived from:\n\nnormalized inputs\n\nsorted reference hashes\n\nsummary content\n\nReference order must not affect hash.\n\nUniversal Prohibitions\n\nAll artifacts must reject:\n\n__proto__\n\nprototype\n\nconstructor\n\nPrototype pollution must never reach canonicalHash().\n\nHash Boundary Rule\n\ncanonicalHash() must only receive validated, schema-strict, artifact-approved payloads.\n\nArtifact-specific guards must enforce:\n\nevent timestamp prohibition\n\nproto pollution rejection\n\nany artifact-specific exclusions\n\nDerived Artifacts\n\nThe following must never affect identity:\n\nPNG renders\n\nindex snapshots\n\nembeddings\n\nstorage reports\n\ncold archives\n\nDerived outputs must be rebuildable from identity + meta.\n\nTesting Requirements\n\nAll artifact types must include:\n\nDetermin",
+    "source_doc_id": "doc_59d2fd38-11f5-454d-88db-a564508ae33a"
+  },
+  "refs": []
+}

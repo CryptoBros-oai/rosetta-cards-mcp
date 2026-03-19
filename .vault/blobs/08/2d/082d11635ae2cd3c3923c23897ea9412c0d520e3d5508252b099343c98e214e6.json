@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "082d11635ae2cd3c3923c23897ea9412c0d520e3d5508252b099343c98e214e6",
+  "created_at": "2026-03-09T07:04:28.507Z",
+  "last_seen_at": "2026-03-09T07:04:28.507Z",
+  "tags": [
+    "architecture",
+    "determinism",
+    "kb-bridge",
+    "mcp",
+    "rosetta"
+  ],
+  "payload": {
+    "title": "Rosetta Cortex MCP: Genesis Architecture",
+    "text": "The Rosetta Cortex MCP implements a deterministic artifact vault.\nIdentity is derived from canonical bytes, not timestamps or random IDs.\nMetaV1 sidecars separate provenance from identity.\nWeekly summaries synthesize events and cards into reproducible artifacts.\nThe index snapshot is a rebuildable derived view over all artifacts.",
+    "source_doc_id": "doc_genesis_rosetta_v1"
+  },
+  "refs": []
+}

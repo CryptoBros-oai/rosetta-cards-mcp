@@ -23,6 +23,7 @@ import {
 } from "./corpus_import.js";
 import { saveExecutionCard } from "./vault.js";
 import { promoteFactsHook, promoteSkillsHook, promoteSummaryHook } from "./promotion_hooks.js";
+import { bridgeDocsToVault, bridgeCardsToVault } from "./vault_bridge.js";
 
 const RunLocalCorpusImportSchema = RunLocalCorpusImportInputSchema;
 const RunGithubCorpusImportSchema = RunGithubCorpusImportInputSchema;
@@ -62,6 +63,12 @@ export type CorpusHookResult<TImport> = {
     skill_hashes: string[];
     summary_id?: string;
     summary_hash?: string;
+  };
+  vault_bridge: {
+    docs_bridged: number;
+    docs_skipped: number;
+    cards_bridged: number;
+    cards_skipped: number;
   };
 };
 
@@ -292,12 +299,23 @@ async function withFollowups<TImport extends { doc_ids: string[] }>(
     promotion.summary_hash = summary.summary_hash;
   }
 
+  // ── Bridge KB artifacts into the vault ──────────────────────────────────
+  const docBridge = await bridgeDocsToVault(baseImport.doc_ids);
+  const cardBridge = await bridgeCardsToVault(build.built_card_ids);
+  const vault_bridge = {
+    docs_bridged: docBridge.bridged,
+    docs_skipped: docBridge.skipped,
+    cards_bridged: cardBridge.bridged,
+    cards_skipped: cardBridge.skipped,
+  };
+
   if (!followups.export_graph) {
     return {
       import: baseImport,
       build,
       graph: { exported: false },
       promotion,
+      vault_bridge,
     };
   }
 
@@ -317,6 +335,7 @@ async function withFollowups<TImport extends { doc_ids: string[] }>(
       edge_count: graph.edge_count,
     },
     promotion,
+    vault_bridge,
   };
 }
 

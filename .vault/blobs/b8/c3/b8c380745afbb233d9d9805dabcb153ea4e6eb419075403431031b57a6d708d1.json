@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "b8c380745afbb233d9d9805dabcb153ea4e6eb419075403431031b57a6d708d1",
+  "created_at": "2026-03-09T07:04:28.680Z",
+  "last_seen_at": "2026-03-09T07:04:28.680Z",
+  "tags": [
+    "file",
+    "kb-bridge",
+    "md",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Blessing Workflow v1",
+    "bullets": [],
+    "source_card_id": "card_file_eec2f3d5a581"
+  },
+  "refs": []
+}

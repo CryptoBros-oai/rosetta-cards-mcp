@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "fd17e3ae8cf9d5e32264079573174d2d4b187ebc1c448930c1ab10514e8cb7ed",
+  "created_at": "2026-03-09T07:04:28.646Z",
+  "last_seen_at": "2026-03-09T07:04:28.646Z",
+  "tags": [
+    "file",
+    "kb-bridge",
+    "md",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Flows",
+    "bullets": [],
+    "source_card_id": "card_file_227b5f965d06"
+  },
+  "refs": []
+}

@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "f5662f49b3d32cbcd73a8558c41ccc1e4c468a6204d0e1b85c3f028203108763",
+  "created_at": "2026-03-09T07:04:28.701Z",
+  "last_seen_at": "2026-03-09T07:04:28.701Z",
+  "tags": [
+    "fact",
+    "kb-bridge",
+    "promotion",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Promotion Pipeline v1",
+    "bullets": [],
+    "source_card_id": "card_pfact_6a7be2c4fc64"
+  },
+  "refs": []
+}

@@ -1,0 +1,27 @@
+{
+  "version": "artifact_v1",
+  "kind": "skill",
+  "id": "61130428d4f5540c34f5874f14dadcff47fa2f2e87e3a7ebaab8123228f469ad",
+  "created_at": "2026-03-09T07:04:28.577Z",
+  "last_seen_at": "2026-03-09T07:04:28.577Z",
+  "tags": [
+    "api",
+    "kb-bridge",
+    "mcp",
+    "server",
+    "tools"
+  ],
+  "payload": {
+    "title": "MCP Server Tool Interface",
+    "bullets": [
+      "kb.add_document — ingest text with tags and source URL",
+      "kb.build_card — render a card from a document chunk",
+      "kb.search — lexical cosine search with pack-aware scoring",
+      "kb.get_card — retrieve card JSON and PNG path by ID",
+      "Server uses stdio transport for editor integration",
+      "Schema-first design using Zod for all payloads"
+    ],
+    "source_card_id": "card_d04ab61a-4317-43a0-9808-aed7c6796a1f"
+  },
+  "refs": []
+}

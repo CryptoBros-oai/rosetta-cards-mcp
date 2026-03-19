@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "775573faed6dcb418d46cf6481cc82221d954aed7598889ac3e00bab462d1156",
+  "created_at": "2026-03-09T07:04:28.699Z",
+  "last_seen_at": "2026-03-09T07:04:28.699Z",
+  "tags": [
+    "fact",
+    "kb-bridge",
+    "promotion",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Artifact Types",
+    "bullets": [],
+    "source_card_id": "card_pfact_5fa018846d28"
+  },
+  "refs": []
+}

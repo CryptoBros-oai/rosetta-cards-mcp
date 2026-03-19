@@ -1,0 +1,19 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "ff0ae57c893281dfb469c6126be3733a924b22e50534cb2edc34d2882275cd80",
+  "created_at": "2026-03-09T07:04:28.339Z",
+  "last_seen_at": "2026-03-09T07:04:28.339Z",
+  "tags": [
+    "approved",
+    "kb-bridge",
+    "normal",
+    "safe"
+  ],
+  "payload": {
+    "title": "Allowed Test",
+    "text": "Some text",
+    "source_doc_id": "doc_b404bb86-372f-40a3-bfde-028b5a8c65cd"
+  },
+  "refs": []
+}

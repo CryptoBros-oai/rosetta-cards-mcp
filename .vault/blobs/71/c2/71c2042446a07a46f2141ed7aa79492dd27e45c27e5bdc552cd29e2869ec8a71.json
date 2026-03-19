@@ -1,0 +1,19 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "71c2042446a07a46f2141ed7aa79492dd27e45c27e5bdc552cd29e2869ec8a71",
+  "created_at": "2026-03-09T07:04:28.539Z",
+  "last_seen_at": "2026-03-09T07:04:28.539Z",
+  "tags": [
+    "chat",
+    "drain",
+    "kb-bridge",
+    "private"
+  ],
+  "payload": {
+    "title": "Blocked Drain [5/10]",
+    "bullets": [],
+    "source_card_id": "card_chunk_51811be7a1fe"
+  },
+  "refs": []
+}

@@ -1,0 +1,18 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "b2a9c64b68b0792d848a2fd3b5171f777fae3a04fe118b3aac45eda4690bbfbb",
+  "created_at": "2026-03-09T07:04:28.322Z",
+  "last_seen_at": "2026-03-09T07:04:28.322Z",
+  "tags": [
+    "kb-bridge",
+    "rosetta-docs",
+    "user-guide"
+  ],
+  "payload": {
+    "title": "User Guide",
+    "text": "# Rosetta Cards MCP -- User Guide\n\n**Version 0.1.0**\n\nThis guide covers every feature, tool, terminal interface screen, and use case\nin the Rosetta Cards MCP system. It is written for humans who want to understand\nwhat the software does and how to use it, from first launch to advanced\noperations.\n\n---\n\n## Table of Contents\n\n1. [What Is Rosetta Cards MCP?](#1-what-is-rosetta-cards-mcp)\n2. [Installation and First Run](#2-installation-and-first-run)\n3. [Core Concepts](#3-core-concepts)\n   - [Artifacts](#31-artifacts)\n   - [Content Addressing](#32-content-addressing)\n   - [The Vault](#33-the-vault)\n   - [Knowledge Cards](#34-knowledge-cards)\n   - [NFT Tiers](#35-nft-tiers)\n4. [The Terminal Interface (TUI)](#4-the-terminal-interface-tui)\n   - [Global Navigation](#41-global-navigation)\n   - [Screen 1 -- Browse](#42-screen-1----browse)\n   - [Screen 2 -- Build Card](#43-screen-2----build-card)\n   - [Screen 3 -- Bundles](#44-screen-3----bundles)\n   - [Screen 4 -- Pinsets and Behavior Packs](#45-screen-4----pinsets-and-behavior-packs)\n   - [Screen 5 -- Corpus Import](#46-screen-5----corpus-import)\n5. [MCP Tools Reference](#5-mcp-tools-reference)\n   - [vault.* -- Artifact Vault](#51-vault----artifact-vault)\n   - [kb.* -- Knowledge Base](#52-kb----knowledge-base)\n   - [memory.* -- Session Memory](#53-memory----session-memory)\n   - [vm.* -- Virtual Machine](#54-vm----virtual-machine)\n   - [execution.* -- Pipeline Traversal](#55-execution----pipeline-traversal)\n   - [artifact.* -- Lifecycle Management](#56-artifact----lifecycle-management)\n   - [corpus.* -- Corpus Import](#57-corpus----corpus-import)\n   - [promotion.* -- Knowledge Promotion](#58-promotion----knowledge-promotion)\n6. [Search: Lexical, Semantic, and Hybrid](#6-search-lexical-semantic-and-hybrid)\n7. [Embedding Setup](#7-embedding-setup)\n8. [Progressive Memory](#8-progressive-memory)\n9. [The Deterministic VM](#9-the-deterministic-vm)\n10. [Corpus Import Workflows](#10-corpus-import-workflows)\n11. [Artifact Blessing and",
+    "source_doc_id": "doc_a39e64b0-0ffb-45bd-b206-61b016ad2bb9"
+  },
+  "refs": []
+}

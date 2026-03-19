@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "e77bae09a33e8db619a530d282612a66f90719009a4a3f9f3ae58bf6be631c60",
+  "created_at": "2026-03-09T07:04:28.651Z",
+  "last_seen_at": "2026-03-09T07:04:28.651Z",
+  "tags": [
+    "file",
+    "kb-bridge",
+    "md",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "EXECUTION Artifact v1",
+    "bullets": [],
+    "source_card_id": "card_file_34b9432a4eda"
+  },
+  "refs": []
+}

@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "3c11502dbf1ea7dae779834edf3df1cbaff8424f564a3cfdab46bffd11e86075",
+  "created_at": "2026-03-09T07:04:28.671Z",
+  "last_seen_at": "2026-03-09T07:04:28.671Z",
+  "tags": [
+    "file",
+    "kb-bridge",
+    "md",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Corpus Import v0.1",
+    "bullets": [],
+    "source_card_id": "card_file_bf504c42152c"
+  },
+  "refs": []
+}

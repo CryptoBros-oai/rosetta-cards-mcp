@@ -1,0 +1,19 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "6b379edcda444897129b44d628d1c4180a01d1789da9f08b0b6e07dff2c93068",
+  "created_at": "2026-03-09T07:04:28.536Z",
+  "last_seen_at": "2026-03-09T07:04:28.536Z",
+  "tags": [
+    "chat",
+    "drain",
+    "kb-bridge",
+    "secret"
+  ],
+  "payload": {
+    "title": "Secret chat [1/1]",
+    "bullets": [],
+    "source_card_id": "card_chunk_48b0da8d7a4d"
+  },
+  "refs": []
+}

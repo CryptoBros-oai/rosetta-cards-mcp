@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "bda7e7ea89fc7ec760313c0b3e540eb1c4711dd032ee66e9b453249f8664348d",
+  "created_at": "2026-03-09T07:04:28.713Z",
+  "last_seen_at": "2026-03-09T07:04:28.713Z",
+  "tags": [
+    "fact",
+    "kb-bridge",
+    "promotion",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "META Artifact v1 — Sidecar Specification",
+    "bullets": [],
+    "source_card_id": "card_pfact_a3ae40c263b1"
+  },
+  "refs": []
+}

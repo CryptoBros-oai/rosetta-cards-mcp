@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "974c27e2d13f5cdcd951303e08e808a5d4d11499bc87551cb1edcad2f002e071",
+  "created_at": "2026-03-09T07:04:28.689Z",
+  "last_seen_at": "2026-03-09T07:04:28.689Z",
+  "tags": [
+    "fact",
+    "kb-bridge",
+    "promotion",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "EXECUTION Artifact v1",
+    "bullets": [],
+    "source_card_id": "card_pfact_203b9ca035f4"
+  },
+  "refs": []
+}

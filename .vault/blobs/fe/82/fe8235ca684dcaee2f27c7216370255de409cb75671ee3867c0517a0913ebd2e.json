@@ -1,0 +1,21 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "fe8235ca684dcaee2f27c7216370255de409cb75671ee3867c0517a0913ebd2e",
+  "created_at": "2026-03-09T07:04:28.606Z",
+  "last_seen_at": "2026-03-09T07:04:28.606Z",
+  "tags": [
+    "corpus",
+    "import",
+    "kb-bridge",
+    "local",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Corpus import step 8/16",
+    "bullets": [],
+    "source_card_id": "card_execution_359f21fcbd0c"
+  },
+  "refs": []
+}

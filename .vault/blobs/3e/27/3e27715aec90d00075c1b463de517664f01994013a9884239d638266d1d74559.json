@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "3e27715aec90d00075c1b463de517664f01994013a9884239d638266d1d74559",
+  "created_at": "2026-03-09T07:04:28.641Z",
+  "last_seen_at": "2026-03-09T07:04:28.641Z",
+  "tags": [
+    "file",
+    "kb-bridge",
+    "md",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "RA-ISA: Rosetta Artifact Instruction Set Architecture",
+    "bullets": [],
+    "source_card_id": "card_file_1737d15d8529"
+  },
+  "refs": []
+}

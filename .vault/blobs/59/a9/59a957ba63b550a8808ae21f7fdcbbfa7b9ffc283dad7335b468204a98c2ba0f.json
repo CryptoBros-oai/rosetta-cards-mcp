@@ -1,0 +1,19 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "59a957ba63b550a8808ae21f7fdcbbfa7b9ffc283dad7335b468204a98c2ba0f",
+  "created_at": "2026-03-09T07:04:28.413Z",
+  "last_seen_at": "2026-03-09T07:04:28.413Z",
+  "tags": [
+    "files",
+    "ingestion",
+    "kb-bridge",
+    "pipeline"
+  ],
+  "payload": {
+    "title": "File Ingestion Pipeline",
+    "text": "Binary files are stored as content-addressed blobs\nText extraction supports DOCX (mammoth) and PDF (pdf-parse)\nEach file produces a FileArtifact card with blob and text refs\nFolder ingestion creates a FolderIndex card with file list\nAn IngestReport card summarizes the ingestion run\nAll hashes are deterministic for deduplication",
+    "source_doc_id": "doc_ca1a3b9f-57d9-4f04-9c24-6faf3a75d7a6"
+  },
+  "refs": []
+}

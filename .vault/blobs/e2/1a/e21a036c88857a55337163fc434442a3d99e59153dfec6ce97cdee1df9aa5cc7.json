@@ -1,0 +1,19 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "e21a036c88857a55337163fc434442a3d99e59153dfec6ce97cdee1df9aa5cc7",
+  "created_at": "2026-03-09T07:04:28.092Z",
+  "last_seen_at": "2026-03-09T07:04:28.092Z",
+  "tags": [
+    "chunking",
+    "drain",
+    "kb-bridge",
+    "protocol"
+  ],
+  "payload": {
+    "title": "Context Drain Protocol",
+    "text": "Drain detects when chat text exceeds targetMaxChars\nText is chunked at paragraph boundaries respecting chunkChars\nEach chunk becomes a ChatChunk card with prev/next pointers\nA ChatLogIndex card references all chunks in order\nOriginal text hash is preserved for deduplication\nDrain returns drained:false when text is below threshold",
+    "source_doc_id": "doc_24c74034-6bf0-4842-9587-3418f3ce6ba2"
+  },
+  "refs": []
+}

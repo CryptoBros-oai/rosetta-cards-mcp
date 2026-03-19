@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "bf7ade30811470391c91181ae40a86c8fb15da84cd30bf3f56a4e6da114f99d7",
+  "created_at": "2026-03-09T07:04:28.662Z",
+  "last_seen_at": "2026-03-09T07:04:28.662Z",
+  "tags": [
+    "file",
+    "kb-bridge",
+    "md",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Rosetta Cards MCP — Knowledge Base",
+    "bullets": [],
+    "source_card_id": "card_file_71445d40fc8e"
+  },
+  "refs": []
+}

@@ -1,0 +1,19 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "e426b1318aa73b92b95d88ab0418c18ef2fc05f08fcd5e15ec5a208288a41551",
+  "created_at": "2026-03-09T07:04:28.459Z",
+  "last_seen_at": "2026-03-09T07:04:28.459Z",
+  "tags": [
+    "determinism",
+    "kb-bridge",
+    "policy",
+    "rosetta-docs"
+  ],
+  "payload": {
+    "title": "Deterministic Hardening",
+    "text": "Yep. If we want the Cortex to expand without turning into a haunted attic, we harden **at the seams**: input boundary, hash boundary, and storage boundary. 🧠🛡️\n\nHere’s a concrete “next hardening pass” that keeps your determinism doctrine intact *and* makes future expansion safe.\n\n---\n\n## 1) Add a strict **Input Schema** for raw args (reject unknown root keys)\n\nRight now: root extras get silently ignored (by the explicit pick). That’s deterministic, but it can hide caller bugs.\n\n**Goal:** reject unknown keys at the *raw* input boundary, before we pick fields.\n\n### Pattern\n\n* `EventCardInputSchema = z.object({...}).strict()`\n* In `createEventCard(args)`: `const parsed = EventCardInputSchema.parse(args)`\n* Then build `base` from `parsed` (still explicit pick).\n\nThis keeps your current hash invariants, but now you get hygiene and early failure.\n\n```ts\n// src/kb/schema.ts (or hooks.ts if you prefer locality)\nexport const EventCardInputSchema = z.object({\n  title: z.string(),\n  summary: z.string(),\n  event: EventBlockSchema,   // already .strict()\n  tags: z.array(z.string()),\n  rosetta: RosettaBlockSchema, // already .strict()\n}).strict();\n```\n\n```ts\n// src/kb/hooks.ts\nexport async function createEventCard(args: unknown) {\n  const parsed = EventCardInputSchema.parse(args);\n\n  const base = {\n    schema_version: \"event.v1\",\n    artifact_type: \"event\",\n    title: parsed.title,\n    summary: parsed.summary,\n    event: parsed.event,\n    tags: parsed.tags,\n    rosetta: parsed.rosetta,\n  };\n\n  // ... canonicalHash(base) ...\n}\n```\n\n✅ Result: callers can’t sneak root keys (or typo them) without getting slapped immediately.\n\n---\n\n## 2) Add a “prohibited keys” runtime tripwire *right before hashing*\n\nEven with Zod strictness, it’s smart to add a paranoid guard at the “hash membrane.”\n\n**Goal:** if any forbidden field ever appears anywhere in the object you’re about to hash, explode loudly.\n\n```ts\nconst PROHIBITED_KEYS = new Set([\n  \"occurred_at\", \"created_at\", \"updated_at\",\n  \"sour",
+    "source_doc_id": "doc_ea4cc3fc-d58b-4341-918f-dafc4e421acb"
+  },
+  "refs": []
+}

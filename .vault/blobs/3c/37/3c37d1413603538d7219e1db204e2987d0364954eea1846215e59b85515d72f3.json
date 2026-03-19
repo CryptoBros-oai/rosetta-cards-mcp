@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "3c37d1413603538d7219e1db204e2987d0364954eea1846215e59b85515d72f3",
+  "created_at": "2026-03-09T07:04:28.664Z",
+  "last_seen_at": "2026-03-09T07:04:28.664Z",
+  "tags": [
+    "file",
+    "kb-bridge",
+    "md",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Rosetta Cards — Canonical Serialization Format",
+    "bullets": [],
+    "source_card_id": "card_file_9881aa6f5a42"
+  },
+  "refs": []
+}

@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "ab7f9865aa2334d6bc00351036adf48b18a15117c9353b96842e0544f175e7db",
+  "created_at": "2026-03-09T07:04:28.691Z",
+  "last_seen_at": "2026-03-09T07:04:28.691Z",
+  "tags": [
+    "fact",
+    "kb-bridge",
+    "promotion",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Vault Contract v1",
+    "bullets": [],
+    "source_card_id": "card_pfact_2792bab5d1b6"
+  },
+  "refs": []
+}

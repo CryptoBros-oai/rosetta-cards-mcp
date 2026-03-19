@@ -1,0 +1,18 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "d31214360da77805a65996f682a5c262b73cc02be8abdd2f2436b7060bbacda0",
+  "created_at": "2026-03-09T07:04:28.223Z",
+  "last_seen_at": "2026-03-09T07:04:28.223Z",
+  "tags": [
+    "kb-bridge",
+    "normal",
+    "secret"
+  ],
+  "payload": {
+    "title": "Blocked Test",
+    "text": "Some text",
+    "source_doc_id": "doc_76e6f2c4-defe-42ac-953e-1abd4a521267"
+  },
+  "refs": []
+}

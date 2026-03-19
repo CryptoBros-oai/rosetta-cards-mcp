@@ -1,0 +1,18 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "8aa3ef96ee7e1edd562ee643f3f8671aa6288894d6049c37d3f1afee0a2e7648",
+  "created_at": "2026-03-09T07:04:28.465Z",
+  "last_seen_at": "2026-03-09T07:04:28.465Z",
+  "tags": [
+    "kb-bridge",
+    "readme",
+    "rosetta-docs"
+  ],
+  "payload": {
+    "title": "README",
+    "text": "# Rosetta Cards MCP (v0.1)\nSee /DOCS/KB FOLDER DOCUMENTS before modifying any schema or hashing logic.\n\nA minimal MCP server that turns plain text / notes into **visual knowledge cards**:\n\n- `card.json` (structured, versioned, hashed)\n- `card.png` (1200×675 infographic with optional QR payload)\n- a simple searchable index (lexical cosine today; swap to embeddings later)\n\n## What this implementation inputs and outputs\n\n### Inputs\n\n- A document: `{ title, text, tags?, source_url? }`\n- Optionally select a `chunk_id` (documents are chunked by paragraphs)\n\n### Outputs\n\n- A **doc record** on disk:\n  - `data/docs/<doc_id>.json` (raw + chunks)\n- A **card artifact** on disk:\n  - `data/cards/<card_id>.json` (CardPayload v1)\n  - `data/cards/<card_id>.png` (rendered card image)\n- A **search index** on disk:\n  - `data/index/cards_index.json` (simple lexical vector index)\n\nQR payload (if enabled) contains a compact pointer:\n`{ version, card_id, hash, sources[] }`\n\n## Tools exposed (MCP)\n\n- `kb.add_document`\n- `kb.build_card`\n- `kb.search`\n- `kb.get_card`\n\n## Setup\n\n```bash\nbash scripts/bootstrap.sh\n```\n\n## Run\n\n```bash\nnpm run dev\n```\n\nConnect your MCP client to the server via stdio.\n\n## Search Ranking\n\nSearch results are ranked by a deterministic scoring module (`src/kb/search_rank.ts`)\nwith fixed-weight constants (no ML, no randomness):\n\n| Signal                                | Points   | Cap  |\n| ------------------------------------- | -------- | ---- |\n| Pinned in active pack                 | +500     | —    |\n| Exact title match (case-insensitive)  | +100     | —    |\n| Title token matches                   | +40 each | +120 |\n| Tag exact matches                     | +25 each | +100 |\n| Pack allowed_tags match artifact tags | +10 each | +50  |\n| Text contains query substring         | +30      | —    |\n\nTies are broken by `artifact_id` (lexicographic), then `title` (lexicographic).\n\n## Export Active Pack\n\nExport only the active behavior pack and its transitive closure:\n\n`",
+    "source_doc_id": "doc_eb8d79b5-5f4b-49a9-8b67-89ea6f54fad6"
+  },
+  "refs": []
+}

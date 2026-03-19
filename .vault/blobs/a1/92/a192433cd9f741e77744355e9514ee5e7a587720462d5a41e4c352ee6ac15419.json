@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "a192433cd9f741e77744355e9514ee5e7a587720462d5a41e4c352ee6ac15419",
+  "created_at": "2026-03-09T07:04:28.656Z",
+  "last_seen_at": "2026-03-09T07:04:28.656Z",
+  "tags": [
+    "file",
+    "kb-bridge",
+    "md",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "Contributing: Adding a new artifact type",
+    "bullets": [],
+    "source_card_id": "card_file_4dc29ebc4bc5"
+  },
+  "refs": []
+}

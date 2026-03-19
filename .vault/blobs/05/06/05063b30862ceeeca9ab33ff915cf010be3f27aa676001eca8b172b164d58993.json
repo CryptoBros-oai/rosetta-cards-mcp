@@ -1,0 +1,18 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "05063b30862ceeeca9ab33ff915cf010be3f27aa676001eca8b172b164d58993",
+  "created_at": "2026-03-09T07:04:28.746Z",
+  "last_seen_at": "2026-03-09T07:04:28.746Z",
+  "tags": [
+    "ingest",
+    "kb-bridge",
+    "report"
+  ],
+  "payload": {
+    "title": "Ingest: tmp_block_test",
+    "bullets": [],
+    "source_card_id": "card_report_fc4eeec4819e"
+  },
+  "refs": []
+}

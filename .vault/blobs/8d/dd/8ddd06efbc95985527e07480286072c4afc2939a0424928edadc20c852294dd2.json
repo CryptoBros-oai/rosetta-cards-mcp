@@ -1,0 +1,20 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "8ddd06efbc95985527e07480286072c4afc2939a0424928edadc20c852294dd2",
+  "created_at": "2026-03-09T07:04:28.678Z",
+  "last_seen_at": "2026-03-09T07:04:28.678Z",
+  "tags": [
+    "file",
+    "kb-bridge",
+    "md",
+    "rosetta-docs",
+    "self-reference"
+  ],
+  "payload": {
+    "title": "EVENT Artifact v1",
+    "bullets": [],
+    "source_card_id": "card_file_cfbf560e8a75"
+  },
+  "refs": []
+}

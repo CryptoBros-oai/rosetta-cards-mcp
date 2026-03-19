@@ -1,0 +1,19 @@
+{
+  "version": "artifact_v1",
+  "kind": "fact",
+  "id": "061ffc396393a074ba50d89aa1491ba64d464a3dfff20b301a8a3af365dacae5",
+  "created_at": "2026-03-09T07:04:28.025Z",
+  "last_seen_at": "2026-03-09T07:04:28.025Z",
+  "tags": [
+    "architecture",
+    "kb-bridge",
+    "packs",
+    "policy"
+  ],
+  "payload": {
+    "title": "Behavior Pack Architecture",
+    "text": "Packs are content-addressed policy bundles\nEach pack pins specific card hashes for reproducibility\nPolicies include search_boost, blocked_tags, allowed_tags\nActive pack is stored in data/packs/active.json\nPack closure export collects all transitive dependencies\nDeterministic scoring uses fixed weight constants",
+    "source_doc_id": "doc_0ac6cba8-bdf0-4d06-8468-5626f71b7663"
+  },
+  "refs": []
+}
